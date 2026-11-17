@@ -4,11 +4,13 @@ import {
   Layers,
   type LucideIcon,
   Puzzle,
+  Search,
   Settings,
   Timer,
   Waypoints,
 } from "lucide-react";
 import { NavLink, Outlet } from "react-router";
+import { NoteTitlesSync } from "../features/notes/titles";
 
 interface NavItem {
   to: string;
@@ -22,7 +24,8 @@ const NAV: NavItem[] = [
   { to: "/", label: "Início", icon: House, mobile: true },
   { to: "/notas", label: "Notas", icon: BookOpen, mobile: true },
   { to: "/revisao", label: "Revisão", icon: Layers, mobile: true },
-  { to: "/grafo", label: "Grafo", icon: Waypoints, mobile: true },
+  { to: "/busca", label: "Buscar", icon: Search, mobile: true },
+  { to: "/grafo", label: "Grafo", icon: Waypoints, mobile: false },
   { to: "/foco", label: "Foco", icon: Timer, mobile: false },
   { to: "/plugins", label: "Plugins", icon: Puzzle, mobile: false },
   { to: "/ajustes", label: "Ajustes", icon: Settings, mobile: true },
@@ -31,6 +34,7 @@ const NAV: NavItem[] = [
 export function AppShell() {
   return (
     <div className="flex h-full flex-col md:flex-row">
+      <NoteTitlesSync />
       <nav
         aria-label="Principal"
         className="hidden w-56 shrink-0 flex-col gap-1 border-r border-line bg-surface p-3 md:flex"

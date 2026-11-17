@@ -8,7 +8,14 @@ export {
   type Statement,
 } from "./driver";
 export { type Migration, migrate } from "./migrate";
+export * from "./queries/assets";
+export * from "./queries/backup";
 export { active, softDelete } from "./queries/base";
+export * from "./queries/cards";
+export * from "./queries/decks";
+export * from "./queries/notes";
+export * from "./queries/search";
 export { getSetting, setSetting } from "./queries/settings";
+export * from "./queries/subjects";
 export * as schema from "./schema";
 export { newId } from "./schema";

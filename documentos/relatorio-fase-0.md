@@ -14,24 +14,24 @@ rodou em um aparelho ainda.
 
 ## Situação por item
 
-| Item | Situação |
-|---|---|
-| Monorepo, app React + Vite, Tailwind, tema claro/escuro | Feito |
-| Navegação (lateral no computador, inferior no celular) | Feito |
-| Schema (11 tabelas), migrações, driver do navegador | Feito |
-| Escrita atômica, leitura reativa, camada de consultas | Feito |
-| Armazenamento de arquivos (imagens, modelos) | Feito |
-| Contrato de plugins (manifesto e protocolo) | Feito |
-| Plugins com vários arquivos | Feito |
-| PWA: instalável e offline | Feito |
-| Prova 1 na web: banco persiste | Passou |
-| Prova 2 na web: plugin isolado com 3D | Passou |
-| CI | Escrito; nunca executado em servidor (não há repositório remoto) |
-| Projeto Android (Capacitor) | Gerado; nunca compilado |
-| Driver SQLite do Android | Não escrito |
-| Provas 1 e 2 no Android | Não feitas |
-| Prova com modelo GLB e biblioteca 3D reais | Não feita |
-| shadcn/ui | Movido para o primeiro passo da Fase 1 |
+| Item                                                    | Situação                                                         |
+| ------------------------------------------------------- | ---------------------------------------------------------------- |
+| Monorepo, app React + Vite, Tailwind, tema claro/escuro | Feito                                                            |
+| Navegação (lateral no computador, inferior no celular)  | Feito                                                            |
+| Schema (11 tabelas), migrações, driver do navegador     | Feito                                                            |
+| Escrita atômica, leitura reativa, camada de consultas   | Feito                                                            |
+| Armazenamento de arquivos (imagens, modelos)            | Feito                                                            |
+| Contrato de plugins (manifesto e protocolo)             | Feito                                                            |
+| Plugins com vários arquivos                             | Feito                                                            |
+| PWA: instalável e offline                               | Feito                                                            |
+| Prova 1 na web: banco persiste                          | Passou                                                           |
+| Prova 2 na web: plugin isolado com 3D                   | Passou                                                           |
+| CI                                                      | Escrito; nunca executado em servidor (não há repositório remoto) |
+| Projeto Android (Capacitor)                             | Gerado; nunca compilado                                          |
+| Driver SQLite do Android                                | Não escrito                                                      |
+| Provas 1 e 2 no Android                                 | Não feitas                                                       |
+| Prova com modelo GLB e biblioteca 3D reais              | Não feita                                                        |
+| shadcn/ui                                               | Movido para o primeiro passo da Fase 1                           |
 
 ## Verificação
 
@@ -77,28 +77,28 @@ repetir com uma biblioteca 3D empacotada e um arquivo GLB.
 
 ### Bloqueavam o início da Fase 1
 
-| Problema | Solução |
-|---|---|
+| Problema                                                                                                                                  | Solução                                                                                                                                                                                    |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Transações não eram seguras: com uma única conexão e chamadas assíncronas, a consulta de uma tela podia cair dentro da transação de outra | O driver ganhou uma operação em lote que roda inteira dentro do worker, sem pausas. Usa-se `db.batch([...])`; `db.transaction()` está proibida. As migrações também passaram a usar o lote |
-| Não existia o mecanismo de leitura reativa que o plano prometia | Toda escrita avisa automaticamente qual tabela mudou, e o hook `useLiveQuery` refaz a consulta das telas que observam essa tabela |
-| Exclusão lógica e `updated_at` dependiam de cada tela lembrar | Criada a camada `packages/db/src/queries/` com o filtro `active`, `softDelete` e as funções de `settings`. Telas não escrevem SQL |
+| Não existia o mecanismo de leitura reativa que o plano prometia                                                                           | Toda escrita avisa automaticamente qual tabela mudou, e o hook `useLiveQuery` refaz a consulta das telas que observam essa tabela                                                          |
+| Exclusão lógica e `updated_at` dependiam de cada tela lembrar                                                                             | Criada a camada `packages/db/src/queries/` com o filtro `active`, `softDelete` e as funções de `settings`. Telas não escrevem SQL                                                          |
 
 ### Encaminhadas nesta rodada
 
-| Problema | Solução |
-|---|---|
+| Problema                                       | Solução                                                                                                                                                                                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Plugins com mais de um arquivo não funcionavam | O app lê o manifesto, embute o código e o estilo referenciados pela página de entrada e entrega os demais arquivos sob demanda (`plugin.readFile`), por transferência sem cópia. Caminhos fora da pasta do plugin são recusados |
-| PWA estava na stack mas em nenhuma fase | Implementado: manifesto, ícones e service worker que guarda o app, o SQLite e os plugins embutidos. No Android o service worker não é registrado |
-| Preferências em dois lugares sem regra | Oficializado: preferências do aparelho (tema) no armazenamento local, sem sync; preferências de estudo na tabela `settings` |
+| PWA estava na stack mas em nenhuma fase        | Implementado: manifesto, ícones e service worker que guarda o app, o SQLite e os plugins embutidos. No Android o service worker não é registrado                                                                                |
+| Preferências em dois lugares sem regra         | Oficializado: preferências do aparelho (tema) no armazenamento local, sem sync; preferências de estudo na tabela `settings`                                                                                                     |
 
 ### Menores
 
-| Problema | Solução |
-|---|---|
-| A tabela `assets` não dizia onde os bytes ficam | Criado o `AssetStore`: arquivos em uma pasta privada do app (OPFS), nomeados pelo hash SHA-256. A tabela guarda só metadados |
-| O plano usava `fallback.image` e o schema `imageAssetId` | Plano alinhado ao schema (`imageAssetId`) |
-| O app só abria em uma aba, sem explicação | A segunda aba explica o motivo e assume sozinha quando a primeira fecha |
-| Risco do SQLite no Android aberto | Não resolvido: depende de instalar o Android Studio |
+| Problema                                                 | Solução                                                                                                                      |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| A tabela `assets` não dizia onde os bytes ficam          | Criado o `AssetStore`: arquivos em uma pasta privada do app (OPFS), nomeados pelo hash SHA-256. A tabela guarda só metadados |
+| O plano usava `fallback.image` e o schema `imageAssetId` | Plano alinhado ao schema (`imageAssetId`)                                                                                    |
+| O app só abria em uma aba, sem explicação                | A segunda aba explica o motivo e assume sozinha quando a primeira fecha                                                      |
+| Risco do SQLite no Android aberto                        | Não resolvido: depende de instalar o Android Studio                                                                          |
 
 ## Pendências
 

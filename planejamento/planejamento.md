@@ -360,15 +360,16 @@ Achado da Prova 2: um iframe isolado ainda consegue navegar a si mesmo para um s
 Relatório completo: `documentos/relatorio-fase-0.md`.
 
 ### Fase 1 — Notas e Flashcards
-Em ordem; cada passo entrega algo utilizável.
-- [ ] shadcn/ui + hierarquia matéria > tópico > subtópico (criar, renomear, mover, excluir)
-- [ ] Editor de notas (TipTap) com salvamento automático, links `[[...]]` com sugestão, tabela `links` e "notas que apontam para esta"
-- [ ] Decks e cards básicos e cloze (criar e editar)
-- [ ] Revisão com `ts-fsrs`, `review_logs` e virada do dia
-- [ ] Busca textual (FTS5) em notas e cards
-- [ ] Backup: exportar/importar tudo em um arquivo
+- [x] Componentes de interface (Radix + tokens do tema)
+- [x] Hierarquia matéria > tópico > subtópico (criar, renomear, mover, excluir)
+- [x] Editor de notas com salvamento automático, links `[[...]]` (com criação de nota), "notas que apontam para esta"
+- [x] Baralhos; cards frente/verso (com imagem) e lacunas
+- [x] Revisão com FSRS, intervalos previstos, atalhos e virada do dia configurável
+- [x] Busca textual em notas e cards
+- [x] Backup: exportar/importar (inclui imagens)
+- [x] Tela inicial com o que vence hoje e notas recentes
 
-Fora da Fase 1 por enquanto: lixeira, limite diário de cards novos. Imagens em notas e cards: a decidir (seção 11).
+Plano: `instruções/fase-1.md` · Relatório: `documentos/relatorio-fase-1.md`
 
 ### Fase 2 — Grafo, Foco e Progresso
 - [ ] Grafo com Sigma.js; toque no nó abre a nota

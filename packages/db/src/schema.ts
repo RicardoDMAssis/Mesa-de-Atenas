@@ -2,7 +2,6 @@ import {
   type AnySQLiteColumn,
   index,
   integer,
-  real,
   sqliteTable,
   text,
   uniqueIndex,
@@ -101,16 +100,15 @@ export const cards = sqliteTable(
       imageAssetId?: string;
     }>(),
 
-    // Estado do FSRS (mesmos campos do `Card` da ts-fsrs).
+    // Agendamento. `srs` é o estado interno do algoritmo (FSRS), guardado como veio:
+    // só `packages/core/srs` sabe interpretá-lo. As colunas abaixo são cópias usadas
+    // para consultar e exibir.
+    srs: text("srs", { mode: "json" }).$type<Record<string, unknown>>().notNull(),
     due: integer("due").notNull(),
-    stability: real("stability").notNull().default(0),
-    difficulty: real("difficulty").notNull().default(0),
-    elapsedDays: integer("elapsed_days").notNull().default(0),
-    scheduledDays: integer("scheduled_days").notNull().default(0),
-    learningSteps: integer("learning_steps").notNull().default(0),
+    /** 0 novo, 1 aprendendo, 2 revisão, 3 reaprendendo. */
+    state: integer("state").notNull().default(0),
     reps: integer("reps").notNull().default(0),
     lapses: integer("lapses").notNull().default(0),
-    state: integer("state").notNull().default(0),
     lastReview: integer("last_review"),
   },
   (t) => [index("cards_deck_due_idx").on(t.deckId, t.due)],
@@ -125,16 +123,12 @@ export const reviewLogs = sqliteTable(
       .notNull()
       .references(() => cards.id),
     rating: integer("rating").notNull(),
+    /** Estado do card antes desta resposta. */
     state: integer("state").notNull(),
-    due: integer("due").notNull(),
-    stability: real("stability").notNull(),
-    difficulty: real("difficulty").notNull(),
-    elapsedDays: integer("elapsed_days").notNull(),
-    lastElapsedDays: integer("last_elapsed_days").notNull(),
-    scheduledDays: integer("scheduled_days").notNull(),
-    learningSteps: integer("learning_steps").notNull().default(0),
     reviewedAt: integer("reviewed_at").notNull(),
     durationMs: integer("duration_ms"),
+    /** Registro completo gerado pelo algoritmo, para otimizar parâmetros depois. */
+    data: text("data", { mode: "json" }).$type<Record<string, unknown>>().notNull(),
   },
   (t) => [
     index("review_logs_card_idx").on(t.cardId),
