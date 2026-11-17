@@ -74,10 +74,9 @@ O plugin define uma lista de termos que vale para **todas as notas**. Cobre o ex
    comando do plugin (quando houver)
 5. **Controles**: "Mostrar destaques" no menu da nota; legenda dos destaques ativos; seção na
    tela de Plugins explicando o que cada plugin destaca
-6. **Plugin oficial "Marca-texto"**: tela onde o usuário cadastra palavras, cor, estilo e rótulo,
-   organizadas em grupos (ex.: "Conectivos"), com ativar/desativar por grupo. Serve de exemplo
-   completo do recurso
-7. **Guia e modelo**: seção nova no guia de plugins; exemplo no modelo
+6. **Exemplo no modelo de plugin** (não haverá plugin oficial de marca-texto: o usuário vai
+   criar o dele usando este recurso; o guia e o modelo precisam bastar para isso)
+7. **Guia**: seção nova no guia de plugins; exemplo no modelo
 8. **Testes** no navegador (computador e celular) e no Galaxy A52; relatório
 
 ### Etapa 2 — Destaques calculados pelo plugin (depois, se for preciso)
@@ -88,6 +87,8 @@ cada nota, o que pesa mais e tem riscos próprios (ordem das respostas, notas gr
 **Fica fora desta fase**; será reavaliada quando houver um plugin que precise.
 
 ## Fora do escopo
+
+- Plugin oficial de marca-texto (decisão do usuário, 2026-11-17: ele mesmo vai criar)
 
 - Destaques calculados pelo plugin (etapa 2)
 - Destaques em cards e na tela de revisão

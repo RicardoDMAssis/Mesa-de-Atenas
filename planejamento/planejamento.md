@@ -397,7 +397,7 @@ Plano: `instruções/fase-3.md`
 - [ ] Permissão `notes:highlight` e métodos `highlights.*` no contrato e no kit
 - [ ] Motor de correspondência (palavra inteira, sem acento, maior termo primeiro)
 - [ ] Pintura no editor (decorações, sem alterar o texto), controles e legenda
-- [ ] Plugin oficial "Marca-texto"
+- [ ] Guia e modelo atualizados (o plugin "Marca-texto" será criado pelo usuário)
 
 Plano: `instruções/fase-3.1-destaques.md`
 
