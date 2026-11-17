@@ -26,7 +26,10 @@ export function NoteEditor({ noteId, initialContent, createNote, onChange }: Not
   const extensions = useMemo(
     () => [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
-      Placeholder.configure({ placeholder: "Escreva aqui. Digite [[ para citar outra nota." }),
+      Placeholder.configure({
+        placeholder:
+          "Escreva aqui. Para citar outra nota: [[Título]] ou [[Título]](texto do link).",
+      }),
       createNoteLink({ currentNoteId: noteId, createNote }),
     ],
     [noteId, createNote],

@@ -1,3 +1,4 @@
+import { InputRule } from "@tiptap/core";
 import Mention from "@tiptap/extension-mention";
 import { type NodeViewProps, NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { useNavigate } from "react-router";
@@ -19,6 +20,8 @@ interface NoteLinkOptions {
 function NoteLinkView({ node }: NodeViewProps) {
   const navigate = useNavigate();
   const id = node.attrs.id as string;
+  /** Texto escolhido pelo usuário com `[[Nota]](texto)`; sem ele, mostra o título da nota. */
+  const custom = node.attrs.text as string | null;
   const title = useNoteTitles((s) => s.titles.get(id));
   const missing = useNoteTitles((s) => s.loaded && !s.titles.has(id));
   return (
@@ -28,7 +31,13 @@ function NoteLinkView({ node }: NodeViewProps) {
         contentEditable={false}
         data-note-link={id}
         disabled={missing}
-        title={missing ? "Esta nota foi excluída" : undefined}
+        title={
+          missing
+            ? "Esta nota foi excluída"
+            : custom
+              ? `Abre a nota “${noteLabel(title)}”`
+              : undefined
+        }
         onClick={() => navigate(`/notas/${id}`)}
         className={
           missing
@@ -36,7 +45,10 @@ function NoteLinkView({ node }: NodeViewProps) {
             : "cursor-pointer rounded bg-accent-soft px-1 font-medium text-accent hover:underline"
         }
       >
-        {missing ? (node.attrs.label as string) : noteLabel(title ?? (node.attrs.label as string))}
+        {custom ||
+          (missing
+            ? (node.attrs.label as string)
+            : noteLabel(title ?? (node.attrs.label as string)))}
       </button>
     </NodeViewWrapper>
   );
@@ -138,17 +150,87 @@ function suggestionPopup() {
  * escolher uma insere um link que guarda o id (renomear a nota não quebra o link).
  */
 export function createNoteLink({ currentNoteId, createNote }: NoteLinkOptions) {
+  /** Id da nota com esse título (sem diferenciar acentos); `undefined` se não existir. */
+  const findByTitle = (wanted: string) => {
+    const key = normalize(wanted.trim());
+    for (const [id, title] of useNoteTitles.getState().titles) {
+      if (id !== currentNoteId && normalize(noteLabel(title)) === key) return id;
+    }
+    return undefined;
+  };
+
   return Mention.extend({
     name: "noteLink",
+    addAttributes() {
+      return {
+        ...this.parent?.(),
+        text: {
+          default: null,
+          parseHTML: (el) => el.getAttribute("data-text"),
+          renderHTML: (attrs) => (attrs.text ? { "data-text": attrs.text } : {}),
+        },
+      };
+    },
+    addInputRules() {
+      const type = this.type;
+      return [
+        // Digitar [[Título]] vira link (criando a nota se ela não existir).
+        new InputRule({
+          find: /\[\[([^[\]\n]+)\]\]$/,
+          handler: ({ state, range, match, chain }) => {
+            const title = (match[1] ?? "").trim();
+            if (!title) return null;
+            const existing = findByTitle(title);
+            if (existing) {
+              state.tr.replaceWith(
+                range.from,
+                range.to,
+                type.create({ id: existing, label: title }),
+              );
+              return;
+            }
+            // Nota nova: remove o texto agora e insere o link quando ela estiver criada.
+            const at = range.from;
+            chain().deleteRange(range).run();
+            void createNote(title).then((id) =>
+              this.editor
+                .chain()
+                .insertContentAt(Math.min(at, this.editor.state.doc.content.size), {
+                  type: "noteLink",
+                  attrs: { id, label: title },
+                })
+                .run(),
+            );
+          },
+        }),
+        // Digitar (texto) logo depois de um link define o texto exibido: [[Nota]](texto).
+        new InputRule({
+          find: /\(([^()\n]+)\)$/,
+          handler: ({ state, range, match }) => {
+            const before = state.doc.resolve(range.from).nodeBefore;
+            if (before?.type !== type) return null;
+            const text = (match[1] ?? "").trim();
+            if (!text) return null;
+            const linkPos = range.from - before.nodeSize;
+            state.tr
+              .delete(range.from, range.to)
+              .setNodeMarkup(linkPos, undefined, { ...before.attrs, text });
+          },
+        }),
+      ];
+    },
     addNodeView() {
       return ReactNodeViewRenderer(NoteLinkView);
     },
   }).configure({
     // No texto plano (busca), o link aparece como o título da nota.
     renderText: ({ node }) =>
+      node.attrs.text ||
       noteLabel(useNoteTitles.getState().titles.get(node.attrs.id) ?? node.attrs.label),
     suggestion: {
       char: "[[",
+      // Abre a lista mesmo colado a uma palavra (ex.: "ver[[") ou inserido pelo botão.
+      allowedPrefixes: null,
       allowSpaces: true,
       items: ({ query }): Suggestion[] => {
         const wanted = normalize(query.replace(/\]+$/, "").trim());

@@ -195,3 +195,40 @@ test("com o campo de busca vazio, lista todas as notas e cards", async ({ page }
   await field.fill("");
   await expect(results).toHaveCount(2);
 });
+
+test("links: [[Nota]] digitado, [[Nota]](texto) e botão de citar", async ({ page }) => {
+  await newNote(page, "Sílaba", "base");
+  await newNote(page, "Acento", "");
+  const editor = page.getByLabel("Conteúdo da nota");
+  const links = page.locator("[data-note-link]");
+
+  // 1. Digitar [[Título]] por completo vira link (sem acento também encontra).
+  await editor.pressSequentially("Ver [[silaba]] ");
+  await expect(links).toHaveCount(1);
+  await expect(links.first()).toHaveText("Sílaba");
+  await expect(editor).not.toContainText("[[");
+
+  // 2. [[Título]](texto) mostra o texto escolhido, mas leva à nota.
+  await editor.pressSequentially("e [[Sílaba]](unidade silábica) ");
+  await expect(links).toHaveCount(2);
+  await expect(links.nth(1)).toHaveText("unidade silábica");
+  await expect(editor).not.toContainText("(unidade");
+
+  // 3. Botão "Citar outra nota" colado a uma palavra abre a lista.
+  await editor.pressSequentially("fim");
+  await page.getByRole("button", { name: "Citar outra nota" }).click();
+  await page.getByRole("option", { name: "Sílaba" }).click();
+  await expect(links).toHaveCount(3);
+
+  // 4. [[Título inexistente]] cria a nota.
+  await editor.pressSequentially(" [[Tonicidade]] ");
+  await expect(links).toHaveCount(4);
+  await expect(links.nth(3)).toHaveText("Tonicidade");
+
+  await expect(page.getByTestId("save-status")).toHaveText("Salvo");
+  await page.reload();
+  await expect(page.locator("[data-note-link]").nth(1)).toHaveText("unidade silábica");
+  await page.locator("[data-note-link]").nth(1).click();
+  await expect(page.getByLabel("Título da nota")).toHaveValue("Sílaba");
+  await expect(page.getByRole("link", { name: "Acento" })).toBeVisible();
+});
