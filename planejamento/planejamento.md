@@ -393,6 +393,14 @@ Plano: `instruções/fase-2.md` · Relatório: `documentos/relatorio-fase-2.md`
 
 Plano: `instruções/fase-3.md`
 
+### Fase 3.1 — Destaques de palavras por plugins
+- [ ] Permissão `notes:highlight` e métodos `highlights.*` no contrato e no kit
+- [ ] Motor de correspondência (palavra inteira, sem acento, maior termo primeiro)
+- [ ] Pintura no editor (decorações, sem alterar o texto), controles e legenda
+- [ ] Plugin oficial "Marca-texto"
+
+Plano: `instruções/fase-3.1-destaques.md`
+
 ### Fase 4 — Plugins v2 (ricos)
 - [ ] `cardRenderer` com fallback
 - [ ] `noteEmbed` com thumbnail
