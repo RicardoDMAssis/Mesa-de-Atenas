@@ -162,3 +162,22 @@ test("backup: exportar e restaurar", async ({ page }) => {
   await page.goto("/notas");
   await expect(page.getByRole("link", { name: /Nota do backup/ })).toBeVisible();
 });
+
+test("a busca é refeita ao voltar para a página e ao recarregar", async ({ page }) => {
+  await newNote(page, "Morfossintaxe", "análise das classes de palavras");
+  await page.goto("/busca");
+  await page.getByLabel("Buscar em notas e cards").fill("morfo");
+  const results = page.getByRole("list", { name: "Resultados" }).getByRole("link");
+  await expect(results).toHaveCount(1);
+  await expect(page).toHaveURL(/q=morfo/);
+
+  await page.reload();
+  await expect(page.getByLabel("Buscar em notas e cards")).toHaveValue("morfo");
+  await expect(results).toHaveCount(1);
+
+  // Saindo e voltando pelo menu (sem ?q= na URL), a última busca é refeita.
+  await page.goto("/");
+  await page.goto("/busca");
+  await expect(page.getByLabel("Buscar em notas e cards")).toHaveValue("morfo");
+  await expect(results).toHaveCount(1);
+});

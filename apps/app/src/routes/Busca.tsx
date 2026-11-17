@@ -27,10 +27,34 @@ function Snippet({ text }: { text: string }) {
   );
 }
 
+const LAST_QUERY_KEY = "estudarella:ultimaBusca";
+
+function readLastQuery(): string {
+  try {
+    return localStorage.getItem(LAST_QUERY_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function saveLastQuery(query: string) {
+  try {
+    if (query.trim()) localStorage.setItem(LAST_QUERY_KEY, query);
+    else localStorage.removeItem(LAST_QUERY_KEY);
+  } catch {
+    // Sem armazenamento local: a busca só não é lembrada.
+  }
+}
+
 export function Busca() {
   const [params, setParams] = useSearchParams();
-  const [text, setText] = useState(params.get("q") ?? "");
+  // Ao entrar ou recarregar, refaz a busca: a da URL ou, sem ela, a última feita neste aparelho.
+  const [text, setText] = useState(() => params.get("q") ?? readLastQuery());
   const [query, setQuery] = useState(text);
+
+  useEffect(() => {
+    saveLastQuery(query);
+  }, [query]);
 
   useEffect(() => {
     const t = setTimeout(() => {
