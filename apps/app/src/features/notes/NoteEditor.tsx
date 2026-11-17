@@ -3,6 +3,7 @@ import { type Editor, EditorContent, useEditor, useEditorState } from "@tiptap/r
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Heading2, Italic, Link2, List, ListOrdered, Quote } from "lucide-react";
 import { useEffect, useMemo } from "react";
+import { useActiveNote } from "../../plugin-host/stores";
 import { createNoteLink } from "./noteLink";
 
 export interface EditorSnapshot {
@@ -55,6 +56,12 @@ export function NoteEditor({
     },
     onUpdate: ({ editor }) => onChange(snapshot(editor)),
   });
+
+  useEffect(() => {
+    if (!editor) return;
+    useActiveNote.setState({ editor });
+    return () => useActiveNote.setState({ editor: null });
+  }, [editor]);
 
   useEffect(() => {
     // Troca de modo sem disparar onChange (não é uma edição do conteúdo).

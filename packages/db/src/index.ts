@@ -15,6 +15,7 @@ export * from "./queries/cards";
 export * from "./queries/decks";
 export * from "./queries/graph";
 export * from "./queries/notes";
+export * from "./queries/plugins";
 export * from "./queries/search";
 export * from "./queries/sessions";
 export { getSetting, setSetting } from "./queries/settings";

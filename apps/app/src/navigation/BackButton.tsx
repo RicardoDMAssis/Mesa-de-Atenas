@@ -41,7 +41,9 @@ export function BackButton() {
     ensureListener();
     current.handler = ({ canGoBack }) => {
       const { pathname, screens } = state.current;
-      const overlay = document.querySelector('[role="dialog"], [role="menu"], [role="listbox"]');
+      const overlay = document.querySelector(
+        '[role="dialog"], [role="menu"], [role="listbox"], [data-plugin-panel]',
+      );
       if (overlay) {
         document.activeElement?.dispatchEvent(
           new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),

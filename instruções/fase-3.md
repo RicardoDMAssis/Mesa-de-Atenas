@@ -43,17 +43,20 @@ Métodos da ponte desta fase: ler a nota aberta e a seleção (`notes:read`), in
 (`notes:write`), criar card em um baralho escolhido pelo usuário (`cards:write`), chave-valor do
 plugin (`storage`), abrir o painel/tela do próprio plugin, mostrar aviso.
 
-## Decisões em aberto (antes de começar)
+## Decisões tomadas com o usuário (2026-11-17)
 
-1. **Fonte de dados do Dicionário PT** — adiada até agora, como combinado:
-   - **Wikcionário em português (online)**: grátis, boa cobertura, licença CC BY-SA (exige
-     atribuição); precisa de internet e da permissão de rede para `pt.wiktionary.org`.
-   - **Base offline embutida**: funciona sem internet, mas bases abertas e boas de definições em
-     português são raras e grandes; sinônimos têm bases abertas melhores que definições.
-   - **Híbrido (recomendado)**: definições do Wikcionário (online) + sinônimos e antônimos de
-     uma base aberta embutida (offline), com cache das palavras já consultadas.
-2. **Instalar de arquivo `.zip`** já nesta fase (útil para criar e testar plugins) ou só plugins
-   oficiais até o catálogo?
+- **Fonte do Dicionário PT: Wikcionário em português** (online), pela API pública
+  (`pt.wiktionary.org/w/api.php`, texto-fonte da página; aceita chamadas de qualquer origem).
+  O plugin extrai da seção de português: classe gramatical, definições, exemplos, sinônimos e
+  antônimos. Atribuição ao Wikcionário (CC BY-SA) visível em cada consulta.
+- **Cache das últimas palavras consultadas**, no armazenamento do plugin. Cada entrada guardada
+  ocupa ~1–3 KB. Limite inicial de 500 (≈1,5 MB), ajustável nas configurações do plugin; o
+  tamanho real será medido no celular durante a fase. Ao passar do limite, saem as consultadas
+  há mais tempo.
+- **Formas de instalar nesta fase:** oficiais embutidos, arquivo `.zip` e link para um `.zip`.
+  Os três usam o mesmo caminho (validar manifesto → mostrar permissões e sites → guardar → ativar).
+  Plugins de arquivo/link aparecem como "origem não verificada" (assinatura é da Fase 6).
+  Modo desenvolvedor e "Abrir com Estudarella" no Android ficam para depois.
 
 ## Fora do escopo
 

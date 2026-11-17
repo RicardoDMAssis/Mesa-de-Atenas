@@ -14,3 +14,7 @@ apps/app/android/build/
 apps/app/android/app/build/
 apps/app/android/local.properties
 apps/app/android/app/src/main/assets/public/
+
+# Plugins embutidos gerados a partir de plugins/* (pnpm build:plugins)
+apps/app/public/builtin-plugins/*/
+!apps/app/public/builtin-plugins/spike/

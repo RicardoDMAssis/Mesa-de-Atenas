@@ -187,6 +187,12 @@ export const plugins = sqliteTable(
       .notNull()
       .default([]),
     enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    /** De onde veio: com o app, de um arquivo .zip ou de um link. */
+    source: text("source", { enum: ["builtin", "file", "link"] })
+      .notNull()
+      .default("builtin"),
+    /** Endereço de onde foi baixado (origem "link"). */
+    sourceUrl: text("source_url"),
   },
   (t) => [uniqueIndex("plugins_plugin_id_uq").on(t.pluginId)],
 );

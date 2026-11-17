@@ -7,6 +7,9 @@ import { NoteTitlesSync } from "../features/notes/titles";
 import { BackButton } from "../navigation/BackButton";
 import { Launcher } from "../navigation/Launcher";
 import { screenFor, useLauncher, useNavPrefs, useScreens } from "../navigation/screens";
+import { CardProposalDialog } from "../plugin-host/CardProposalDialog";
+import { PluginPanel } from "../plugin-host/PluginPanel";
+import { PluginsSync } from "../plugin-host/registry";
 import { Toast } from "./Toast";
 
 export function AppShell() {
@@ -43,6 +46,9 @@ export function AppShell() {
       <BackButton />
       <Launcher />
       <Toast />
+      <PluginsSync />
+      <PluginPanel />
+      <CardProposalDialog />
 
       <nav
         aria-label="Principal"

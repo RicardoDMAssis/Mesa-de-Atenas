@@ -34,7 +34,18 @@ export interface PluginConnection {
 export function connectPlugin(
   iframe: HTMLIFrameElement,
   getHandlers: () => Readonly<Record<string, RpcHandler>>,
+  options: {
+    /** Dados extras da mensagem inicial (ex.: o contexto em que o plugin foi aberto). */
+    init?: Record<string, unknown>;
+    /** Chamado a cada mensagem válida recebida (o plugin está vivo). */
+    onCall?: () => void;
+    /** Chamadas permitidas por segundo antes de recusar com `rate_limited`. */
+    rateLimit?: number;
+  } = {},
 ): PluginConnection {
+  const limit = options.rateLimit ?? 60;
+  let windowStart = 0;
+  let callsInWindow = 0;
   const { port1, port2 } = new MessageChannel();
   const send = (message: HostMessage, transfer: Transferable[] = []) =>
     port1.postMessage(message, transfer);
@@ -43,6 +54,22 @@ export function connectPlugin(
     const parsed = pluginMessageSchema.safeParse(event.data);
     if (!parsed.success) return; // Mensagem fora do protocolo: ignorada.
     const { id, method, params } = parsed.data;
+    options.onCall?.();
+
+    const now = Date.now();
+    if (now - windowStart > 1000) {
+      windowStart = now;
+      callsInWindow = 0;
+    }
+    if (++callsInWindow > limit) {
+      send({
+        type: "response",
+        id,
+        ok: false,
+        error: { code: "rate_limited", message: "Chamadas demais em pouco tempo." },
+      });
+      return;
+    }
 
     const handlers = getHandlers();
     const handler = Object.hasOwn(handlers, method) ? handlers[method] : undefined;
@@ -75,9 +102,11 @@ export function connectPlugin(
 
   // O iframe tem origem opaca, então o destino precisa ser "*". A porta transferida
   // é o que torna o canal privado: só este iframe a recebe.
-  iframe.contentWindow?.postMessage({ type: INIT_MESSAGE_TYPE, apiVersion: API_VERSION }, "*", [
-    port2,
-  ]);
+  iframe.contentWindow?.postMessage(
+    { ...options.init, type: INIT_MESSAGE_TYPE, apiVersion: API_VERSION },
+    "*",
+    [port2],
+  );
 
   return {
     emit: (event, payload) => send({ type: "event", event, payload }),

@@ -16,6 +16,10 @@ interface PluginFrameProps {
   handlers: Readonly<Record<string, RpcHandler>>;
   className?: string;
   onLoaded?: (manifest: Manifest) => void;
+  /** Dados extras enviados na conexão (ex.: contexto). Lidos no momento em que o iframe carrega. */
+  initData?: Record<string, unknown>;
+  /** Avisado a cada chamada do plugin (usado para detectar plugin travado). */
+  onCall?: () => void;
   ref?: Ref<PluginFrameHandle>;
 }
 
@@ -32,13 +36,15 @@ export function PluginFrame({
   handlers,
   className,
   onLoaded,
+  initData,
+  onCall,
   ref,
 }: PluginFrameProps) {
   const [doc, setDoc] = useState<string>();
   const [error, setError] = useState(false);
   const connection = useRef<PluginConnection | null>(null);
-  const latest = useRef({ handlers, onLoaded });
-  latest.current = { handlers, onLoaded };
+  const latest = useRef({ handlers, onLoaded, initData, onCall });
+  latest.current = { handlers, onLoaded, initData, onCall };
 
   useEffect(() => {
     let cancelled = false;
@@ -93,15 +99,18 @@ export function PluginFrame({
     <iframe
       title={title}
       className={className}
-      sandbox="allow-scripts"
+      // allow-forms: sem ele o navegador nem dispara o evento "submit". Enviar dados
+      // para fora continua impossível: a política do plugin tem form-action 'none'.
+      sandbox="allow-scripts allow-forms"
       referrerPolicy="no-referrer"
       srcDoc={doc}
       onLoad={(event) => {
         connection.current?.dispose();
-        connection.current = connectPlugin(event.currentTarget, () => ({
-          ...latest.current.handlers,
-          ...builtins,
-        }));
+        connection.current = connectPlugin(
+          event.currentTarget,
+          () => ({ ...latest.current.handlers, ...builtins }),
+          { init: latest.current.initData, onCall: () => latest.current.onCall?.() },
+        );
       }}
     />
   );

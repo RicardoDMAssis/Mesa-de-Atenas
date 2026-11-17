@@ -17,5 +17,9 @@ export const migrations: Migration[] = [
   {
     "id": "0003_configuracao_baralho",
     "sql": "ALTER TABLE `decks` ADD `settings` text DEFAULT '{\"mode\":\"auto\"}' NOT NULL;"
+  },
+  {
+    "id": "0004_origem_plugin",
+    "sql": "ALTER TABLE `plugins` ADD `source` text DEFAULT 'builtin' NOT NULL;--> statement-breakpoint\nALTER TABLE `plugins` ADD `source_url` text;"
   }
 ];

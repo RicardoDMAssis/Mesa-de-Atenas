@@ -36,6 +36,10 @@ const contributesSchema = z.object({
 export const manifestSchema = z.object({
   id: z.string().regex(/^[a-z0-9][a-z0-9-]{1,63}$/, "use letras minúsculas, números e hífen"),
   name: z.string().min(1).max(60),
+  description: z.string().max(300).default(""),
+  author: z.string().max(80).optional(),
+  /** Ícone (nome de um conjunto fixo do app; desconhecido = peça de quebra-cabeça). */
+  icon: z.string().max(40).optional(),
   version: z.string().regex(/^\d+\.\d+\.\d+$/, "use o formato 1.2.3"),
   apiVersion: z.literal(API_VERSION),
   entry: z

@@ -21,6 +21,8 @@ import { useNoteMode } from "../features/notes/mode";
 import { type EditorSnapshot, NoteEditor } from "../features/notes/NoteEditor";
 import { linkTargets } from "../features/notes/noteLink";
 import { noteLabel } from "../features/notes/titles";
+import { SelectionCommands } from "../plugin-host/SelectionCommands";
+import { useActiveNote } from "../plugin-host/stores";
 
 const SAVE_DELAY = 500;
 
@@ -46,6 +48,12 @@ function NoteScreen({ id }: { id: string }) {
   const mode = blankAtOpen ? "edit" : preferredMode;
   const reading = mode === "read";
   const subjects = useSubjects();
+
+  // Nota aberta, para os plugins com permissão de leitura.
+  useEffect(() => {
+    useActiveNote.setState({ note: { id, title } });
+  }, [id, title]);
+  useEffect(() => () => useActiveNote.setState({ note: null }), []);
 
   // Rascunho mais recente e controle do salvamento automático.
   const draft = useRef<{ title: string; body: EditorSnapshot | null; dirty: boolean }>({
@@ -259,6 +267,7 @@ function NoteScreen({ id }: { id: string }) {
       )}
 
       <LocalGraph noteId={id} />
+      <SelectionCommands note={{ id, title: noteLabel(title) }} />
 
       <ConfirmDialog
         open={confirmDelete}

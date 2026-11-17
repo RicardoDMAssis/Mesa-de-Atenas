@@ -7,7 +7,13 @@ import { z } from "zod";
 export const INIT_MESSAGE_TYPE = "estudarella:init";
 
 export interface RpcError {
-  code: "unknown_method" | "forbidden" | "invalid_params" | "internal";
+  code:
+    | "unknown_method"
+    | "forbidden"
+    | "invalid_params"
+    | "internal"
+    | "rate_limited"
+    | "cancelled";
   message: string;
 }
 

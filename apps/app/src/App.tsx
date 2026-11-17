@@ -12,6 +12,8 @@ import { Grafo } from "./routes/Grafo";
 import { Inicio } from "./routes/Inicio";
 import { Nota } from "./routes/Nota";
 import { Notas } from "./routes/Notas";
+import { PluginPage } from "./routes/PluginPage";
+import { Plugins } from "./routes/Plugins";
 import { Progresso } from "./routes/Progresso";
 
 export function App() {
@@ -28,12 +30,8 @@ export function App() {
         <Route path="grafo" element={<Grafo />} />
         <Route path="foco" element={<Foco />} />
         <Route path="progresso" element={<Progresso />} />
-        <Route
-          path="plugins"
-          element={
-            <EmBreve title="Plugins" phase="Fase 3" detail="Instalar e gerenciar plugins." />
-          }
-        />
+        <Route path="plugins" element={<Plugins />} />
+        <Route path="plugins/:pluginId" element={<PluginPage />} />
         <Route path="ajustes" element={<Ajustes />} />
         <Route path="ajustes/diagnostico" element={<Diagnostico />} />
         <Route path="*" element={<EmBreve title="Página não encontrada" />} />

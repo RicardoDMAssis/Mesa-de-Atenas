@@ -10,6 +10,10 @@ describe("buildPluginDocument", () => {
     expect(doc.match(/<!doctype/gi)).toHaveLength(1);
   });
 
+  it("proíbe formulários de enviar dados para qualquer lugar", () => {
+    expect(buildPluginDocument("<form></form>")).toContain("form-action 'none'");
+  });
+
   it("bloqueia toda a rede quando o manifesto não declara origens", () => {
     expect(buildPluginDocument("<p>oi</p>")).toContain("connect-src blob: data:;");
   });
