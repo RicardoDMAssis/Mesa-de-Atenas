@@ -391,6 +391,8 @@ Plano: `instruções/fase-2.md` · Relatório: `documentos/relatorio-fase-2.md`
 - [ ] Tela de gerenciamento de plugins e aprovação de permissões
 - [ ] Plugin Dicionário PT
 
+Plano: `instruções/fase-3.md`
+
 ### Fase 4 — Plugins v2 (ricos)
 - [ ] `cardRenderer` com fallback
 - [ ] `noteEmbed` com thumbnail
