@@ -66,17 +66,19 @@ flashcards isso é pouco perceptível, desde que as telas sejam desenhadas mobil
 |---|---|---|
 | Linguagem | TypeScript (strict) | Contrato de plugins e schema tipados |
 | UI | React + Vite | Ecossistema, build rápido |
-| Android | Capacitor | Empacota o mesmo app web; acesso a SQLite nativo, arquivos, notificações |
+| Android | Capacitor | Empacota o mesmo app web; notificações, botão voltar, download de plugins |
 | Computador | Web instalável (PWA) | Sem instalador; funciona offline |
-| Estilo | Tailwind + shadcn/ui (Radix) | Componentes acessíveis; temas por variáveis CSS |
+| Estilo | Tailwind + primitivos Radix (no modelo do shadcn/ui, sem a CLI) | Componentes acessíveis; temas por variáveis CSS |
 | Rotas | React Router | Simples e estável |
-| Estado de UI | Zustand | Só estado de interface (painel aberto, tema, sessão atual) |
+| Estado de UI | Zustand | Estado de interface e preferências do aparelho (tema, timer, navegação, Início) |
 | Dados | SQLite + Drizzle ORM | Fonte única da verdade; schema e migrações tipadas |
-| Driver SQLite — Android | `@capacitor-community/sqlite` | SQLite nativo (WASM+OPFS não é confiável no WebView do Android) |
+| Driver SQLite — Android | O mesmo SQLite WASM + OPFS da web | Testado no emulador (Android 14) e no Galaxy A52: persiste ao fechar o app. O driver nativo (`@capacitor-community/sqlite`) fica como alternativa se aparecer um WebView incompatível |
 | Driver SQLite — Web | SQLite WASM em Web Worker, persistido em OPFS | Mesmo SQL das duas plataformas |
 | Editor de notas | TipTap (ProseMirror) | WYSIWYG amigável; blocos customizados para embeds de plugin |
-| SRS | `ts-fsrs` | Implementação mantida do FSRS; não reimplementar |
-| Grafo | Sigma.js + graphology | WebGL, aguenta milhares de nós |
+| SRS | `ts-fsrs` (v6, FSRS-7) | Implementação mantida do FSRS; isolada em `packages/core/src/srs.ts` |
+| Grafo | Sigma.js 4 + graphology + ForceAtlas2 (worker) | WebGL; 1.000 notas abrem com bloqueio máximo de ~240 ms |
+| Gráficos de progresso | SVG próprio | Leve, usa as cores do tema |
+| Pacotes de plugin | fflate | Leitura e geração de `.zip` |
 | Validação | Zod | Valida manifestos e toda mensagem vinda de plugin |
 | Nuvem (fase 5) | Supabase | Auth, Postgres com RLS, Storage, Edge Functions |
 | Sync (fase 5) | PowerSync (candidato) | SQLite ↔ Postgres offline-first; usa os mesmos drivers acima. SDK Capacitor ainda em beta — reavaliar na hora |
@@ -108,11 +110,16 @@ flashcards isso é pouco perceptível, desde que as telas sejam desenhadas mobil
 Disponível sem nenhum plugin:
 
 - **Notas** em texto rico, com links `[[entre notas]]`, organizadas em matéria > tópico > subtópico
-- **Flashcards** com FSRS — tipos nativos: básico (frente/verso) e cloze (lacuna)
+- **Flashcards** — tipos nativos: básico (frente/verso, com imagem opcional) e cloze (lacuna).
+  Agendamento automático (FSRS) ou **intervalos personalizados por baralho**; **prática** de um
+  baralho a qualquer momento, sem mudar o agendamento
 - **Mapa de grafos** interativo — diferencial principal
 - **Timer de foco** (Pomodoro), com notificação no Android
 - **Streak e progresso diário**
-- **Backup**: exportar/importar tudo em um arquivo (JSON + anexos); notas exportáveis em Markdown
+- **Busca** em notas e cards (sem diferenciar acentos)
+- **Backup**: exportar/importar tudo em um arquivo (JSON + imagens)
+- **Início personalizável** com widgets do app e de plugins (`instruções/inicio-personalizavel.md`)
+- **Navegação** com barra inferior personalizável e painel "Ir para" (Ctrl+K), pronta para telas de plugins
 - **Temas**: claro, escuro e personalizados
 
 ### Grafo — decisão fechada
@@ -139,16 +146,19 @@ Convenções em todas as tabelas (preparam o sync sem custo agora):
 | `subjects` | Árvore matéria/tópico/subtópico (`parent_id`) |
 | `notes` | Documento TipTap (JSON), texto plano para busca, `subject_id` |
 | `links` | Origem → destino, extraídos do conteúdo da nota a cada salvamento |
-| `decks` | Baralhos, `subject_id` |
-| `cards` | `type` (`basic`, `cloze`, `plugin`), `content` JSON, `plugin_id`, `fallback`, estado FSRS (due, stability, difficulty, state, reps, lapses) |
-| `review_logs` | Uma linha por resposta (necessário para otimizar os parâmetros do FSRS) |
+| `decks` | Baralhos, `subject_id`, `settings` (modo de agendamento e intervalos personalizados) |
+| `cards` | `type` (`basic`, `cloze`, `plugin`), `content` JSON, `plugin_id`, `fallback`; agendamento: `srs` (estado interno do FSRS, opaco) e as cópias `due`, `state`, `reps`, `lapses`, `last_review` |
+| `review_logs` | Uma linha por resposta: nota dada, estado anterior, horário, duração e o registro completo do FSRS em `data` |
 | `study_sessions` | Pomodoros e sessões de revisão (base do streak) |
 | `assets` | Metadados (hash, tipo, tamanho) de imagens, áudio e arquivos de plugins. O conteúdo fica fora do SQLite, endereçado pelo hash |
-| `plugins` | Instalados, versão, permissões concedidas, ativo/inativo |
+| `plugins` | Manifesto, versão, permissões concedidas, ativo/inativo, origem (`builtin`, `file`, `link`) e endereço de origem |
 | `plugin_data` | Armazenamento chave-valor isolado por plugin |
 | `settings` | Preferências, incluindo a hora de virada do dia para o streak |
 
-Busca textual com FTS5 sobre notas e cards.
+Busca textual com FTS5 (`search_index`), mantida por gatilhos SQL, sem diferenciar acentos.
+
+Fora do SQLite: os bytes de imagens (pasta privada `assets/`, por hash) e os arquivos de plugins
+instalados (pasta privada `plugins/<id>/`).
 
 ---
 
@@ -156,7 +166,7 @@ Busca textual com FTS5 sobre notas e cards.
 
 ### 7.1 Conceito
 
-Um plugin é uma pequena aplicação web empacotada. Roda em `<iframe sandbox="allow-scripts">`
+Um plugin é uma pequena aplicação web empacotada. Roda em `<iframe sandbox="allow-scripts allow-forms">`
 (origem opaca), sem acesso ao DOM, ao banco ou ao armazenamento do app. Tudo que ele faz passa
 pela ponte de mensagens e é verificado contra as permissões concedidas.
 
@@ -165,15 +175,13 @@ O desenvolvedor não usa `postMessage` na mão: usa o pacote **`@estudarella/plu
 ```ts
 import { app } from "@estudarella/plugin-sdk";
 
-app.events.on("note.opened", async (note) => { /* ... */ });
-
-await app.cards.create({
-  deckId,
-  type: "plugin",
-  content: { structure: "aorta" },            // dados que só o plugin entende
-  fallback: { front: "O que é isto?", back: "Artéria aorta", imageAssetId: thumbnailId },
-});
+const context = await app.ready();            // conecta, aplica o tema, diz onde o plugin está
+const nota = await app.notes.getCurrent();    // exige notes:read
+const { created } = await app.cards.propose({ front: "feliz", back: "que sente alegria" });
+// o app mostra o card, o usuário escolhe o baralho e confirma
 ```
+
+Referência completa para autores: `docs/guia-de-plugins.md`.
 
 ### 7.2 Protocolo
 
@@ -181,8 +189,11 @@ await app.cards.create({
   `id` e `result` ou `error`.
 - Eventos do app para o plugin: `{ event, payload }`.
 - Nomes em inglês (API pública).
-- `apiVersion` no manifesto (semver). O app suporta a versão atual e a anterior.
-- Toda mensagem recebida é validada com Zod; chamadas têm timeout e limite de frequência.
+- `apiVersion` no manifesto. Versão atual: "1". Acréscimos compatíveis (como widgets) não mudam a versão.
+- Toda mensagem recebida é validada com Zod; limite de 60 chamadas por segundo; plugin que não
+  chama o app em 10 s depois de abrir é dado como travado.
+- Métodos v1: `host.getTheme`, `host.getContext`, `ui.toast`, `ui.openPage`, `ui.closePanel`,
+  `notes.getCurrent`, `notes.insertText`, `decks.list`, `cards.propose`, `storage.get/set/delete/keys`.
 
 ### 7.3 Pontos de extensão
 
@@ -190,13 +201,16 @@ await app.cards.create({
 |---|---|---|
 | `panel` | Painel lateral (computador) ou folha inferior (celular), ligado ao contexto | Modelo 3D ao abrir nota de anatomia |
 | `page` | Tela própria na navegação | Analisador de Edital |
-| `command` | Ação no menu de seleção de texto ou na paleta de comandos | "Definir palavra" |
-| `cardRenderer` | Renderiza frente e verso de cards `type: plugin` na revisão | Card com modelo 3D girável |
-| `noteEmbed` | Bloco dentro da nota | Thumbnail 3D clicável |
+| `command` | Ação sobre o texto selecionado na nota (barra no rodapé); abre o painel do plugin. Paleta: aceito no manifesto, ainda não exibido | "Definir palavra" |
+| `widgets` | Quadros de altura fixa que o usuário põe no Início (até 5 por plugin, até 4 de plugins no Início) | "Busca rápida" do dicionário |
+| `cardRenderer` (Fase 4) | Renderiza frente e verso de cards `type: plugin` na revisão | Card com modelo 3D girável |
+| `noteEmbed` (Fase 4) | Bloco dentro da nota | Thumbnail 3D clicável |
+| destaques (Fase 3.1) | Palavras coloridas na nota, sem alterar o texto | Marca-texto (será criado pelo usuário) |
 | `settings` | Tela de configuração do plugin | Idioma do dicionário |
 
-Eventos: `note.opened`, `note.closed`, `selection.changed`, `deck.created`, `review.started`,
-`review.cardShown`, `theme.changed`.
+Eventos implementados: `theme.changed` e `context.changed` (ex.: outra palavra selecionada com o
+painel aberto). Previstos conforme a necessidade dos plugins: `note.opened`, `note.closed`,
+`review.cardShown`.
 
 ### 7.4 Manifesto
 
@@ -212,11 +226,14 @@ Eventos: `note.opened`, `note.closed`, `selection.changed`, `deck.created`, `rev
     "cardRenderer": true,
     "noteEmbed": true
   },
-  "activation": ["onSubjectTag:anatomia", "onCardType", "onEmbed"],
+  "activation": ["onSubjectTag:anatomia"],
   "permissions": ["notes:read", "notes:write", "cards:write", "assets:write", "storage"],
   "network": []
 }
 ```
+
+`activation` é aceito no manifesto mas ainda não é usado: hoje o plugin abre pelo que o usuário
+toca (tela, comando, widget). Abrir sozinho conforme a matéria da nota fica para a Fase 4.
 
 Um plugin é uma pasta com `manifest.json`, a página de entrada e quaisquer recursos, distribuída
 como um arquivo compactado. Como o iframe isolado não busca arquivos por conta própria, há duas
@@ -229,26 +246,27 @@ formas de carregamento (já implementadas e testadas):
   com `plugin.readFile({ path })`, e chegam por transferência, sem cópia. O app recusa qualquer
   caminho fora da pasta do plugin.
 
-O acesso aos arquivos passa por uma interface (`PluginSource`); hoje ela lê plugins distribuídos
-com o app, e na Fase 3 ganha a implementação para pacotes instalados.
+O acesso aos arquivos passa por uma interface (`PluginSource`), com duas implementações: plugins
+embutidos (servidos com o app) e instalados (pasta privada do app no aparelho).
 
 ### 7.5 Permissões
 
 | Permissão | Libera |
 |---|---|
-| `notes:read` / `notes:write` | Ler a nota em contexto / inserir conteúdo e embeds |
-| `cards:read` / `cards:write` | Ler cards do próprio plugin / criar cards |
+| `notes:read` / `notes:write` | Ler a nota aberta e a seleção / inserir texto puro na nota |
+| `cards:read` / `cards:write` | Ver a lista de baralhos / propor cards (o usuário confirma cada um) |
 | `assets:write` | Salvar imagens e arquivos |
 | `storage` | Chave-valor privado do plugin |
 | `ai` | Chamar o proxy de IA do app (sujeito a cota) |
 | `network` | Acessar **apenas** os domínios listados no manifesto |
 
-O usuário vê e aprova as permissões na instalação. Sem `network`, o plugin não faz nenhuma
+O usuário vê e aprova as permissões ao ativar o plugin (tudo ou nada nesta versão). Sem `network`, o plugin não faz nenhuma
 requisição externa (bloqueio por Content-Security-Policy injetada pelo app).
 
 ### 7.6 Estabilidade e eficiência
 
-- **Carregamento sob demanda**: o iframe só é criado quando uma condição de `activation` ocorre.
+- **Carregamento sob demanda**: o iframe só é criado quando a tela, o painel, o widget visível ou
+  o comando é usado.
 - **Fallback obrigatório**: todo card de plugin carrega texto e imagem estáticos. Se o plugin for
   desinstalado, falhar ou demorar, a revisão continua com o fallback.
 - **Embeds baratos**: na nota aparece uma imagem estática; o iframe interativo só abre ao clicar.
@@ -257,8 +275,10 @@ requisição externa (bloqueio por Content-Security-Policy injetada pelo app).
 
 ### 7.7 Distribuição
 
-1. Fases 3–4: plugins oficiais embutidos no repositório.
-2. Fase 6: catálogo — um índice estático com versão e hash SHA-256 de cada pacote, verificado
+1. Desde a Fase 3: plugins oficiais embutidos; instalação de arquivo `.zip` e de link (`.zip`
+   publicado, ex.: release do GitHub). De arquivo/link = "origem não verificada", com aviso.
+2. Kit e modelo: `packages/plugin-sdk` e `plugins/_template` (o kit será publicado no npm na Fase 6).
+3. Fase 6: catálogo — um índice estático com versão e hash SHA-256 de cada pacote, verificado
    antes de instalar. Assinatura e revisão de plugins de terceiros vêm depois.
 
 A política da Google Play proíbe baixar código executável nativo, mas abre exceção para
@@ -271,7 +291,7 @@ JavaScript em WebView; ainda assim os plugins precisam respeitar as demais polí
 | Abre a nota "Sistema Cardiovascular" | Evento `note.opened` + `activation: onSubjectTag:anatomia` |
 | Modelo 3D aparece no painel | Ponto de extensão `panel`; Three.js + modelo GLB comprimido, dentro do iframe |
 | Gira, dá zoom, clica na aorta | Tudo interno ao plugin |
-| "Criar questão visual" | `app.assets.save(thumbnail)` + `app.cards.create({ type: "plugin", content, fallback })` |
+| "Criar questão visual" | `app.assets.save(thumbnail)` + um método novo da Fase 4 para cards `type: plugin` (com `content` e `fallback`), seguindo a regra de `cards.propose`: o usuário confirma |
 | "Adicionar referência à nota" | `app.notes.insertEmbed({ data, thumbnail })` — também vira aresta no grafo |
 | Revisão com o modelo girável | `cardRenderer`: o app abre o iframe do plugin com o `content` do card; a avaliação (errei/difícil/bom/fácil) continua sendo do app |
 
@@ -310,26 +330,31 @@ estudarella/
 │   └── app/                     # App React (web + Android via Capacitor)
 │       ├── src/
 │       │   ├── routes/          # Telas: home, notas, revisão, grafo, foco, plugins, ajustes
-│       │   ├── features/        # notes/, flashcards/, graph/, focus/, progress/
-│       │   ├── plugin-host/     # Iframe, ponte RPC, permissões, ciclo de vida
-│       │   ├── components/ui/   # shadcn/ui
-│       │   ├── stores/          # Zustand (somente estado de UI)
+│       │   ├── features/        # notes/, cards/, subjects/, graph/, focus/, progress/, home/, backup/
+│       │   ├── navigation/      # Registro de telas, painel "Ir para", botão voltar do Android
+│       │   ├── plugin-host/     # Iframe, ponte, permissões, registro, instalação, painel
+│       │   ├── components/      # Componentes de interface (Radix + tokens do tema)
+│       │   ├── data/            # Abertura do banco, leitura reativa, arquivos
+│       │   ├── stores/          # Zustand (estado de interface e preferências do aparelho)
 │       │   └── theme/           # Tokens de design e temas
+│       ├── public/builtin-plugins/  # Plugins oficiais compilados (gerados de plugins/*)
+│       ├── scripts/android-cdp.mjs  # Inspeção do app rodando no aparelho
 │       └── android/             # Projeto Capacitor
 │
 ├── packages/
-│   ├── core/                    # Regras de negócio sem UI: srs/, graph/, streak/, backup/
+│   ├── core/                    # Regras sem UI: agendamento, lacunas, dia de estudo, sequência, árvore
 │   ├── db/                      # Schema Drizzle, migrações, queries, drivers (web / android)
 │   ├── plugin-api/              # Tipos e schemas Zod do contrato (compartilhado app ↔ SDK)
 │   └── plugin-sdk/              # SDK usado pelos autores de plugin
 │
 ├── plugins/
-│   ├── _template/
-│   ├── dicionario-pt/
-│   └── anatomy-3d/
+│   ├── _template/               # Modelo para novos plugins (gera o .zip)
+│   └── dicionario-pt/           # Plugin oficial
 │
-├── docs/                        # Guia para autores de plugin
-└── planejamento/
+├── docs/guia-de-plugins.md      # Guia para autores de plugin
+├── instruções/                  # Plano de cada fase
+├── documentos/                  # Relatórios de cada fase
+└── planejamento/                # Este plano geral
 ```
 
 ---
@@ -393,6 +418,8 @@ Plano: `instruções/fase-2.md` · Relatório: `documentos/relatorio-fase-2.md`
 
 - [x] Instalação de `.zip` e de link; guia (`docs/guia-de-plugins.md`) e modelo (`plugins/_template`)
 
+- [x] Início personalizável com widgets, inclusive de plugins (`instruções/inicio-personalizavel.md`)
+
 Plano: `instruções/fase-3.md` · Relatório: `documentos/relatorio-fase-3.md`
 
 ### Fase 3.1 — Destaques de palavras por plugins
@@ -418,18 +445,19 @@ Plano: `instruções/fase-3.1-destaques.md`
 ### Fase 6 — Distribuição pública
 - [ ] Publicação na Play Store e site
 - [ ] Catálogo de plugins com verificação de hash
-- [ ] Documentação e template para autores de plugin
+- [x] Guia e modelo para autores de plugin (feitos na Fase 3)
+- [ ] Publicar o kit de plugins no npm
 
 ---
 
 ## 11. Decisões em Aberto
 
-- **Fontes de dados dos plugins** (Dicionário PT e semelhantes): adiado de propósito — decidir quando o core e o sistema de plugins estiverem prontos (após a Fase 3).
-- **Imagens em notas e cards**: Fase 1 ou junto com o `cardRenderer` (Fase 4)? O armazenamento de arquivos já existe; falta a interface.
+- ~~Fonte do Dicionário PT~~ — decidido: Wikcionário, com cache das últimas palavras consultadas.
+- ~~Imagens em cards~~ — feito na Fase 1. **Imagens dentro das notas**: ainda sem fase definida.
 - **Importação de decks do Anki**: entra no core, vira plugin ou fica fora?
 - **Modelo de negócio** (recomendação, a confirmar): app e plugins oficiais gratuitos, sem limites no uso local; assinatura única para o que tem custo de servidor (sync entre dispositivos + cota de IA). SDK e plugins oficiais com código aberto. Plugins pagos de terceiros só depois de existir um catálogo ativo. Só precisa ser fechado antes da Fase 5.
 - **Sync**: confirmar PowerSync ou alternativa no início da Fase 5.
-- **Nome final**: "Estudarella" (provisório).
+- ~~Nome final~~ — decidido: **Estudarella** (o repositório no GitHub chama-se Mesa-de-Atenas).
 
 ---
 

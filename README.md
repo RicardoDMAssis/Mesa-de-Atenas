@@ -28,14 +28,41 @@ Na primeira vez, `pnpm e2e` pede `pnpm --filter @estudarella/app exec playwright
 ## Estrutura
 
 ```
-apps/app            App React (web + Android via Capacitor)
-  src/routes        Telas
-  src/plugin-host   Iframe isolado, política de rede e ponte de mensagens
-  src/data          Abertura do banco
-  public/builtin-plugins    Plugin de prova usado no diagnóstico
-packages/core       Regras de negócio sem interface
-packages/db         Schema, migrações e drivers do SQLite
-packages/plugin-api Contrato app ↔ plugin (manifesto e protocolo)
+apps/app                 App React (web + Android via Capacitor)
+  src/routes             Telas
+  src/features           Notas, cards, matérias, grafo, foco, progresso, Início, backup
+  src/navigation         Registro de telas, painel "Ir para", botão voltar do Android
+  src/plugin-host        Iframe isolado, ponte, permissões, registro e instalação de plugins
+  src/data               Abertura do banco, leitura reativa, arquivos
+  public/builtin-plugins Plugins oficiais compilados (gerados) e plugin de prova do diagnóstico
+  scripts/android-cdp.mjs Inspeção do app rodando no aparelho
+packages/core            Regras sem interface (agendamento, lacunas, dia de estudo, sequência)
+packages/db              Schema, migrações, consultas e driver do SQLite
+packages/plugin-api      Contrato app ↔ plugin (manifesto, métodos, permissões, protocolo)
+packages/plugin-sdk      Kit usado pelos plugins
+plugins/                 Plugins oficiais (dicionario-pt) e modelo (_template)
+docs/                    Guia para autores de plugin
+instruções/              Plano de cada fase
+documentos/              Relatório de cada fase
+planejamento/            Plano geral
+```
+
+## Android
+
+Requisitos: Android Studio (SDK em `~/Android/Sdk`) e o Java dele (21). Nesta máquina:
+
+```bash
+export ANDROID_HOME=$HOME/Android/Sdk JAVA_HOME=/opt/android-studio/jbr
+export PATH=$ANDROID_HOME/platform-tools:$PATH
+pnpm --filter @estudarella/app android:sync      # compila a web e copia para o Android
+cd apps/app && npx cap run android               # instala e abre no aparelho/emulador
+```
+
+Para inspecionar o app no aparelho (apenas build de depuração):
+
+```bash
+adb forward tcp:9333 localabstract:$(adb shell cat /proc/net/unix | grep -o "webview_devtools_remote_[0-9]*" | head -1)
+node apps/app/scripts/android-cdp.mjs 'location.pathname' [captura.png]
 ```
 
 ## Regras do projeto
