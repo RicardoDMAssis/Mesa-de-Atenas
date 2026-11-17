@@ -5,6 +5,9 @@ import { useNavigate } from "react-router";
 import { normalize, noteLabel, useNoteTitles } from "../features/notes/titles";
 import { MAX_PINNED, type Screen, useLauncher, useNavPrefs, useScreens } from "./screens";
 
+/** Celular/tablet: tela estreita ou toque como entrada principal. */
+const isTouchLayout = () => window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;
+
 type Item = { kind: "screen"; screen: Screen } | { kind: "note"; id: string; title: string };
 
 /**
@@ -40,7 +43,8 @@ export function Launcher() {
     if (open) {
       setQuery("");
       setEditing(false);
-      setActive(0);
+      // No celular nada começa destacado; no computador, o primeiro item (para o Enter).
+      setActive(isTouchLayout() ? -1 : 0);
     }
   }, [open]);
 
@@ -76,8 +80,9 @@ export function Launcher() {
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
+      const from = active < 0 ? (e.key === "ArrowDown" ? -1 : 0) : active;
       const next =
-        (active + (e.key === "ArrowDown" ? 1 : -1) + items.length) % Math.max(items.length, 1);
+        (from + (e.key === "ArrowDown" ? 1 : -1) + items.length) % Math.max(items.length, 1);
       setActive(next);
       list.current?.querySelector(`[data-index="${next}"]`)?.scrollIntoView({ block: "nearest" });
     } else if (e.key === "Enter") {
@@ -99,6 +104,10 @@ export function Launcher() {
         <RadixDialog.Content
           className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col rounded-t-2xl border border-line bg-surface pb-[env(safe-area-inset-bottom)] text-fg shadow-xl outline-none md:inset-x-auto md:top-[12vh] md:bottom-auto md:left-1/2 md:w-[calc(100%-2rem)] md:max-w-xl md:-translate-x-1/2 md:rounded-2xl"
           onKeyDown={onKeyDown}
+          // No celular, não foca a busca ao abrir: o teclado cobriria metade do painel.
+          onOpenAutoFocus={(e) => {
+            if (isTouchLayout()) e.preventDefault();
+          }}
         >
           <RadixDialog.Title className="sr-only">Ir para</RadixDialog.Title>
           <RadixDialog.Description className="sr-only">

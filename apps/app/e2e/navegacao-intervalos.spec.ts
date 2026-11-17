@@ -129,3 +129,22 @@ test("celular: personalizar as telas da barra inferior", async ({ page, isMobile
   await page.reload();
   await expect(bar.getByRole("link")).toHaveText(["Início", "Notas", "Revisão", "Foco"]);
 });
+
+test("celular: abrir o Mais não foca a busca nem destaca item", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "comportamento do celular");
+  await page.goto("/");
+  await expect(page.getByTestId("streak")).toBeVisible();
+  await page.getByRole("button", { name: "Mais" }).click();
+  const input = page.getByLabel("Ir para tela ou nota");
+  await expect(input).toBeVisible();
+  await expect(input).not.toBeFocused();
+  await expect(page.getByRole("dialog").locator(".bg-accent-soft")).toHaveCount(0);
+});
+
+test("computador: Ctrl+K continua focando a busca", async ({ page, isMobile }) => {
+  test.skip(isMobile, "comportamento do computador");
+  await page.goto("/");
+  await expect(page.getByTestId("streak")).toBeVisible();
+  await page.keyboard.press("Control+k");
+  await expect(page.getByLabel("Ir para tela ou nota")).toBeFocused();
+});
