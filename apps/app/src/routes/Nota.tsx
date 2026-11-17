@@ -7,13 +7,15 @@ import {
   saveNote,
   setNoteSubject,
 } from "@estudarella/db";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BookOpen, Pencil } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { SubjectSelect } from "../components/SubjectSelect";
 import { ConfirmDialog, EmptyState, Menu } from "../components/ui";
 import { useDatabase } from "../data/DatabaseProvider";
+import { useSubjects } from "../data/hooks";
 import { useLiveQuery } from "../data/useLiveQuery";
+import { useNoteMode } from "../features/notes/mode";
 import { type EditorSnapshot, NoteEditor } from "../features/notes/NoteEditor";
 import { linkTargets } from "../features/notes/noteLink";
 import { noteLabel } from "../features/notes/titles";
@@ -35,6 +37,13 @@ function NoteScreen({ id }: { id: string }) {
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState<SaveStatus>("saved");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const preferredMode = useNoteMode((s) => s.mode);
+  const setMode = useNoteMode((s) => s.setMode);
+  // Nota vazia (recém-criada) sempre abre em edição; as demais seguem o último modo escolhido.
+  const [blankAtOpen, setBlankAtOpen] = useState(false);
+  const mode = blankAtOpen ? "edit" : preferredMode;
+  const reading = mode === "read";
+  const subjects = useSubjects();
 
   // Rascunho mais recente e controle do salvamento automático.
   const draft = useRef<{ title: string; body: EditorSnapshot | null; dirty: boolean }>({
@@ -51,6 +60,7 @@ function NoteScreen({ id }: { id: string }) {
       if (cancelled) return;
       setNote(found ?? null);
       if (found) {
+        setBlankAtOpen(!found.title.trim() && !found.plainText.trim());
         setTitle(found.title);
         draft.current = {
           title: found.title,
@@ -156,44 +166,62 @@ function NoteScreen({ id }: { id: string }) {
             }[status]
           }
         </span>
+        <ModeToggle
+          reading={reading}
+          onChange={(next) => {
+            setBlankAtOpen(false);
+            setMode(next);
+          }}
+        />
         <Menu
           label="Ações da nota"
           items={[{ label: "Excluir nota", danger: true, onSelect: () => setConfirmDelete(true) }]}
         />
       </div>
 
-      <input
-        value={title}
-        onChange={(e) => {
-          setTitle(e.target.value);
-          draft.current.title = e.target.value;
-          schedule();
-        }}
-        placeholder="Título"
-        aria-label="Título da nota"
-        maxLength={200}
-        className="w-full bg-transparent text-2xl font-semibold tracking-tight outline-none placeholder:text-muted md:text-3xl"
-      />
-
-      <div className="mb-4 mt-3 max-w-xs">
-        <label className="sr-only" htmlFor="nota-materia">
-          Matéria
-        </label>
-        <SubjectSelect
-          id="nota-materia"
-          value={note.subjectId}
-          onChange={async (subjectId) => {
-            setNote({ ...note, subjectId });
-            await setNoteSubject(db, id, subjectId);
+      {reading ? (
+        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{noteLabel(title)}</h1>
+      ) : (
+        <input
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            draft.current.title = e.target.value;
+            schedule();
           }}
+          placeholder="Título"
+          aria-label="Título da nota"
+          maxLength={200}
+          className="w-full bg-transparent text-2xl font-semibold tracking-tight outline-none placeholder:text-muted md:text-3xl"
         />
-      </div>
+      )}
+
+      {reading ? (
+        <p className="mb-6 mt-1 text-sm text-accent">
+          {note.subjectId ? subjects.byId.get(note.subjectId)?.name : null}
+        </p>
+      ) : (
+        <div className="mb-4 mt-3 max-w-xs">
+          <label className="sr-only" htmlFor="nota-materia">
+            Matéria
+          </label>
+          <SubjectSelect
+            id="nota-materia"
+            value={note.subjectId}
+            onChange={async (subjectId) => {
+              setNote({ ...note, subjectId });
+              await setNoteSubject(db, id, subjectId);
+            }}
+          />
+        </div>
+      )}
 
       <NoteEditor
         noteId={id}
         initialContent={note.content}
         createNote={createLinked}
         onChange={onBodyChange}
+        editable={!reading}
       />
 
       {backlinks.data && backlinks.data.length > 0 && (
@@ -227,5 +255,41 @@ function NoteScreen({ id }: { id: string }) {
         }}
       />
     </article>
+  );
+}
+
+/** Alterna entre modo de edição e de leitura. */
+function ModeToggle({
+  reading,
+  onChange,
+}: {
+  reading: boolean;
+  onChange: (mode: "edit" | "read") => void;
+}) {
+  const option = (active: boolean) =>
+    `inline-flex min-h-9 items-center gap-1.5 rounded-md px-2.5 text-sm ${
+      active ? "bg-surface font-medium text-fg shadow-sm" : "text-muted hover:text-fg"
+    }`;
+  return (
+    <fieldset aria-label="Modo da nota" className="flex rounded-lg bg-line/60 p-0.5">
+      <button
+        type="button"
+        aria-pressed={!reading}
+        className={option(!reading)}
+        onClick={() => onChange("edit")}
+      >
+        <Pencil size={15} aria-hidden />
+        Editar
+      </button>
+      <button
+        type="button"
+        aria-pressed={reading}
+        className={option(reading)}
+        onClick={() => onChange("read")}
+      >
+        <BookOpen size={15} aria-hidden />
+        Ler
+      </button>
+    </fieldset>
   );
 }

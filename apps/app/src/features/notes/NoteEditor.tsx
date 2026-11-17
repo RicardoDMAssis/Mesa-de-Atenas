@@ -2,7 +2,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { type Editor, EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Bold, Heading2, Italic, Link2, List, ListOrdered, Quote } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { createNoteLink } from "./noteLink";
 
 export interface EditorSnapshot {
@@ -20,9 +20,17 @@ interface NoteEditorProps {
   initialContent: unknown;
   createNote: (title: string) => Promise<string>;
   onChange: (snapshot: EditorSnapshot) => void;
+  /** `false` = modo leitura: sem barra de formatação e sem edição (links continuam clicáveis). */
+  editable?: boolean;
 }
 
-export function NoteEditor({ noteId, initialContent, createNote, onChange }: NoteEditorProps) {
+export function NoteEditor({
+  noteId,
+  initialContent,
+  createNote,
+  onChange,
+  editable = true,
+}: NoteEditorProps) {
   const extensions = useMemo(
     () => [
       StarterKit.configure({ heading: { levels: [2, 3] } }),
@@ -37,6 +45,7 @@ export function NoteEditor({ noteId, initialContent, createNote, onChange }: Not
 
   const editor = useEditor({
     extensions,
+    editable,
     content: (initialContent as object | null) ?? "",
     editorProps: {
       attributes: {
@@ -47,10 +56,15 @@ export function NoteEditor({ noteId, initialContent, createNote, onChange }: Not
     onUpdate: ({ editor }) => onChange(snapshot(editor)),
   });
 
+  useEffect(() => {
+    // Troca de modo sem disparar onChange (não é uma edição do conteúdo).
+    if (editor && editor.isEditable !== editable) editor.setEditable(editable, false);
+  }, [editor, editable]);
+
   if (!editor) return null;
   return (
     <div>
-      <Toolbar editor={editor} />
+      {editable && <Toolbar editor={editor} />}
       <EditorContent editor={editor} />
     </div>
   );

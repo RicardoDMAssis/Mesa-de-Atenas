@@ -232,3 +232,66 @@ test("links: [[Nota]] digitado, [[Nota]](texto) e botão de citar", async ({ pag
   await expect(page.getByLabel("Título da nota")).toHaveValue("Sílaba");
   await expect(page.getByRole("link", { name: "Acento" })).toBeVisible();
 });
+
+test("(texto) depois de um link escolhido na lista ou com espaço muda o texto do link", async ({
+  page,
+}) => {
+  await newNote(page, "Fonema", "base");
+  await newNote(page, "Teste", "");
+  const editor = page.getByLabel("Conteúdo da nota");
+  const links = page.locator("[data-note-link]");
+
+  // Escolhido na lista: o app coloca um espaço depois do link.
+  await editor.pressSequentially("A [[Fon");
+  await page.getByRole("option", { name: "Fonema" }).click();
+  await editor.pressSequentially("(o fonema) ");
+  await expect(links.nth(0)).toHaveText("o fonema");
+
+  // Digitado com espaço entre ]] e (.
+  await editor.pressSequentially("B [[Fonema]] (unidade) ");
+  await expect(links.nth(1)).toHaveText("unidade");
+  await expect(editor).not.toContainText("(");
+
+  // Sem link antes, parênteses continuam sendo texto comum.
+  await editor.pressSequentially("C (normal) ");
+  await expect(editor).toContainText("(normal)");
+
+  await expect(page.getByTestId("save-status")).toHaveText("Salvo");
+  await page.reload();
+  await expect(links).toHaveText(["o fonema", "unidade"]);
+});
+
+test("modo leitura e modo edição", async ({ page }) => {
+  await newNote(page, "Revisar", "conteúdo da nota");
+  const editor = page.getByLabel("Conteúdo da nota");
+  const editButton = page.getByRole("button", { name: "Editar" });
+  const readButton = page.getByRole("button", { name: "Ler" });
+
+  await readButton.click();
+  await expect(readButton).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("heading", { name: "Revisar" })).toBeVisible();
+  await expect(page.getByLabel("Título da nota")).toHaveCount(0);
+  await expect(page.getByRole("toolbar", { name: "Formatação" })).toHaveCount(0);
+  await expect(editor).toHaveAttribute("contenteditable", "false");
+
+  // O modo escolhido vale ao reabrir.
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Revisar" })).toBeVisible();
+
+  // Nota nova abre em edição mesmo com o modo leitura escolhido.
+  await page.goto("/notas");
+  await page.getByRole("button", { name: "Nova nota" }).click();
+  await expect(page.getByLabel("Título da nota")).toBeVisible();
+  await page.goBack();
+  await page.goBack();
+
+  await page.goto("/notas");
+  await page.getByRole("link", { name: /Revisar/ }).click();
+  await editButton.click();
+  await expect(editor).toHaveAttribute("contenteditable", "true");
+  await editor.click();
+  await editor.press("End");
+  await editor.pressSequentially(" editada");
+  await expect(page.getByTestId("save-status")).toHaveText("Salvo");
+  await expect(editor).toContainText("conteúdo da nota editada");
+});

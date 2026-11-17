@@ -207,9 +207,11 @@ export function createNoteLink({ currentNoteId, createNote }: NoteLinkOptions) {
             );
           },
         }),
-        // Digitar (texto) logo depois de um link define o texto exibido: [[Nota]](texto).
+        // Digitar (texto) depois de um link define o texto exibido: [[Nota]](texto).
+        // Aceita espaços entre o link e o "(": a lista de notas e os teclados de celular
+        // costumam colocar um espaço logo depois do link.
         new InputRule({
-          find: /\(([^()\n]+)\)$/,
+          find: /\s*\(([^()\n]+)\)$/,
           handler: ({ state, range, match }) => {
             const before = state.doc.resolve(range.from).nodeBefore;
             if (before?.type !== type) return null;
