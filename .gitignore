@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+
+# Android (Capacitor)
+apps/app/android/.gradle/
+apps/app/android/build/
+apps/app/android/app/build/
+apps/app/android/local.properties
+apps/app/android/app/src/main/assets/public/

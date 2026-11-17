@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Tokens de design. Um tema é apenas um conjunto de valores para estas variáveis;
+ * os mesmos tokens são enviados aos plugins para que acompanhem o visual do app.
+ */
+:root {
+  color-scheme: light;
+  --bg: #faf9f6;
+  --surface: #ffffff;
+  --text: #1f1d1a;
+  --muted: #6d675f;
+  --border: #e5e1d9;
+  --accent: #5b4bd6;
+  --accent-contrast: #ffffff;
+  --accent-soft: #eeebfd;
+  --ok: #1f7a4d;
+  --danger: #b3261e;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #141316;
+  --surface: #1d1c21;
+  --text: #ece9f1;
+  --muted: #a29dae;
+  --border: #2f2d36;
+  --accent: #9d90ff;
+  --accent-contrast: #15131f;
+  --accent-soft: #2a2647;
+  --ok: #5fd39a;
+  --danger: #ff8a80;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--text);
+  --color-muted: var(--muted);
+  --color-line: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-contrast);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-danger: var(--danger);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}

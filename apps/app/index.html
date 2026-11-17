@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#5b4bd6" />
+    <!--
+      Impede que um iframe de plugin navegue para fora do app (o que permitiria vazar dados
+      pela URL). Os plugins são carregados por srcdoc, que não depende de frame-src.
+      Atenção: iframes srcdoc herdam esta política; diretivas novas aqui valem para os plugins.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="frame-src 'none'" />
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <title>Estudarella</title>
+    <script>
+      // Aplica o tema antes da primeira pintura, para não piscar.
+      try {
+        var saved = JSON.parse(localStorage.getItem("estudarella:theme") || "null");
+        var pref = (saved && saved.state && saved.state.preference) || "system";
+        var dark =
+          pref === "dark" ||
+          (pref === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
