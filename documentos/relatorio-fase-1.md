@@ -60,6 +60,7 @@ Pedidos feitos depois da primeira versão da fase, todos implementados e com tes
   salvamento é assíncrono e o navegador não espera por ele ao descarregar. Navegar dentro do app
   não tem esse problema.
 - Restaurar um backup substitui tudo (não mescla).
+- Colar `[[Nota]]` ou `[[Nota]](texto)` não vira link; a conversão só acontece ao digitar.
 - Sem limite diário de cards novos e sem lixeira.
 - O Android continua sem compilar (falta o Android SDK); nada desta fase foi testado em aparelho.
 
@@ -85,5 +86,23 @@ Emulador Pixel 6, Android 14, WebView Chrome 113, APK de depuração gerado pelo
 plugins nativos dele e não a copia para o app. Os plugins embutidos passaram para
 `public/builtin-plugins`. Na web isso não aparecia.
 
-**Ainda não verificado:** celular real com teclado que usa composição de palavras (Gboard e
-similares), que pode se comportar diferente nas regras de `[[...]]`; e WebViews mais antigas.
+## Teste em celular real (2026-11-17)
+
+Samsung Galaxy A52 (SM-A525M), Android 14, WebView Chrome 157, teclado Samsung.
+
+| Verificação                                                     | Resultado                                                         |
+| --------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Diagnóstico (banco, arquivos, plugin isolado com 3D)            | Tudo OK                                                           |
+| Banco persiste ao fechar o app à força                          | OK                                                                |
+| Card, revisão e busca                                           | OK                                                                |
+| Links digitados com o teclado Samsung: `[[Nota]]`, lista, botão | OK                                                                |
+| `[[Nota]](texto)`                                               | Falhava; corrigido (abaixo) e confirmado pelo usuário no aparelho |
+
+**Correção:** o `(texto)` só era aceito colado ao link. A lista de notas e o teclado do celular
+colocam um espaço depois do link, então o texto não era aplicado. Agora espaços entre o link e
+o `(` são aceitos (commit `e648598`).
+
+**Novo na mesma entrega:** botão **Editar | Ler** nas notas. Em leitura, sem barra de formatação e
+sem edição, com links clicáveis. O modo fica salvo no aparelho; nota nova abre em edição.
+
+**Ainda não verificado:** WebViews antigas (Android 7–9).
