@@ -52,7 +52,7 @@ A regra ficou documentada no README e coberta por teste de unidade (gravações 
 
 ## Pendências
 
-- **Notificação do timer em celular real**: não testada (o celular estava desconectado).
+- **Notificação do timer em celular real**: ainda não testada.
   Testar: começar um foco curto, bloquear a tela e esperar o aviso.
 - No celular, Foco e Progresso não estão na barra inferior; são acessados pelos cards da tela
   inicial. A Busca saiu da barra inferior para dar lugar ao Grafo (continua no Início).
@@ -66,13 +66,17 @@ A regra ficou documentada no README e coberta por teste de unidade (gravações 
 | Navegação para muitas telas (plugins)        | Registro único de telas (app + plugins). Celular: barra com 4 telas escolhidas pelo usuário + botão **Mais**. Painel "Ir para" (botão Mais ou Ctrl+K) com todas as telas, recentes e busca que também acha notas; "Personalizar barra" escolhe as 4 fixadas. Telas de plugins entram automaticamente (seção "Plugins")                                            |
 | Botão voltar do Android                      | Janela aberta → fecha; subpágina → volta; tela principal → Início; no Início, um toque mostra "Toque em voltar de novo para sair" e dois toques seguidos saem                                                                                                                                                                                                     |
 
-**Verificado no Galaxy A52:** os quatro comportamentos do botão voltar e o painel "Mais".
+**Ajuste posterior:** no celular, o painel "Mais" abre sem focar a busca (o teclado não sobe)
+e sem item destacado. No computador, Ctrl+K continua focando a busca (commit `e9aa563`).
+
+**Verificado no Galaxy A52:** os quatro comportamentos do botão voltar e o painel "Mais"
+(abre com o teclado fechado e nada destacado).
 
 **Bug encontrado no aparelho:** o ouvinte do botão voltar era removido logo após ser registrado
 (o React registra e desfaz efeitos duas vezes em modo estrito, e a remoção assíncrona apagava o
 registro novo). Agora ele é registrado uma única vez, fora do ciclo do React.
 
-Testes: 74 de unidade e 62 de navegador (1 pulado de propósito: barra inferior só no celular).
+Testes: 74 de unidade e 64 de navegador (4 pulados de propósito: casos que só existem no celular ou só no computador).
 
 ## Próximos passos
 
