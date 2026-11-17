@@ -1,4 +1,4 @@
-import { SNIPPET_CLOSE, SNIPPET_OPEN, search } from "@estudarella/db";
+import { listAllSearchable, SNIPPET_CLOSE, SNIPPET_OPEN, search } from "@estudarella/db";
 import { Layers, NotebookText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
@@ -64,7 +64,12 @@ export function Busca() {
     return () => clearTimeout(t);
   }, [text, setParams]);
 
-  const results = useLiveQuery(["notes", "cards"], (db) => search(db, query), [query]);
+  // Campo vazio: lista todas as notas e cards; com texto: busca.
+  const results = useLiveQuery(
+    ["notes", "cards"],
+    (db) => (query.trim() ? search(db, query) : listAllSearchable(db)),
+    [query],
+  );
 
   return (
     <>
@@ -78,9 +83,9 @@ export function Busca() {
         autoFocus
       />
       <div className="mt-4">
-        {!query.trim() ? null : results.data && results.data.length === 0 ? (
-          <EmptyState title="Nada encontrado">
-            Tente outras palavras ou só o começo delas.
+        {results.data && results.data.length === 0 ? (
+          <EmptyState title={query.trim() ? "Nada encontrado" : "Nenhuma nota ou card ainda"}>
+            {query.trim() ? "Tente outras palavras ou só o começo delas." : null}
           </EmptyState>
         ) : (
           <ul className="grid gap-2" aria-label="Resultados">

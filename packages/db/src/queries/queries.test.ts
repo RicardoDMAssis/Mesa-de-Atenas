@@ -22,7 +22,7 @@ import {
   saveNote,
   setNoteSubject,
 } from "./notes";
-import { buildFtsQuery, SNIPPET_CLOSE, SNIPPET_OPEN, search } from "./search";
+import { buildFtsQuery, listAllSearchable, SNIPPET_CLOSE, SNIPPET_OPEN, search } from "./search";
 import { createSubject, deleteSubject, listSubjects, moveSubject, subtreeIds } from "./subjects";
 
 const open = async () => (await openDb(nodeDriver())).db;
@@ -181,6 +181,24 @@ describe("busca", () => {
 
     expect(await search(db, "inexistente")).toEqual([]);
     expect(await search(db, '"')).toEqual([]);
+  });
+
+  it("com o campo vazio, lista todas as notas e cards ativos", async () => {
+    const db = await open();
+    const deck = await createDeck(db, { name: "D" });
+    const a = await createNote(db, { title: "A" });
+    const b = await createNote(db, { title: "B" });
+    await createCards(
+      db,
+      deck.id,
+      [{ type: "basic", content: { front: "f", back: "v" } }],
+      fresh(1),
+    );
+    await deleteNote(db, a.id);
+    const all = await listAllSearchable(db);
+    expect(all.map((h) => h.kind)).toEqual(["note", "card"]);
+    expect(all[0]?.id).toBe(b.id);
+    expect(all[1]?.deckId).toBe(deck.id);
   });
 
   it("acompanha edições e exclusões", async () => {

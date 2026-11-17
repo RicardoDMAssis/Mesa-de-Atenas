@@ -56,3 +56,21 @@ export async function search(db: Db, input: string, limit = 40): Promise<SearchH
     deckId: decksOf.get(id),
   }));
 }
+
+/** Todas as notas e cards ativos (busca com o campo vazio): notas recentes primeiro, depois cards. */
+export async function listAllSearchable(db: Db, limit = 200): Promise<SearchHit[]> {
+  const rows = await db.values<[string, string, string, string, string | null]>(sql`
+    SELECT kind, ref_id, title, substr(body, 1, 160),
+      (SELECT deck_id FROM cards WHERE cards.id = search_index.ref_id)
+    FROM search_index
+    ORDER BY kind DESC, rowid DESC
+    LIMIT ${limit}
+  `);
+  return rows.map(([kind, id, title, snippet, deckId]) => ({
+    kind: kind as SearchHit["kind"],
+    id,
+    title,
+    snippet: snippet.trim(),
+    deckId: deckId ?? undefined,
+  }));
+}

@@ -181,3 +181,17 @@ test("a busca é refeita ao voltar para a página e ao recarregar", async ({ pag
   await expect(page.getByLabel("Buscar em notas e cards")).toHaveValue("morfo");
   await expect(results).toHaveCount(1);
 });
+
+test("com o campo de busca vazio, lista todas as notas e cards", async ({ page }) => {
+  await newNote(page, "Primeira", "um");
+  await newNote(page, "Segunda", "dois");
+  await page.goto("/busca");
+  const field = page.getByLabel("Buscar em notas e cards");
+  await field.fill("");
+  const results = page.getByRole("list", { name: "Resultados" }).getByRole("link");
+  await expect(results).toHaveCount(2);
+  await field.fill("prim");
+  await expect(results).toHaveCount(1);
+  await field.fill("");
+  await expect(results).toHaveCount(2);
+});
