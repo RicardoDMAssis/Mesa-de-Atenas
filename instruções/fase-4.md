@@ -20,6 +20,13 @@ pasta do plugin sob demanda (`plugin.readFile`), mas o kit ainda não expõe iss
 | Miniatura clicável dentro da nota           | Não                         | Blocos de plugin (`noteEmbed`) + imagens |
 | Salvar imagens (miniaturas)                 | Não para plugins            | `assets.save`                            |
 
+## Decisões tomadas com o usuário (2026-11-17)
+
+- Recorte: **só o esqueleto**.
+- Abertura: **opção A** — sugestão discreta na nota; o painel só abre se o usuário tocar.
+- Nomes dos ossos: preparados a partir da Terminologia Anatômica, com o latim ao lado para conferência; sem revisor da área por enquanto.
+- Implementação **aguardando autorização** do usuário.
+
 ## Decisões
 
 ### Cards de plugin
@@ -60,11 +67,11 @@ permissão: o plugin só lê a própria pasta.
 
 ### Abertura conforme a matéria (`activation`)
 
-| Tema          | Decisão                                                                                                                                                                                                                                     |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Etiquetas     | Matérias ganham **etiquetas** editáveis (a coluna `tags` já existe), ex.: `anatomia`                                                                                                                                                        |
-| Manifesto     | `"activation": ["onSubjectTag:anatomia"]`                                                                                                                                                                                                   |
-| Comportamento | Ao abrir uma nota cuja matéria (ou matéria acima) tem a etiqueta, aparece uma **sugestão discreta** "Abrir Esqueleto 3D" no topo da nota. **Não abre sozinho**: no celular, abrir um painel 3D sem pedir cobriria a nota e gastaria bateria |
+| Tema          | Decisão                                                                                                                                                                                                                                      |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Etiquetas     | Matérias ganham **etiquetas** editáveis (a coluna `tags` já existe), ex.: `anatomia`                                                                                                                                                         |
+| Manifesto     | `"activation": ["onSubjectTag:anatomia"]`                                                                                                                                                                                                    |
+| Comportamento | Ao abrir uma nota cuja matéria (ou matéria acima) tem a etiqueta, aparece uma **sugestão discreta** "Abrir Esqueleto 3D" no topo da nota. **Nunca abre sozinho** (decisão do usuário, 2026-11-17: opção A, sem opção de abertura automática) |
 
 ### Segurança e desempenho
 
