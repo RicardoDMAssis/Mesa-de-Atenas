@@ -431,10 +431,14 @@ Plano: `instruções/fase-3.md` · Relatório: `documentos/relatorio-fase-3.md`
 Plano: `instruções/fase-3.1-destaques.md`
 
 ### Fase 4 — Plugins v2 (ricos)
-- [ ] `cardRenderer` com fallback
-- [ ] `noteEmbed` com thumbnail
-- [ ] `assets` e cache de recursos pesados
+- [ ] Contrato e kit: `files.read`, `assets.save`, `cards.proposeVisual`, `notes.insertEmbed`, superfície `card`
+- [ ] Cards de plugin com reserva estática (`cardRenderer`) na revisão
+- [ ] Blocos de plugin na nota (`noteEmbed`) com miniatura
+- [ ] Etiquetas de matéria e sugestão de abrir o plugin (`activation`)
+- [ ] Modelo do esqueleto (Z-Anatomy/BodyParts3D, CC BY-SA) preparado e medido no celular
 - [ ] Plugin Esqueleto 3D (caso de referência completo)
+
+Plano: `instruções/fase-4.md`
 
 ### Fase 5 — Conta, Sync e IA
 - [ ] Autenticação (Supabase)
