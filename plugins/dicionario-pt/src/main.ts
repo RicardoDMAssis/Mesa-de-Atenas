@@ -316,7 +316,7 @@ async function showSettings() {
     el(
       "p",
       { className: "muted", id: "uso" },
-      `${index.length} palavra${index.length === 1 ? "" : "s"} guardada${index.length === 1 ? "" : "s"}, ${(bytes / 1024).toFixed(1)} KB.`,
+      `${index.length} palavra${index.length === 1 ? "" : "s"} guardada${index.length === 1 ? "" : "s"}, ${(bytes / 1024).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} KB.`,
     ),
     el(
       "div",

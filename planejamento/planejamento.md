@@ -386,12 +386,14 @@ Plano: `instruções/fase-1.md` · Relatório: `documentos/relatorio-fase-1.md`
 Plano: `instruções/fase-2.md` · Relatório: `documentos/relatorio-fase-2.md`
 
 ### Fase 3 — Plugins v1 (contextuais)
-- [ ] `plugin-api`, `plugin-sdk`, host com permissões e CSP
-- [ ] Pontos de extensão: `panel`, `command`, `page`, `settings`
-- [ ] Tela de gerenciamento de plugins e aprovação de permissões
-- [ ] Plugin Dicionário PT
+- [x] `plugin-api`, `plugin-sdk`, host com permissões e CSP
+- [x] Pontos de extensão: `panel`, `command`, `page`, `settings`
+- [x] Tela de gerenciamento de plugins e aprovação de permissões
+- [x] Plugin Dicionário PT
 
-Plano: `instruções/fase-3.md`
+- [x] Instalação de `.zip` e de link; guia (`docs/guia-de-plugins.md`) e modelo (`plugins/_template`)
+
+Plano: `instruções/fase-3.md` · Relatório: `documentos/relatorio-fase-3.md`
 
 ### Fase 3.1 — Destaques de palavras por plugins
 - [ ] Permissão `notes:highlight` e métodos `highlights.*` no contrato e no kit

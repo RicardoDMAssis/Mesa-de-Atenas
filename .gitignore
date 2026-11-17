@@ -22,3 +22,6 @@ apps/app/public/builtin-plugins/*/
 # Saída do modelo de plugin
 plugins/*/dist/
 plugins/*/*.zip
+
+# Capturas de testes no aparelho
+.android-test/
