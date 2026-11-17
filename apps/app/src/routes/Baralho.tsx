@@ -18,6 +18,7 @@ import { useDatabase } from "../data/DatabaseProvider";
 import { useLiveQuery } from "../data/useLiveQuery";
 import { CardEditor } from "../features/cards/CardEditor";
 import { cardSummary } from "../features/cards/CardView";
+import { DeckScheduleDialog } from "../features/cards/DeckScheduleDialog";
 
 const dueFormat = new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "short" });
 
@@ -28,6 +29,7 @@ export function Baralho() {
   const deck = useLiveQuery(["decks"], (db) => getDeck(db, id), [id]);
   const cards = useLiveQuery(["cards"], (db) => listCards(db, id), [id]);
   const [editing, setEditing] = useState<Card | "new" | null>(null);
+  const [scheduling, setScheduling] = useState(false);
   const [removing, setRemoving] = useState<Card | "deck" | null>(null);
   const [settings, setSettings] = useState(false);
   const [form, setForm] = useState({ name: "", subjectId: null as string | null });
@@ -52,7 +54,15 @@ export function Baralho() {
         Revisão
       </Link>
       <div className="flex items-start justify-between gap-2">
-        <PageTitle subtitle={`${list.length} cards`}>{deck.data.name}</PageTitle>
+        <PageTitle
+          subtitle={`${list.length} cards · ${
+            deck.data.settings.mode === "custom"
+              ? "intervalos personalizados"
+              : "intervalos automáticos"
+          }`}
+        >
+          {deck.data.name}
+        </PageTitle>
         <div className="flex items-center gap-1">
           <Button variant="primary" onClick={() => setEditing("new")}>
             <Plus size={18} aria-hidden />
@@ -63,6 +73,11 @@ export function Baralho() {
             items={[
               { label: "Renomear / matéria", onSelect: () => setSettings(true) },
               { label: "Estudar agora", onSelect: () => navigate(`/estudar?baralho=${id}`) },
+              {
+                label: "Praticar todos os cards",
+                onSelect: () => navigate(`/estudar?baralho=${id}&praticar=1`),
+              },
+              { label: "Intervalos de revisão", onSelect: () => setScheduling(true) },
               { label: "Excluir baralho", danger: true, onSelect: () => setRemoving("deck") },
             ]}
           />
@@ -119,6 +134,13 @@ export function Baralho() {
           })}
         </ul>
       )}
+
+      <DeckScheduleDialog
+        open={scheduling}
+        onClose={() => setScheduling(false)}
+        deckId={id}
+        settings={deck.data.settings}
+      />
 
       <CardEditor
         open={editing !== null}

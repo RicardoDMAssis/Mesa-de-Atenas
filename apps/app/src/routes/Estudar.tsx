@@ -1,15 +1,18 @@
 import { formatInterval, RATINGS, type Rating } from "@estudarella/core";
 import {
   type Card,
+  type DeckSettings,
+  deckSettingsMap,
   dueCards,
   endSession,
   getDeck,
+  listCards,
   recordReview,
   startReviewSession,
 } from "@estudarella/db";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button, EmptyState } from "../components/ui";
 import { useDatabase } from "../data/DatabaseProvider";
 import { useStudyDay } from "../data/hooks";
@@ -30,6 +33,10 @@ const STYLES: Record<Rating, string> = {
 export function Estudar() {
   const [params] = useSearchParams();
   const deckId = params.get("baralho") ?? undefined;
+  /** Prática: revisa todos os cards do baralho sem mudar quando eles voltam. */
+  const practice = Boolean(deckId) && params.get("praticar") === "1";
+  const navigate = useNavigate();
+  const [settings, setSettings] = useState<Map<string, DeckSettings>>(new Map());
   const { db, scheduler } = useDatabase();
   const { end } = useStudyDay();
   const [queue, setQueue] = useState<Card[] | null>(null);
@@ -43,12 +50,19 @@ export function Estudar() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: ver acima
   useEffect(() => {
     let cancelled = false;
-    dueCards(db, { deckId, cutoff: end }).then((cards) => !cancelled && setQueue(cards));
+    setQueue(null);
+    setDone({ 1: 0, 2: 0, 3: 0, 4: 0 });
+    const load =
+      practice && deckId
+        ? listCards(db, deckId).then(shuffle)
+        : dueCards(db, { deckId, cutoff: end });
+    load.then((cards) => !cancelled && setQueue(cards));
+    deckSettingsMap(db).then((map) => !cancelled && setSettings(map));
     if (deckId) getDeck(db, deckId).then((d) => !cancelled && setDeckName(d?.name));
     return () => {
       cancelled = true;
     };
-  }, [db, deckId]);
+  }, [db, deckId, practice]);
 
   // Sessão de revisão: abre na primeira resposta, fecha ao terminar a fila ou sair da tela.
   const session = useRef<{ id: Promise<string>; last: number } | null>(null);
@@ -61,9 +75,17 @@ export function Estudar() {
   );
 
   const card = queue?.[0];
+  /** Intervalos personalizados do baralho do card, se houver. */
+  const customFor = useCallback(
+    (c: Card) => {
+      const s = settings.get(c.deckId);
+      return s?.mode === "custom" ? (s.intervals ?? null) : null;
+    },
+    [settings],
+  );
   const preview = useMemo(
-    () => (card ? scheduler.preview(card, new Date()) : null),
-    [card, scheduler],
+    () => (card && !practice ? scheduler.preview(card, new Date(), customFor(card)) : null),
+    [card, scheduler, practice, customFor],
   );
 
   useEffect(() => {
@@ -75,13 +97,23 @@ export function Estudar() {
       if (!card || busy.current) return;
       busy.current = true;
       try {
+        if (practice) {
+          // Prática não grava nada; errar devolve o card ao fim da fila.
+          setQueue((q) => {
+            const rest = (q ?? []).slice(1);
+            return rating === 1 ? [...rest, card] : rest;
+          });
+          setDone((d) => ({ ...d, [rating]: d[rating] + 1 }));
+          setRevealed(false);
+          return;
+        }
         const now = new Date();
         session.current ??= {
           id: startReviewSession(db, { startedAt: shownAt.current, deckId: deckId ?? null }),
           last: now.getTime(),
         };
         session.current.last = now.getTime();
-        const outcome = scheduler.review(card, rating, now);
+        const outcome = scheduler.review(card, rating, now, customFor(card));
         await recordReview(db, card.id, outcome.next, {
           rating,
           state: outcome.previousState,
@@ -100,7 +132,7 @@ export function Estudar() {
         busy.current = false;
       }
     },
-    [card, scheduler, db, end, deckId],
+    [card, scheduler, db, end, deckId, practice, customFor],
   );
 
   // Atalhos: espaço/enter mostra a resposta; 1–4 respondem.
@@ -136,16 +168,37 @@ export function Estudar() {
         {back}
         <div className="mt-6">
           <EmptyState
-            title={total > 0 ? "Sessão concluída!" : "Nada para revisar agora"}
+            title={
+              practice
+                ? "Prática concluída!"
+                : total > 0
+                  ? "Sessão concluída!"
+                  : "Nada para revisar agora"
+            }
             action={
-              <Link to="/revisao" className="text-sm font-medium text-accent">
-                Voltar para os baralhos
-              </Link>
+              <div className="flex flex-wrap justify-center gap-2">
+                {deckId && (
+                  <Button
+                    variant={total > 0 ? "secondary" : "primary"}
+                    onClick={() => navigate(`/estudar?baralho=${deckId}&praticar=1`)}
+                  >
+                    {practice ? "Praticar de novo" : "Praticar este baralho"}
+                  </Button>
+                )}
+                <Link
+                  to="/revisao"
+                  className="inline-flex min-h-11 items-center px-3 text-sm font-medium text-accent"
+                >
+                  Voltar para os baralhos
+                </Link>
+              </div>
             }
           >
             {total > 0
               ? `${total} respostas: ${done[1]} errei, ${done[2]} difícil, ${done[3]} bom, ${done[4]} fácil.`
-              : "Volte mais tarde ou adicione cards novos."}
+              : deckId
+                ? "Nenhum card deste baralho vence agora. Você pode praticar todos mesmo assim, sem mudar quando eles voltam."
+                : "Volte mais tarde ou adicione cards novos."}
           </EmptyState>
         </div>
       </>
@@ -156,6 +209,11 @@ export function Estudar() {
     <div className="flex min-h-[calc(100dvh-10rem)] flex-col">
       <div className="mb-4 flex items-center justify-between">
         {back}
+        {practice && (
+          <span className="rounded-full bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent">
+            Prática
+          </span>
+        )}
         <span className="text-xs text-muted" data-testid="queue-size">
           {queue.length} restante{queue.length === 1 ? "" : "s"}
         </span>
@@ -197,4 +255,14 @@ export function Estudar() {
       </div>
     </div>
   );
+}
+
+/** Embaralha sem alterar a lista original. */
+function shuffle<T>(items: T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j] as T, out[i] as T];
+  }
+  return out;
 }

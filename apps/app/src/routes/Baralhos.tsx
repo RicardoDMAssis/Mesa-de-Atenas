@@ -67,14 +67,24 @@ export function Baralhos() {
                 <p className="text-accent">{deck.due} p/ revisar</p>
                 <p className="text-muted">{deck.fresh} novos</p>
               </div>
-              <Button
-                size="sm"
-                variant={deck.due + deck.fresh > 0 ? "primary" : "secondary"}
-                disabled={deck.due + deck.fresh === 0}
-                onClick={() => navigate(`/estudar?baralho=${deck.id}`)}
-              >
-                Estudar
-              </Button>
+              {deck.due + deck.fresh > 0 ? (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => navigate(`/estudar?baralho=${deck.id}`)}
+                >
+                  Estudar
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  disabled={deck.total === 0}
+                  title="Revisar todos os cards sem mudar quando eles voltam"
+                  onClick={() => navigate(`/estudar?baralho=${deck.id}&praticar=1`)}
+                >
+                  Praticar
+                </Button>
+              )}
             </li>
           ))}
         </ul>

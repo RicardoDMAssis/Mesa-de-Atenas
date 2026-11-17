@@ -9,7 +9,10 @@ export {
   studyDaysAgo,
 } from "./progress";
 export {
+  type CustomIntervals,
   createScheduler,
+  customDue,
+  DEFAULT_CUSTOM_INTERVALS,
   formatInterval,
   RATINGS,
   type Rating,

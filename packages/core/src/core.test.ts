@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { clozeIndexes, nextClozeIndex, renderCloze } from "./cloze";
-import { createScheduler, formatInterval } from "./srs";
+import { createScheduler, customDue, DEFAULT_CUSTOM_INTERVALS, formatInterval } from "./srs";
 import { studyDayEnd, studyDayStart } from "./study-day";
 import { buildTree, flattenTree } from "./tree";
 
@@ -131,5 +131,39 @@ describe("árvore", () => {
     ];
     const flat = flattenTree(buildTree(items));
     expect(flat.map((n) => n.item.id).sort()).toEqual(["a", "b", "orfao"]);
+  });
+});
+
+describe("intervalos personalizados", () => {
+  const custom = { again: 10, hard: 60, good: 24 * 60, easy: 3 * 24 * 60, growth: 2 };
+  const MIN = 60_000;
+
+  it("usa o intervalo de cada resposta e cresce a cada acerto seguido", () => {
+    expect(customDue(3, 0, custom, 0)).toEqual({ due: 24 * 60 * MIN, streak: 1 });
+    expect(customDue(3, 0, custom, 1)).toEqual({ due: 2 * 24 * 60 * MIN, streak: 2 });
+    expect(customDue(4, 0, custom, 2).due).toBe(4 * 3 * 24 * 60 * MIN);
+    expect(customDue(1, 0, custom, 5)).toEqual({ due: 10 * MIN, streak: 0 });
+  });
+
+  it("com crescimento 1, o intervalo é sempre o mesmo; e há um teto de 5 anos", () => {
+    expect(customDue(2, 0, { ...custom, growth: 1 }, 30).due).toBe(60 * MIN);
+    const huge = customDue(4, 0, { ...custom, growth: 3 }, 50).due;
+    expect(huge).toBe(5 * 365 * 24 * 60 * MIN);
+  });
+
+  it("o agendador aplica os intervalos e a prévia bate com o resultado", async () => {
+    const scheduler = await createScheduler();
+    const now = new Date("2026-01-01T12:00:00Z");
+    let card = scheduler.newCard(now);
+    const preview = scheduler.preview(card, now, DEFAULT_CUSTOM_INTERVALS);
+    const first = scheduler.review(card, 3, now, DEFAULT_CUSTOM_INTERVALS);
+    expect(first.next.due).toBe(preview[3]);
+    expect(first.next.due - now.getTime()).toBe(3 * 24 * 60 * MIN);
+    card = JSON.parse(JSON.stringify(first.next));
+    const second = scheduler.review(card, 3, new Date(card.due), DEFAULT_CUSTOM_INTERVALS);
+    expect(second.next.due - card.due).toBe(6 * 24 * 60 * MIN);
+    // Voltar ao automático continua funcionando com o mesmo estado.
+    const auto = scheduler.review(second.next, 3, new Date(second.next.due));
+    expect(auto.next.reps).toBe(3);
   });
 });

@@ -57,6 +57,23 @@ A regra ficou documentada no README e coberta por teste de unidade (gravações 
 - No celular, Foco e Progresso não estão na barra inferior; são acessados pelos cards da tela
   inicial. A Busca saiu da barra inferior para dar lugar ao Grafo (continua no Início).
 
+## Ajustes após a entrega (2026-11-17)
+
+| Pedido                                       | Resultado                                                                                                                                                                                                                                                                                                                                                         |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Intervalos de revisão definidos pelo usuário | Em cada baralho (⋯ → Intervalos de revisão): modo **Automático** (FSRS) ou **Personalizado**, com tempo para Errei/Difícil/Bom/Fácil (minutos, horas ou dias) e crescimento a cada acerto seguido (fixo, ×1,5 … ×3). Os botões da revisão mostram os intervalos escolhidos. O FSRS continua acompanhando o card, então voltar ao automático não perde o histórico |
+| Estudar um baralho sem cards vencidos        | Botão **Praticar** (lista de baralhos, menu do baralho e fim da sessão): revisa todos os cards em ordem aleatória, sem mudar quando eles voltam e sem contar como revisão. Errar devolve o card ao fim da fila                                                                                                                                                    |
+| Navegação para muitas telas (plugins)        | Registro único de telas (app + plugins). Celular: barra com 4 telas escolhidas pelo usuário + botão **Mais**. Painel "Ir para" (botão Mais ou Ctrl+K) com todas as telas, recentes e busca que também acha notas; "Personalizar barra" escolhe as 4 fixadas. Telas de plugins entram automaticamente (seção "Plugins")                                            |
+| Botão voltar do Android                      | Janela aberta → fecha; subpágina → volta; tela principal → Início; no Início, um toque mostra "Toque em voltar de novo para sair" e dois toques seguidos saem                                                                                                                                                                                                     |
+
+**Verificado no Galaxy A52:** os quatro comportamentos do botão voltar e o painel "Mais".
+
+**Bug encontrado no aparelho:** o ouvinte do botão voltar era removido logo após ser registrado
+(o React registra e desfaz efeitos duas vezes em modo estrito, e a remoção assíncrona apagava o
+registro novo). Agora ele é registrado uma única vez, fora do ciclo do React.
+
+Testes: 74 de unidade e 62 de navegador (1 pulado de propósito: barra inferior só no celular).
+
 ## Próximos passos
 
 Período de uso real pelos 2 usuários antes da Fase 3 (plugins), como recomendado no plano.

@@ -1,9 +1,10 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import type { Db } from "../client";
-import { cards, decks } from "../schema";
+import { cards, type DeckSettings, decks } from "../schema";
 import { active } from "./base";
 
 export type Deck = typeof decks.$inferSelect;
+export type { DeckSettings };
 
 export interface DeckSummary {
   id: string;
@@ -71,4 +72,18 @@ export async function deleteDeck(db: Db, id: string): Promise<void> {
       .set({ deletedAt: now, updatedAt: now })
       .where(and(eq(cards.deckId, id), active(cards))),
   ]);
+}
+
+export async function updateDeckSettings(
+  db: Db,
+  id: string,
+  settings: DeckSettings,
+): Promise<void> {
+  await db.update(decks).set({ settings }).where(eq(decks.id, id));
+}
+
+/** Configuração de agendamento de cada baralho (para a sessão de estudo de vários baralhos). */
+export async function deckSettingsMap(db: Db): Promise<Map<string, DeckSettings>> {
+  const rows = await db.select({ id: decks.id, settings: decks.settings }).from(decks);
+  return new Map(rows.map((r) => [r.id, r.settings]));
 }

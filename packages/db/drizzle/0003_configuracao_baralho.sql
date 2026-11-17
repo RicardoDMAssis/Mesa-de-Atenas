@@ -1,0 +1,1 @@
+ALTER TABLE `decks` ADD `settings` text DEFAULT '{"mode":"auto"}' NOT NULL;

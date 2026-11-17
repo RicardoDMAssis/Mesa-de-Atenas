@@ -75,10 +75,22 @@ export const links = sqliteTable(
   ],
 );
 
+/** Como o baralho agenda as revisões. */
+export interface DeckSettings {
+  /** "auto" = FSRS; "custom" = intervalos definidos pelo usuário. */
+  mode: "auto" | "custom";
+  /** Minutos por resposta e crescimento a cada acerto (ver `CustomIntervals` no core). */
+  intervals?: { again: number; hard: number; good: number; easy: number; growth: number };
+}
+
 export const decks = sqliteTable("decks", {
   ...syncColumns,
   subjectId: text("subject_id").references(() => subjects.id),
   name: text("name").notNull(),
+  settings: text("settings", { mode: "json" })
+    .$type<DeckSettings>()
+    .notNull()
+    .default({ mode: "auto" }),
 });
 
 export const cards = sqliteTable(

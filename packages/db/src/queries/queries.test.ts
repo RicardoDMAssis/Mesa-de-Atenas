@@ -12,7 +12,14 @@ import {
   recordReview,
   type Scheduling,
 } from "./cards";
-import { createDeck, deleteDeck, listDecks } from "./decks";
+import {
+  createDeck,
+  deckSettingsMap,
+  deleteDeck,
+  getDeck,
+  listDecks,
+  updateDeckSettings,
+} from "./decks";
 import {
   createNote,
   deleteNote,
@@ -278,3 +285,14 @@ function renameSubjectNoAwait(db: Awaited<ReturnType<typeof open>>, id: string) 
     void m.renameSubject(db, id, "Depois");
   });
 }
+
+describe("configuração do baralho", () => {
+  it("começa automática e guarda intervalos personalizados", async () => {
+    const db = await open();
+    const deck = await createDeck(db, { name: "D" });
+    expect((await getDeck(db, deck.id))?.settings).toEqual({ mode: "auto" });
+    const intervals = { again: 5, hard: 60, good: 1440, easy: 4320, growth: 1.5 };
+    await updateDeckSettings(db, deck.id, { mode: "custom", intervals });
+    expect((await deckSettingsMap(db)).get(deck.id)).toEqual({ mode: "custom", intervals });
+  });
+});
