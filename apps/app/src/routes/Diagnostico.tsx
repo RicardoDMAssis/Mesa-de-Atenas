@@ -133,7 +133,7 @@ function parseParams<T>(schema: z.ZodType<T>, params: unknown): T {
 
 function IsolamentoDePlugins() {
   const frame = useRef<PluginFrameHandle>(null);
-  const source = useMemo(() => urlSource("/plugins/spike"), []);
+  const source = useMemo(() => urlSource("/builtin-plugins/spike"), []);
   const [report, setReport] = useState<z.infer<typeof reportSchema>>();
   const [unknownCode, setUnknownCode] = useState<string>();
   const [cards, setCards] = useState(0);

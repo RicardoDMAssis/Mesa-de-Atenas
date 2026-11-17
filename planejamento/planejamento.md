@@ -349,9 +349,9 @@ estudarella/
 - [x] **Prova 2 (web):** iframe isolado com WebGL, ponte de mensagens, rede e navegação externa bloqueadas
 - [x] CI: lint, tipos, testes, build, testes de navegador (escrito; ainda não executado em servidor)
 - [x] Projeto Android gerado (Capacitor)
-- [ ] Compilar e rodar no Android (falta instalar o Android SDK)
-- [ ] **Prova 1 (Android):** driver SQLite nativo (`@capacitor-community/sqlite`)
-- [ ] **Prova 2 (Android):** repetir o diagnóstico no WebView do aparelho
+- [x] Compilar e rodar no Android (emulador Pixel 6, Android 14, WebView Chrome 113)
+- [x] **Prova 1 (Android):** o próprio SQLite WASM + OPFS persiste no WebView (sobrevive a fechar o app à força). Driver nativo não foi necessário por ora
+- [x] **Prova 2 (Android):** diagnóstico todo verde no WebView (3D, vários arquivos, isolamento, rede bloqueada)
 - [ ] Prova 2 com modelo GLB real e biblioteca 3D (o teste atual usa um modelo binário simples em WebGL puro)
 
 Achado da Prova 2: um iframe isolado ainda consegue navegar a si mesmo para um site externo

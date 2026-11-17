@@ -32,7 +32,7 @@ apps/app            App React (web + Android via Capacitor)
   src/routes        Telas
   src/plugin-host   Iframe isolado, política de rede e ponte de mensagens
   src/data          Abertura do banco
-  public/plugins    Plugin de prova usado no diagnóstico
+  public/builtin-plugins    Plugin de prova usado no diagnóstico
 packages/core       Regras de negócio sem interface
 packages/db         Schema, migrações e drivers do SQLite
 packages/plugin-api Contrato app ↔ plugin (manifesto e protocolo)
@@ -57,7 +57,7 @@ packages/plugin-api Contrato app ↔ plugin (manifesto e protocolo)
 Uma pasta com `manifest.json` e uma página de entrada. Scripts e estilos referenciados pela
 página são embutidos pelo app (o JavaScript precisa estar empacotado, sem `import` relativo).
 Outros arquivos são lidos sob demanda com `plugin.readFile({ path })`. Exemplo funcional em
-`apps/app/public/plugins/spike`.
+`apps/app/public/builtin-plugins/spike`.
 
 ## Diagnóstico
 

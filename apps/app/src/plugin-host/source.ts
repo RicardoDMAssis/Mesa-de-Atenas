@@ -23,7 +23,10 @@ export function resolvePluginPath(from: string, ref: string): string {
   return normalizePluginPath(dir + ref);
 }
 
-/** Plugins distribuídos junto com o app, servidos como arquivos estáticos. */
+/**
+ * Plugins distribuídos junto com o app, servidos como arquivos estáticos (em
+ * `public/builtin-plugins`; o Capacitor reserva `public/plugins` e não copia essa pasta).
+ */
 export function urlSource(baseUrl: string): PluginSource {
   const base = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
   const get = async (path: string) => {

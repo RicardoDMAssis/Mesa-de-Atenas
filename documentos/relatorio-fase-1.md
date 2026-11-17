@@ -67,3 +67,23 @@ Pedidos feitos depois da primeira versão da fase, todos implementados e com tes
 
 Grafo de notas (os links já estão na tabela `links`), timer Pomodoro e streak/progresso. Com isso
 o plano atinge o marco "v1 utilizável pelos 2 usuários".
+
+## Teste no Android (2026-11-17)
+
+Emulador Pixel 6, Android 14, WebView Chrome 113, APK de depuração gerado pelo Capacitor.
+
+| Verificação                                                      | Resultado                                                                         |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Compilação (`assembleDebug`)                                     | OK                                                                                |
+| Banco local persiste ao fechar o app à força                     | OK — o SQLite WASM + OPFS funciona no WebView; o driver nativo não foi necessário |
+| Arquivos (imagens) persistem                                     | OK                                                                                |
+| Plugin de prova: 3D, vários arquivos, isolamento, rede bloqueada | OK, depois de uma correção (abaixo)                                               |
+| Nota com `[[Nota]]` e `[[Nota]](texto)` pelo teclado do Android  | OK                                                                                |
+| Baralho, card, revisão completa, busca                           | OK                                                                                |
+
+**Correção encontrada no aparelho:** o Capacitor reserva a pasta `public/plugins` para os
+plugins nativos dele e não a copia para o app. Os plugins embutidos passaram para
+`public/builtin-plugins`. Na web isso não aparecia.
+
+**Ainda não verificado:** celular real com teclado que usa composição de palavras (Gboard e
+similares), que pode se comportar diferente nas regras de `[[...]]`; e WebViews mais antigas.
