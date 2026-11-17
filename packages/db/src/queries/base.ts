@@ -17,12 +17,11 @@ export const active = (table: { deletedAt: AnySQLiteColumn }): SQL => isNull(tab
 /**
  * Exclusão lógica.
  *
- * Como as demais funções de escrita desta pasta, devolve a instrução sem executá-la:
- * ela só roda com `await` ou dentro de um `db.batch([...])`.
+ * Grava na hora (não precisa de `await` para executar).
  */
-export function softDelete(db: Db, table: SyncTable, id: string) {
+export async function softDelete(db: Db, table: SyncTable, id: string): Promise<void> {
   const now = Date.now();
-  return db
+  await db
     .update(table)
     .set({ deletedAt: now, updatedAt: now } as never)
     .where(eq(table.id, id));

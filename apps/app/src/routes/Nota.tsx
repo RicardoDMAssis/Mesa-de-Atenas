@@ -15,6 +15,8 @@ import { ConfirmDialog, EmptyState, Menu } from "../components/ui";
 import { useDatabase } from "../data/DatabaseProvider";
 import { useSubjects } from "../data/hooks";
 import { useLiveQuery } from "../data/useLiveQuery";
+import { LocalGraph } from "../features/graph/LocalGraph";
+import { clearDraft, readDraft, saveDraft } from "../features/notes/drafts";
 import { useNoteMode } from "../features/notes/mode";
 import { type EditorSnapshot, NoteEditor } from "../features/notes/NoteEditor";
 import { linkTargets } from "../features/notes/noteLink";
@@ -58,15 +60,23 @@ function NoteScreen({ id }: { id: string }) {
     let cancelled = false;
     getNote(db, id).then((found) => {
       if (cancelled) return;
-      setNote(found ?? null);
-      if (found) {
-        setBlankAtOpen(!found.title.trim() && !found.plainText.trim());
-        setTitle(found.title);
-        draft.current = {
-          title: found.title,
-          body: { content: found.content, plainText: found.plainText },
-          dirty: false,
-        };
+      if (!found) {
+        setNote(null);
+        return;
+      }
+      // Rascunho local mais novo que o banco = edição que não chegou a ser salva.
+      const local = readDraft(id);
+      const recovered = local && local.at > found.updatedAt ? local : null;
+      if (local && !recovered) clearDraft(id);
+      const title = recovered?.title ?? found.title;
+      const body = recovered?.body ?? { content: found.content, plainText: found.plainText };
+      setNote({ ...found, title, content: body.content, plainText: body.plainText });
+      setBlankAtOpen(!title.trim() && !body.plainText.trim());
+      setTitle(title);
+      draft.current = { title, body, dirty: Boolean(recovered) };
+      if (recovered) {
+        setStatus("pending");
+        timer.current = setTimeout(() => void flushRef.current(), 0);
       }
     });
     return () => {
@@ -87,7 +97,10 @@ function NoteScreen({ id }: { id: string }) {
         plainText: current.body.plainText,
         linkTargets: linkTargets(current.body.content),
       });
-      if (!draft.current.dirty) setStatus("saved");
+      if (!draft.current.dirty) {
+        clearDraft(id);
+        setStatus("saved");
+      }
     } catch (error) {
       console.error("[nota] falha ao salvar", error);
       current.dirty = true;
@@ -95,12 +108,16 @@ function NoteScreen({ id }: { id: string }) {
     }
   }, [db, id]);
 
+  const flushRef = useRef(flush);
+  flushRef.current = flush;
+
   const schedule = useCallback(() => {
     draft.current.dirty = true;
+    saveDraft(id, { title: draft.current.title, body: draft.current.body, at: Date.now() });
     setStatus("pending");
     clearTimeout(timer.current);
     timer.current = setTimeout(flush, SAVE_DELAY);
-  }, [flush]);
+  }, [flush, id]);
 
   // Salva o que estiver pendente ao sair da tela ou ao esconder o app.
   useEffect(() => {
@@ -241,6 +258,8 @@ function NoteScreen({ id }: { id: string }) {
         </section>
       )}
 
+      <LocalGraph noteId={id} />
+
       <ConfirmDialog
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
@@ -250,6 +269,7 @@ function NoteScreen({ id }: { id: string }) {
         onConfirm={async () => {
           deleted.current = true;
           clearTimeout(timer.current);
+          clearDraft(id);
           await deleteNote(db, id);
           navigate("/notas");
         }}

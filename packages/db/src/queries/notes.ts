@@ -94,8 +94,8 @@ export async function saveNote(db: Db, id: string, draft: NoteDraft): Promise<vo
   ]);
 }
 
-export function setNoteSubject(db: Db, id: string, subjectId: string | null) {
-  return db.update(notes).set({ subjectId }).where(eq(notes.id, id));
+export async function setNoteSubject(db: Db, id: string, subjectId: string | null): Promise<void> {
+  await db.update(notes).set({ subjectId }).where(eq(notes.id, id));
 }
 
 /** Exclui a nota e os links que saem dela ou chegam nela. */

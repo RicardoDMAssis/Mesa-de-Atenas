@@ -57,13 +57,17 @@ export async function createCards(
   await db.insert(cards).values(items.map((item) => ({ deckId, ...item, ...initial })));
 }
 
-export function updateCardContent(db: Db, id: string, content: BasicContent | ClozeContent) {
-  return db.update(cards).set({ content }).where(eq(cards.id, id));
+export async function updateCardContent(
+  db: Db,
+  id: string,
+  content: BasicContent | ClozeContent,
+): Promise<void> {
+  await db.update(cards).set({ content }).where(eq(cards.id, id));
 }
 
-export function deleteCard(db: Db, id: string) {
+export async function deleteCard(db: Db, id: string): Promise<void> {
   const now = Date.now();
-  return db.update(cards).set({ deletedAt: now, updatedAt: now }).where(eq(cards.id, id));
+  await db.update(cards).set({ deletedAt: now, updatedAt: now }).where(eq(cards.id, id));
 }
 
 /**

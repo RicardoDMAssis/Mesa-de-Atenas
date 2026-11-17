@@ -50,8 +50,12 @@ export async function createDeck(
   return row;
 }
 
-export function updateDeck(db: Db, id: string, input: { name: string; subjectId: string | null }) {
-  return db
+export async function updateDeck(
+  db: Db,
+  id: string,
+  input: { name: string; subjectId: string | null },
+): Promise<void> {
+  await db
     .update(decks)
     .set({ name: input.name.trim(), subjectId: input.subjectId })
     .where(eq(decks.id, id));

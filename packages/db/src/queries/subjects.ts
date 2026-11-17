@@ -35,8 +35,8 @@ export async function createSubject(
   return row;
 }
 
-export function renameSubject(db: Db, id: string, name: string) {
-  return db.update(subjects).set({ name: name.trim() }).where(eq(subjects.id, id));
+export async function renameSubject(db: Db, id: string, name: string): Promise<void> {
+  await db.update(subjects).set({ name: name.trim() }).where(eq(subjects.id, id));
 }
 
 /** Muda de lugar na árvore. Recusa mover para dentro de si mesmo. */

@@ -295,3 +295,42 @@ test("modo leitura e modo edição", async ({ page }) => {
   await expect(page.getByTestId("save-status")).toHaveText("Salvo");
   await expect(editor).toContainText("conteúdo da nota editada");
 });
+
+test("grafo: mostra notas e links, seleciona e abre a nota", async ({ page }) => {
+  await newNote(page, "Fonema", "base");
+  await newNote(page, "Sílaba", "");
+  await page.getByLabel("Conteúdo da nota").pressSequentially("ver [[Fonema]] ");
+  await expect(page.getByTestId("save-status")).toHaveText("Salvo");
+  await newNote(page, "Solta", "sem links");
+
+  await page.goto("/grafo");
+  const graph = page.getByTestId("graph");
+  await expect(graph).toHaveAttribute("data-nodes", "3");
+  await expect(graph).toHaveAttribute("data-edges", "1");
+
+  await page.getByLabel("Ocultar notas sem conexão").check();
+  await expect(graph).toHaveAttribute("data-nodes", "2");
+
+  // Clica no ponto da nota "Fonema" (posição calculada pelo renderizador).
+  await page.waitForTimeout(1500); // deixa o layout assentar
+  const point = await graph.evaluate((el) => {
+    type Point = { x: number; y: number };
+    type S = {
+      getGraph(): {
+        findNode(fn: (k: string, a: { label: string }) => boolean): string;
+        getNodeAttributes(k: string): Point;
+      };
+      graphToViewport(p: Point): Point;
+    };
+    const s = (el as unknown as { sigma: S }).sigma;
+    const g = s.getGraph();
+    const id = g.findNode((_, a) => a.label === "Fonema");
+    const v = s.graphToViewport(g.getNodeAttributes(id));
+    const r = el.getBoundingClientRect();
+    return { x: r.x + v.x, y: r.y + v.y };
+  });
+  await page.mouse.click(point.x, point.y);
+  await expect(page.getByTestId("graph-selected")).toHaveText("Fonema");
+  await page.getByRole("button", { name: "Abrir" }).click();
+  await expect(page.getByLabel("Título da nota")).toHaveValue("Fonema");
+});

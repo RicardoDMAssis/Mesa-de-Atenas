@@ -43,8 +43,8 @@ packages/plugin-api Contrato app ↔ plugin (manifesto e protocolo)
 - **Banco**: toda tabela usa as colunas de sync (`id` UUID v7, `created_at`, `updated_at`,
   `deleted_at`). Excluir é preencher `deleted_at`, nunca `DELETE`.
 - **Consultas**: telas não escrevem SQL. Leem com `useLiveQuery` e gravam chamando funções de
-  `packages/db/src/queries/`. Funções de escrita devolvem a instrução sem executar: use `await`
-  ou coloque-as em `db.batch([...])`.
+  `packages/db/src/queries/`. Toda função de gravação é `async` e executa na hora: uma instrução
+  do Drizzle solta (sem `await`) **não roda**, então nunca devolva o construtor da consulta.
 - **Transações**: use `db.batch([...])`, nunca `db.transaction()`.
 - **Migrações**: nunca edite uma migração já gerada; mude o schema e rode `pnpm db:generate`.
 - **Plugins**: o app nunca confia no plugin. Toda mensagem passa por schema, e o que o plugin

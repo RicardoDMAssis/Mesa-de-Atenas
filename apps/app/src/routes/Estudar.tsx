@@ -1,5 +1,12 @@
 import { formatInterval, RATINGS, type Rating } from "@estudarella/core";
-import { type Card, dueCards, getDeck, recordReview } from "@estudarella/db";
+import {
+  type Card,
+  dueCards,
+  endSession,
+  getDeck,
+  recordReview,
+  startReviewSession,
+} from "@estudarella/db";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
@@ -43,6 +50,16 @@ export function Estudar() {
     };
   }, [db, deckId]);
 
+  // Sessão de revisão: abre na primeira resposta, fecha ao terminar a fila ou sair da tela.
+  const session = useRef<{ id: Promise<string>; last: number } | null>(null);
+  useEffect(
+    () => () => {
+      const open = session.current;
+      if (open) void open.id.then((sid) => endSession(db, sid, open.last));
+    },
+    [db],
+  );
+
   const card = queue?.[0];
   const preview = useMemo(
     () => (card ? scheduler.preview(card, new Date()) : null),
@@ -59,6 +76,11 @@ export function Estudar() {
       busy.current = true;
       try {
         const now = new Date();
+        session.current ??= {
+          id: startReviewSession(db, { startedAt: shownAt.current, deckId: deckId ?? null }),
+          last: now.getTime(),
+        };
+        session.current.last = now.getTime();
         const outcome = scheduler.review(card, rating, now);
         await recordReview(db, card.id, outcome.next, {
           rating,
@@ -78,7 +100,7 @@ export function Estudar() {
         busy.current = false;
       }
     },
-    [card, scheduler, db, end],
+    [card, scheduler, db, end, deckId],
   );
 
   // Atalhos: espaço/enter mostra a resposta; 1–4 respondem.

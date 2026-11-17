@@ -1,4 +1,5 @@
 import Mention from "@tiptap/extension-mention";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
 import {
   InputRule,
   type NodeViewProps,
@@ -225,6 +226,28 @@ export function createNoteLink({ currentNoteId, createNote }: NoteLinkOptions) {
         }),
       ];
     },
+    addProseMirrorPlugins() {
+      const editor = this.editor;
+      return [
+        ...(this.parent?.() ?? []),
+        // Colar texto com [[Nota]] ou [[Nota]](texto) cria os links (e as notas que faltarem).
+        new Plugin({
+          key: new PluginKey("noteLinkPaste"),
+          props: {
+            handlePaste: (_view, event) => {
+              const text = event.clipboardData?.getData("text/plain") ?? "";
+              if (!LINK_PATTERN.test(text)) return false;
+              LINK_PATTERN.lastIndex = 0;
+              const { from, to } = editor.state.selection;
+              void pasteWithLinks(text, findByTitle, createNote).then((content) =>
+                editor.chain().focus().insertContentAt({ from, to }, content).run(),
+              );
+              return true;
+            },
+          },
+        }),
+      ];
+    },
     addNodeView() {
       return ReactNodeViewRenderer(NoteLinkView);
     },
@@ -281,4 +304,47 @@ export function linkTargets(doc: unknown): string[] {
   };
   walk(doc);
   return found;
+}
+
+// [[Título]] seguido opcionalmente de (texto exibido).
+const LINK_PATTERN = /\[\[([^[\]\n]+)\]\](?:\s*\(([^()\n]+)\))?/g;
+
+type Inline = { type: "text"; text: string } | { type: "noteLink"; attrs: Record<string, unknown> };
+
+/** Converte texto colado em parágrafos com links, criando as notas que não existem. */
+export async function pasteWithLinks(
+  text: string,
+  findByTitle: (title: string) => string | undefined,
+  createNote: (title: string) => Promise<string>,
+) {
+  const created = new Map<string, string>();
+  const resolve = async (title: string) => {
+    const key = normalize(title.trim());
+    const existing = findByTitle(title) ?? created.get(key);
+    if (existing) return existing;
+    const id = await createNote(title.trim());
+    created.set(key, id);
+    return id;
+  };
+  const lines = text.replace(/\r\n?/g, "\n").split("\n");
+  const paragraphs = [];
+  for (const line of lines) {
+    const parts: Inline[] = [];
+    let cursor = 0;
+    for (const match of line.matchAll(LINK_PATTERN)) {
+      const [whole, title = "", shown] = match;
+      if (match.index > cursor) parts.push({ type: "text", text: line.slice(cursor, match.index) });
+      parts.push({
+        type: "noteLink",
+        attrs: { id: await resolve(title), label: title.trim(), text: shown?.trim() || null },
+      });
+      cursor = match.index + whole.length;
+    }
+    if (cursor < line.length) parts.push({ type: "text", text: line.slice(cursor) });
+    paragraphs.push(parts);
+  }
+  // Uma linha só: insere no meio do texto atual; várias: um parágrafo por linha.
+  return paragraphs.length === 1
+    ? (paragraphs[0] ?? [])
+    : paragraphs.map((content) => ({ type: "paragraph", content }));
 }

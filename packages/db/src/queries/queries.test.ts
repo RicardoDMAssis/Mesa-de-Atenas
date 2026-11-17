@@ -23,6 +23,7 @@ import {
   setNoteSubject,
 } from "./notes";
 import { buildFtsQuery, listAllSearchable, SNIPPET_CLOSE, SNIPPET_OPEN, search } from "./search";
+import { getSetting, setSetting } from "./settings";
 import { createSubject, deleteSubject, listSubjects, moveSubject, subtreeIds } from "./subjects";
 
 const open = async () => (await openDb(nodeDriver())).db;
@@ -259,3 +260,21 @@ describe("backup", () => {
     expect((await listNotes(db)).map((n) => n.title)).toEqual(["permanece"]);
   });
 });
+
+describe("gravações sem await", () => {
+  it("executam mesmo quando quem chama não aguarda o resultado", async () => {
+    const db = await open();
+    const subject = await createSubject(db, { name: "Antes" });
+    void setSetting(db, "virada", 6);
+    void renameSubjectNoAwait(db, subject.id);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(await getSetting(db, "virada")).toBe(6);
+    expect((await listSubjects(db))[0]?.name).toBe("Depois");
+  });
+});
+
+function renameSubjectNoAwait(db: Awaited<ReturnType<typeof open>>, id: string) {
+  return import("./subjects").then((m) => {
+    void m.renameSubject(db, id, "Depois");
+  });
+}

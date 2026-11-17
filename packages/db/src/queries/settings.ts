@@ -15,9 +15,9 @@ export async function getSetting<T>(db: Db, key: string): Promise<T | undefined>
   return row?.value as T | undefined;
 }
 
-/** Cria ou atualiza. Só executa com `await` ou dentro de um `db.batch([...])`. */
-export function setSetting(db: Db, key: string, value: unknown) {
-  return db
+/** Cria ou atualiza. */
+export async function setSetting(db: Db, key: string, value: unknown): Promise<void> {
+  await db
     .insert(settings)
     .values({ key, value })
     .onConflictDoUpdate({

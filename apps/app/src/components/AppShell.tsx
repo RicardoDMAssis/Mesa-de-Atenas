@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  ChartColumn,
   House,
   Layers,
   type LucideIcon,
@@ -10,6 +11,8 @@ import {
   Waypoints,
 } from "lucide-react";
 import { NavLink, Outlet } from "react-router";
+import { FocusPill } from "../features/focus/FocusPill";
+import { FocusTicker } from "../features/focus/useFocusTimer";
 import { NoteTitlesSync } from "../features/notes/titles";
 
 interface NavItem {
@@ -24,9 +27,10 @@ const NAV: NavItem[] = [
   { to: "/", label: "Início", icon: House, mobile: true },
   { to: "/notas", label: "Notas", icon: BookOpen, mobile: true },
   { to: "/revisao", label: "Revisão", icon: Layers, mobile: true },
-  { to: "/busca", label: "Buscar", icon: Search, mobile: true },
-  { to: "/grafo", label: "Grafo", icon: Waypoints, mobile: false },
+  { to: "/busca", label: "Buscar", icon: Search, mobile: false },
+  { to: "/grafo", label: "Grafo", icon: Waypoints, mobile: true },
   { to: "/foco", label: "Foco", icon: Timer, mobile: false },
+  { to: "/progresso", label: "Progresso", icon: ChartColumn, mobile: false },
   { to: "/plugins", label: "Plugins", icon: Puzzle, mobile: false },
   { to: "/ajustes", label: "Ajustes", icon: Settings, mobile: true },
 ];
@@ -35,6 +39,8 @@ export function AppShell() {
   return (
     <div className="flex h-full flex-col md:flex-row">
       <NoteTitlesSync />
+      <FocusTicker />
+      <FocusPill />
       <nav
         aria-label="Principal"
         className="hidden w-56 shrink-0 flex-col gap-1 border-r border-line bg-surface p-3 md:flex"

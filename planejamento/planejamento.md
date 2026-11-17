@@ -372,16 +372,18 @@ Relatório completo: `documentos/relatorio-fase-0.md`.
 Plano: `instruções/fase-1.md` · Relatório: `documentos/relatorio-fase-1.md`
 
 ### Fase 2 — Grafo, Foco e Progresso
-- [ ] Consultas e regras: dados do grafo, sessões, sequência de dias, séries de progresso
-- [ ] Grafo com Sigma.js (filtros, cores por matéria); toque no nó abre a nota
-- [ ] Grafo local na tela da nota
-- [ ] Timer Pomodoro com notificação e escolha de matéria
-- [ ] Registro de sessões de foco e de revisão
-- [ ] Sequência de dias e progresso (início + tela de progresso)
-- [ ] Rascunho local das notas (corrige perda da última edição ao recarregar)
+- [x] Consultas e regras: dados do grafo, sessões, sequência de dias, séries de progresso
+- [x] Grafo com Sigma.js (filtros, cores por matéria); toque no nó abre a nota
+- [x] Grafo local na tela da nota
+- [x] Timer Pomodoro com notificação e escolha de matéria
+- [x] Registro de sessões de foco e de revisão
+- [x] Sequência de dias e progresso (início + tela de progresso)
+- [x] Rascunho local das notas (corrige perda da última edição ao recarregar)
+- [x] Colar `[[Nota]]` / `[[Nota]](texto)` cria links
+- [ ] Notificação do timer verificada em celular real
 - **Marco: v1 utilizável pelos 2 usuários**
 
-Plano: `instruções/fase-2.md`
+Plano: `instruções/fase-2.md` · Relatório: `documentos/relatorio-fase-2.md`
 
 ### Fase 3 — Plugins v1 (contextuais)
 - [ ] `plugin-api`, `plugin-sdk`, host com permissões e CSP

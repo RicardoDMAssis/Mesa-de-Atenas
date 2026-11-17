@@ -1,13 +1,17 @@
 import { studyDay } from "@estudarella/core";
 import { countReviewsSince, createNote, listDecks, listNotes } from "@estudarella/db";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Timer } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { Card, PageTitle } from "../components/Card";
 import { Button } from "../components/ui";
 import { useDatabase } from "../data/DatabaseProvider";
 import { useRolloverHour, useStudyDay } from "../data/hooks";
 import { useLiveQuery } from "../data/useLiveQuery";
+import { formatClock, phaseLength } from "../features/focus/timer";
+import { useFocusTimer } from "../features/focus/useFocusTimer";
 import { noteLabel } from "../features/notes/titles";
+import { useProgress } from "../features/progress/useProgress";
+import { StreakCard } from "./Progresso";
 
 export function Inicio() {
   const { db, info } = useDatabase();
@@ -27,6 +31,8 @@ export function Inicio() {
   const due = (decks.data ?? []).reduce((n, d) => n + d.due, 0);
   const fresh = (decks.data ?? []).reduce((n, d) => n + d.fresh, 0);
   const recent = (notes.data ?? []).slice(0, 5);
+  const progress = useProgress();
+  const focus = useFocusTimer();
 
   return (
     <>
@@ -36,6 +42,12 @@ export function Inicio() {
           <Card title="Seus dados não estão sendo salvos">
             <p className="text-sm text-danger">{info.reason}</p>
           </Card>
+        )}
+
+        {progress && (
+          <Link to="/progresso" aria-label="Ver progresso">
+            <StreakCard streak={progress.streak} compact />
+          </Link>
         )}
 
         <Card title="Hoje">
@@ -69,6 +81,34 @@ export function Inicio() {
                 )}
               </p>
             )}
+          </div>
+        </Card>
+
+        <Card title="Foco">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-2xl font-semibold tabular-nums">
+                {formatClock(
+                  focus.timer.status === "idle"
+                    ? phaseLength(focus.timer.phase, focus.settings)
+                    : focus.remaining,
+                )}
+              </p>
+              <p className="text-xs text-muted">
+                {progress?.today.focusMinutes ?? 0} min de foco hoje
+              </p>
+            </div>
+            <Link
+              to="/foco"
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-line px-4 text-sm font-medium"
+            >
+              <Timer size={16} aria-hidden />
+              {focus.timer.status === "running"
+                ? "Ver timer"
+                : focus.timer.phase === "focus"
+                  ? "Começar foco"
+                  : "Começar pausa"}
+            </Link>
           </div>
         </Card>
 

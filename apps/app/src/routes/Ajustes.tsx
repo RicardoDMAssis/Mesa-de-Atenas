@@ -6,6 +6,8 @@ import { ConfirmDialog, Select } from "../components/ui";
 import { useDatabase } from "../data/DatabaseProvider";
 import { ROLLOVER_KEY, useRolloverHour } from "../data/hooks";
 import { downloadBackup, restoreBackup } from "../features/backup/backup";
+import { requestNotifyPermission } from "../features/focus/notify";
+import { useFocusStore } from "../features/focus/store";
 import { type ThemePreference, useThemeStore } from "../stores/theme";
 
 const THEMES: { value: ThemePreference; label: string }[] = [
@@ -94,6 +96,7 @@ function EstudoEBackup() {
           </span>
         </label>
       </Card>
+      <TimerSettingsCard />
       <Card title="Backup">
         <p className="text-sm text-muted">
           Um arquivo com todas as notas, cards, imagens e histórico. Guarde-o fora do aparelho.
@@ -164,5 +167,57 @@ function EstudoEBackup() {
         }}
       />
     </>
+  );
+}
+
+function TimerSettingsCard() {
+  const settings = useFocusStore((s) => s.settings);
+  const setSettings = useFocusStore((s) => s.setSettings);
+  const notify = useFocusStore((s) => s.notify);
+  const setNotify = useFocusStore((s) => s.setNotify);
+  const fields = [
+    ["focusMinutes", "Foco (min)", 5, 120],
+    ["shortMinutes", "Pausa curta (min)", 1, 30],
+    ["longMinutes", "Pausa longa (min)", 5, 60],
+    ["longEvery", "Pausa longa a cada", 2, 8],
+  ] as const;
+  return (
+    <Card title="Timer de foco">
+      <div className="grid grid-cols-2 gap-3">
+        {fields.map(([key, label, min, max]) => (
+          <div key={key} className="grid gap-1.5 text-sm">
+            <label htmlFor={`timer-${key}`} className="font-medium">
+              {label}
+            </label>
+            <Select
+              id={`timer-${key}`}
+              value={settings[key]}
+              onChange={(e) => setSettings({ [key]: Number(e.target.value) })}
+            >
+              {Array.from({ length: max - min + 1 }, (_, i) => min + i)
+                .filter((v) => key === "longEvery" || v <= 10 || v % 5 === 0)
+                .map((v) => (
+                  <option key={v} value={v}>
+                    {key === "longEvery" ? `${v} focos` : v}
+                  </option>
+                ))}
+            </Select>
+          </div>
+        ))}
+      </div>
+      <label className="mt-4 flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={notify}
+          onChange={async (e) => {
+            const on = e.target.checked;
+            setNotify(on);
+            if (on) await requestNotifyPermission();
+          }}
+        />
+        Avisar quando o foco ou a pausa terminar
+      </label>
+      <p className="mt-1 text-xs text-muted">As novas durações valem a partir do próximo bloco.</p>
+    </Card>
   );
 }

@@ -1,5 +1,14 @@
 export { type ClozeSegment, clozeIndexes, nextClozeIndex, renderCloze } from "./cloze";
 export {
+  activityDays,
+  addDays,
+  computeStreak,
+  type DayPoint,
+  dailySeries,
+  type Streak,
+  studyDaysAgo,
+} from "./progress";
+export {
   createScheduler,
   formatInterval,
   RATINGS,
