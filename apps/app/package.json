@@ -19,7 +19,6 @@
     "@estudarella/core": "workspace:*",
     "@estudarella/db": "workspace:*",
     "@estudarella/plugin-api": "workspace:*",
-    "@tiptap/core": "^3.34.0",
     "@tiptap/extension-mention": "^3.34.0",
     "@tiptap/extension-placeholder": "^3.34.0",
     "@tiptap/pm": "^3.34.0",

@@ -1,6 +1,10 @@
-import { InputRule } from "@tiptap/core";
 import Mention from "@tiptap/extension-mention";
-import { type NodeViewProps, NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
+import {
+  InputRule,
+  type NodeViewProps,
+  NodeViewWrapper,
+  ReactNodeViewRenderer,
+} from "@tiptap/react";
 import { useNavigate } from "react-router";
 import { normalize, noteLabel, useNoteTitles } from "./titles";
 

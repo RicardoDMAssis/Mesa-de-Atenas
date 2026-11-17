@@ -199,9 +199,6 @@ importers:
       '@estudarella/plugin-api':
         specifier: workspace:*
         version: link:../../packages/plugin-api
-      '@tiptap/core':
-        specifier: ^3.34.0
-        version: 3.34.0(@tiptap/pm@3.34.0)
       '@tiptap/extension-mention':
         specifier: ^3.34.0
         version: 3.34.0(@tiptap/core@3.34.0(@tiptap/pm@3.34.0))(@tiptap/pm@3.34.0)(@tiptap/suggestion@3.34.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.34.0(@tiptap/pm@3.34.0))(@tiptap/pm@3.34.0))
