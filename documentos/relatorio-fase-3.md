@@ -71,3 +71,22 @@ nota "Teste do dicionário".
 ## Próximos passos
 
 Fase 3.1 — destaques de palavras por plugins (`instruções/fase-3.1-destaques.md`).
+
+## Ajustes após a entrega (2026-11-17)
+
+### Início personalizável e widgets de plugins
+
+Plano: `instruções/inicio-personalizavel.md`.
+
+| Item                | Resultado                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Início              | Feito de widgets: **Personalizar** permite adicionar, remover, subir, descer e restaurar o padrão. Salvo no aparelho                                                     |
+| Widgets do app      | Sequência, Hoje, Foco, Notas recentes e **Atalhos** (telas escolhidas pelo usuário, inclusive de plugins)                                                                |
+| Contrato            | Novo `contributes.widgets` (`id`, `title`, `size` small/medium/large, até 5) e superfície `widget` com `context.widget`. Acréscimo compatível: `apiVersion` continua "1" |
+| Widgets de plugins  | Quadro de altura fixa, carregado só quando aparece na tela, no máximo 4 no Início. Somem se o plugin for desativado e voltam ao reativar                                 |
+| Dicionário PT 1.1.0 | Widget "Busca rápida": digitar no Início abre a tela do dicionário com a palavra                                                                                         |
+| Guia                | Seção sobre widgets em `docs/guia-de-plugins.md`                                                                                                                         |
+
+Verificação: 85 testes de unidade e 81 de navegador. No Galaxy A52: widget adicionado e
+reordenado pela tela de personalização; busca digitada com o teclado real abriu o dicionário com
+"casa" consultada no Wikcionário.

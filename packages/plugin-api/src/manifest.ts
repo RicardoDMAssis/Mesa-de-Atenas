@@ -28,6 +28,18 @@ const contributesSchema = z.object({
       }),
     )
     .default([]),
+  /** Quadros que o usuário pode pôr no Início. */
+  widgets: z
+    .array(
+      z.object({
+        id: z.string().regex(/^[a-z0-9][a-z0-9-.]{0,63}$/),
+        title: z.string().min(1).max(40),
+        /** Altura fixa: small 120 px, medium 200 px, large 320 px. */
+        size: z.enum(["small", "medium", "large"]).default("medium"),
+      }),
+    )
+    .max(5)
+    .default([]),
   cardRenderer: z.boolean().default(false),
   noteEmbed: z.boolean().default(false),
   settings: z.boolean().default(false),

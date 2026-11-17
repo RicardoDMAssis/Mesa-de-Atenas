@@ -23,6 +23,23 @@ describe("manifestSchema", () => {
     expect(m.contributes.panel?.title).toBe("Anatomia 3D");
   });
 
+  it("aceita widgets com tamanho padrão médio e limita a quantidade", () => {
+    const m = manifestSchema.parse({
+      ...base,
+      contributes: {
+        widgets: [
+          { id: "busca", title: "Busca rápida", size: "small" },
+          { id: "x", title: "X" },
+        ],
+      },
+    });
+    expect(m.contributes.widgets.map((w) => w.size)).toEqual(["small", "medium"]);
+    const many = Array.from({ length: 6 }, (_, i) => ({ id: `w${i}`, title: "W" }));
+    expect(manifestSchema.safeParse({ ...base, contributes: { widgets: many } }).success).toBe(
+      false,
+    );
+  });
+
   it("recusa permissão desconhecida", () => {
     expect(manifestSchema.safeParse({ ...base, permissions: ["db:all"] }).success).toBe(false);
   });

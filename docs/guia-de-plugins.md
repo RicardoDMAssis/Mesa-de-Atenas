@@ -24,6 +24,7 @@ JavaScript e o kit.
 | Abrir um **painel ao lado da nota** (folha inferior no celular)                    | `contributes.panel`                                 |
 | Oferecer um **comando sobre o texto selecionado** na nota (ex.: "Definir palavra") | `contributes.commands` com `"context": "selection"` |
 | Ter uma **tela de configurações** (dentro de Plugins)                              | `contributes.settings`                              |
+| Ter **widgets** que o usuário põe no Início (até 5 por plugin)                     | `contributes.widgets`                               |
 | **Ler** a nota aberta e o trecho selecionado                                       | permissão `notes:read`                              |
 | **Inserir texto** na nota aberta (só em modo edição)                               | permissão `notes:write`                             |
 | **Ver a lista de baralhos**                                                        | permissão `cards:read`                              |
@@ -89,7 +90,8 @@ plugins/meu-plugin/
     "page": { "title": "Meu plugin" },
     "panel": { "title": "Meu plugin" },
     "commands": [{ "id": "contar", "title": "Contar palavras", "context": "selection" }],
-    "settings": false
+    "settings": false,
+    "widgets": [{ "id": "resumo", "title": "Meu resumo", "size": "small" }]
   },
   "permissions": ["notes:read", "storage"],
   "network": []
@@ -98,18 +100,19 @@ plugins/meu-plugin/
 
 Regras de cada campo:
 
-| Campo         | Regra                                                                                                            |
-| ------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `id`          | Único. Letras minúsculas, números e hífen (ex.: `cores-de-verbos`). Não pode repetir o de um plugin oficial      |
-| `name`        | Até 60 caracteres. É o que o usuário vê                                                                          |
-| `description` | Até 300 caracteres. Aparece na tela de Plugins e na instalação                                                   |
-| `icon`        | Um de: `book-a`, `languages`, `graduation-cap`, `sparkles`, `box`. Qualquer outro vira uma peça de quebra-cabeça |
-| `version`     | Formato `1.2.3`. Aumente a cada versão nova                                                                      |
-| `apiVersion`  | Sempre `"1"` nesta versão do app                                                                                 |
-| `entry`       | Página de entrada, normalmente `index.html`                                                                      |
-| `contributes` | Onde o plugin aparece (seção 2). `commands` precisa de `panel`: o comando abre o painel                          |
-| `permissions` | Só o que o plugin realmente usa: `notes:read`, `notes:write`, `cards:read`, `cards:write`, `storage`             |
-| `network`     | Lista de sites, no formato `https://dominio.com` (sem caminho). Vazio = sem internet                             |
+| Campo                 | Regra                                                                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `id`                  | Único. Letras minúsculas, números e hífen (ex.: `cores-de-verbos`). Não pode repetir o de um plugin oficial                   |
+| `name`                | Até 60 caracteres. É o que o usuário vê                                                                                       |
+| `description`         | Até 300 caracteres. Aparece na tela de Plugins e na instalação                                                                |
+| `icon`                | Um de: `book-a`, `languages`, `graduation-cap`, `sparkles`, `box`. Qualquer outro vira uma peça de quebra-cabeça              |
+| `version`             | Formato `1.2.3`. Aumente a cada versão nova                                                                                   |
+| `apiVersion`          | Sempre `"1"` nesta versão do app                                                                                              |
+| `entry`               | Página de entrada, normalmente `index.html`                                                                                   |
+| `contributes`         | Onde o plugin aparece (seção 2). `commands` precisa de `panel`: o comando abre o painel                                       |
+| `contributes.widgets` | Cada widget tem `id`, `title` (até 40 caracteres) e `size`: `small` (120 px de altura), `medium` (200 px) ou `large` (320 px) |
+| `permissions`         | Só o que o plugin realmente usa: `notes:read`, `notes:write`, `cards:read`, `cards:write`, `storage`                          |
+| `network`             | Lista de sites, no formato `https://dominio.com` (sem caminho). Vazio = sem internet                                          |
 
 Peça **o mínimo de permissões**: o usuário vê a lista antes de ativar.
 
@@ -121,10 +124,14 @@ import { app, PluginError } from "@estudarella/plugin-sdk";
 // 1. Sempre comece com app.ready(): conecta ao app, aplica o tema e devolve o contexto.
 const context = await app.ready();
 
-// 2. Veja onde o plugin está: "page", "panel" ou "settings".
+// 2. Veja onde o plugin está: "page", "panel", "settings" ou "widget".
 if (context.surface === "panel" && context.command) {
   // Aberto por um comando sobre o texto selecionado:
   console.log(context.command.id, context.command.selection);
+}
+
+if (context.surface === "widget") {
+  // context.widget = { id: "resumo", size: "small" } — desenhe algo compacto, sem rolagem.
 }
 
 // 3. Use o que as permissões liberam.
@@ -196,6 +203,17 @@ O app recusa ou bloqueia o plugin se estes padrões não forem seguidos:
 6. **Comece sempre com `await app.ready()`.** Se o plugin não chamar o app em 10 segundos
    depois de abrir, o app mostra "não respondeu" no lugar dele.
 7. **Pacote** de até 20 MB compactado, 50 MB descompactado e 300 arquivos.
+
+### Widgets no Início
+
+- O usuário escolhe quais widgets aparecem no Início (botão **Personalizar**); o plugin não se
+  adiciona sozinho.
+- A altura é fixa pelo `size` e o widget não pode crescer: desenhe algo compacto e sem rolagem.
+- O widget só carrega quando aparece na tela, e há no máximo 4 widgets de plugins no Início.
+- Para "abrir mais", use `app.ui.openPage()` (leva à tela própria do plugin). Para passar o que o
+  usuário escolheu, guarde antes com `app.storage.set` e leia na tela própria (veja o widget
+  "Busca rápida" do Dicionário PT).
+- Se o plugin for desativado, o widget some do Início; volta se for reativado.
 
 ## 6. Boas práticas
 

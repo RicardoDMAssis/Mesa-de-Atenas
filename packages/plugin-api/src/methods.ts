@@ -13,7 +13,7 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
 };
 
 /** Onde o plugin está sendo exibido. */
-export const SURFACES = ["page", "panel", "settings"] as const;
+export const SURFACES = ["page", "panel", "settings", "widget"] as const;
 export type Surface = (typeof SURFACES)[number];
 
 const text = z.string().max(20_000);
@@ -80,6 +80,8 @@ export interface PluginContext {
   /** Comando que abriu o painel, se houver. */
   command?: { id: string; selection: string };
   note?: { id: string; title: string } | null;
+  /** Qual widget (superfície `widget`) e o tamanho do quadro. */
+  widget?: { id: string; size: "small" | "medium" | "large" };
 }
 
 /** Limite de tamanho de um valor guardado por `storage.set` (JSON). */

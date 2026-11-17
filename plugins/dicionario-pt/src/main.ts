@@ -340,8 +340,36 @@ async function showSettings() {
   );
 }
 
+/** Widget do Início: busca rápida que abre a tela do dicionário com a palavra. */
+function showWidget() {
+  const input = el("input", {
+    type: "search",
+    placeholder: "Buscar palavra",
+    ariaLabel: "Buscar palavra",
+    autocapitalize: "none",
+  });
+  const form = el(
+    "form",
+    {
+      role: "search",
+      onsubmit: async (e: Event) => {
+        e.preventDefault();
+        const word = firstWord(input.value);
+        if (!word) return;
+        await app.storage.set(LAST_KEY, word);
+        await app.ui.openPage();
+      },
+    },
+    input,
+    el("button", { className: "primary", type: "submit" }, "Buscar"),
+  );
+  root.classList.add("widget");
+  show(form);
+}
+
 async function main() {
   const context = await app.ready();
+  if (context.surface === "widget") return showWidget();
   if (context.surface === "settings") return showSettings();
   if (context.surface === "page") return showPage();
   await showWord(firstWord(context.command?.selection ?? ""), "panel");
