@@ -260,3 +260,42 @@ test("dicionário desativado não mostra o comando na seleção", async ({ page 
     0,
   );
 });
+
+test("o .zip gerado pelo modelo de plugin instala e funciona", async ({ page }) => {
+  const { execSync } = await import("node:child_process");
+  const { readFileSync } = await import("node:fs");
+  const root = new URL("../../../", import.meta.url).pathname;
+  execSync("pnpm --filter @estudarella/plugin-template zip", { cwd: root, stdio: "ignore" });
+  const zip = readFileSync(`${root}plugins/_template/meu-plugin-0.1.0.zip`);
+
+  await page.goto("/notas");
+  await page.getByRole("button", { name: "Nova nota" }).click();
+  await page.getByLabel("Título da nota").fill("Contagem");
+  await page.getByLabel("Conteúdo da nota").click();
+  await page.getByLabel("Conteúdo da nota").pressSequentially("uma duas três quatro");
+  await expect(page.getByTestId("save-status")).toHaveText("Salvo");
+
+  await page.goto("/plugins");
+  await page
+    .getByLabel("Arquivo do plugin (.zip)")
+    .setInputFiles({ name: "meu-plugin.zip", mimeType: "application/zip", buffer: zip });
+  await page.getByRole("button", { name: "Instalar e ativar" }).click();
+  await expect(page.getByTestId("plugin-meu-plugin")).toBeVisible();
+
+  // Comando sobre a seleção, no painel da nota.
+  await page.goto("/notas");
+  await page.getByRole("link", { name: /Contagem/ }).click();
+  await page.getByLabel("Conteúdo da nota").evaluate((el) => {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    document.getSelection()?.removeAllRanges();
+    document.getSelection()?.addRange(range);
+  });
+  await page.getByRole("button", { name: "Contar palavras" }).click();
+  await expect(
+    page
+      .locator("[data-plugin-panel]")
+      .frameLocator("iframe")
+      .getByText("O trecho selecionado tem 4 palavra(s)."),
+  ).toBeVisible();
+});

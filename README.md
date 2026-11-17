@@ -52,12 +52,12 @@ packages/plugin-api Contrato app ↔ plugin (manifesto e protocolo)
 - **Estado**: Zustand guarda só estado de interface e preferências do aparelho. Dados e
   preferências de estudo vêm do banco.
 
-## Formato de um plugin
+## Plugins
 
-Uma pasta com `manifest.json` e uma página de entrada. Scripts e estilos referenciados pela
-página são embutidos pelo app (o JavaScript precisa estar empacotado, sem `import` relativo).
-Outros arquivos são lidos sob demanda com `plugin.readFile({ path })`. Exemplo funcional em
-`apps/app/public/builtin-plugins/spike`.
+Guia completo para criar um plugin: [`docs/guia-de-plugins.md`](docs/guia-de-plugins.md).
+Modelo pronto em `plugins/_template` (`pnpm --filter @estudarella/plugin-template zip` gera o `.zip`).
+Os plugins oficiais em `plugins/*` são compilados para `apps/app/public/builtin-plugins/` antes
+de `pnpm dev` e `pnpm build`.
 
 ## Diagnóstico
 

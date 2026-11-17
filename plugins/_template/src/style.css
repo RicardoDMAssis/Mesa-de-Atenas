@@ -1,0 +1,23 @@
+/* As variáveis são preenchidas pelo app (tema claro/escuro) via app.ready(). */
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--surface, #fff);
+  color: var(--text, #111);
+  font:
+    15px / 1.5 system-ui,
+    sans-serif;
+}
+.muted {
+  color: var(--muted, #666);
+}
+button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 14px;
+  font: inherit;
+  background: var(--accent, #5b4bd6);
+  color: var(--accent-contrast, #fff);
+  cursor: pointer;
+}

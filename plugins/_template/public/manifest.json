@@ -1,0 +1,17 @@
+{
+  "id": "meu-plugin",
+  "name": "Meu plugin",
+  "description": "Conta as palavras da nota aberta.",
+  "author": "Seu nome",
+  "icon": "sparkles",
+  "version": "0.1.0",
+  "apiVersion": "1",
+  "entry": "index.html",
+  "contributes": {
+    "page": { "title": "Meu plugin" },
+    "panel": { "title": "Meu plugin" },
+    "commands": [{ "id": "contar", "title": "Contar palavras", "context": "selection" }]
+  },
+  "permissions": ["notes:read", "storage"],
+  "network": []
+}

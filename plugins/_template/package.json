@@ -1,0 +1,18 @@
+{
+  "name": "@estudarella/plugin-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "zip": "vite build && node scripts/zip.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@estudarella/plugin-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "fflate": "^0.8.3",
+    "vite": "^8.3.8"
+  }
+}
