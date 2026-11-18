@@ -1,7 +1,7 @@
 # Estudarella — Planejamento do Projeto (v2)
 
 **Status:** Planejamento
-**Criado em:** 2026-11-16 · **Revisado em:** 2026-11-16 (v2 — versão anterior em `planejamento-v1.md`)
+**Criado em:** 2026-11-16 · **Revisado em:** 2026-11-18 (v2 — versão anterior em `planejamento-v1.md`)
 
 ---
 
@@ -19,12 +19,12 @@ Filosofia: simples por padrão, poderoso com extensões — inspirado no Obsidia
 
 | Objetivo | Como o plano atende |
 |---|---|
-| Escalável | Schema pronto para sync desde o dia 1; core separado da UI; plugins carregados sob demanda |
+| Escalável | Colunas de sincronização desde o dia 1 (permitem mesclar backups de aparelhos diferentes); core separado da UI; plugins carregados sob demanda |
 | Estável | Plugin isolado nunca derruba o app; todo card de plugin tem fallback estático; migrações versionadas; testes no core |
 | Manutenção simples | Um único código de UI para web e Android; uma única ponte de plugins; monorepo com pacotes pequenos |
 | Eficiente | Banco SQLite local; grafo em WebGL; plugins e modelos 3D só carregam quando usados |
 | Plugins ricos | Plugin é uma página web completa (WebGL, WASM, Canvas) com pontos de extensão para painel, card e bloco de nota |
-| Seguro | Sandbox sem acesso ao app, permissões declaradas e aprovadas, rede bloqueada por padrão, nenhuma chave no cliente |
+| Seguro | Sandbox sem acesso ao app, permissões declaradas e aprovadas, rede bloqueada por padrão, nenhuma chave do app no cliente (a chave de IA do próprio usuário fica só no aparelho dele) |
 | Personalizável | Temas por tokens de design, plugins ativáveis por matéria, configurações por plugin |
 
 ---
@@ -80,9 +80,9 @@ flashcards isso é pouco perceptível, desde que as telas sejam desenhadas mobil
 | Gráficos de progresso | SVG próprio | Leve, usa as cores do tema |
 | Pacotes de plugin | fflate | Leitura e geração de `.zip` |
 | Validação | Zod | Valida manifestos e toda mensagem vinda de plugin |
-| Nuvem (fase 5) | Supabase | Auth, Postgres com RLS, Storage, Edge Functions |
-| Sync (fase 5) | PowerSync (candidato) | SQLite ↔ Postgres offline-first; usa os mesmos drivers acima. SDK Capacitor ainda em beta — reavaliar na hora |
-| IA | Edge Function como proxy | Chaves ficam no servidor; cota por usuário |
+| Nuvem (fase 5) | Supabase | Login (Google, e-mail e outros), Postgres só com conta e assinatura (RLS), Storage para os backups, Edge Functions |
+| Entre aparelhos (fase 5) | Backup na nuvem + restauração que mescla | Sem sync em tempo real: o banco do servidor não guarda notas nem cards. Ver `instruções/fase-5.md` |
+| IA (fase 5) | Chave do próprio usuário (formato compatível com OpenAI) ou assinatura via Edge Function | Chave própria fica só no aparelho; na assinatura, a chave fica no servidor, com limite diário e semanal |
 | Testes | Vitest (core) + Playwright (fluxos) | Core testável sem UI |
 | Repositório | pnpm workspaces + Biome + GitHub Actions | Monorepo simples |
 
@@ -135,7 +135,7 @@ O grafo é **gerado automaticamente**:
 
 ## 6. Modelo de Dados
 
-Convenções em todas as tabelas (preparam o sync sem custo agora):
+Convenções em todas as tabelas (permitem mesclar backups de aparelhos diferentes sem custo agora):
 
 - `id` UUID v7 gerado no cliente
 - `created_at`, `updated_at`
@@ -316,7 +316,8 @@ compartilhamento pela mesma licença).
 - Rede bloqueada por padrão; liberação por domínio declarado e aprovado.
 - Permissões verificadas no app a cada chamada, não no SDK.
 - Nenhuma chave de API no cliente ou em plugin; IA só pelo proxy autenticado, com cota.
-- Supabase com Row Level Security em todas as tabelas.
+- Supabase com Row Level Security em todas as tabelas; cada usuário só acessa a própria conta e os próprios backups.
+- Chave de IA do próprio usuário guardada só no aparelho: nunca vai para o servidor, para o backup nem para plugins.
 - Conteúdo de notas sanitizado pelo schema do editor (sem HTML arbitrário).
 - Pacotes de plugin verificados por hash antes de instalar ou atualizar.
 
@@ -422,7 +423,10 @@ Plano: `instruções/fase-2.md` · Relatório: `documentos/relatorio-fase-2.md`
 
 Plano: `instruções/fase-3.md` · Relatório: `documentos/relatorio-fase-3.md`
 
-### Fase 3.1 — Destaques de palavras por plugins
+### Fase 3.1 — Destaques de palavras por plugins (incorporada à Fase 4.1)
+
+Pulada por decisão do usuário (2026-11-18) e retomada como item 4 da Fase 4.1. O plano continua válido.
+
 - [ ] Permissão `notes:highlight` e métodos `highlights.*` no contrato e no kit
 - [ ] Motor de correspondência (palavra inteira, sem acento, maior termo primeiro)
 - [ ] Pintura no editor (decorações, sem alterar o texto), controles e legenda
@@ -430,21 +434,47 @@ Plano: `instruções/fase-3.md` · Relatório: `documentos/relatorio-fase-3.md`
 
 Plano: `instruções/fase-3.1-destaques.md`
 
+### Extras — Aparência e mascote (fora das fases, 2026-11-18)
+- [x] Aparência: 8 paletas (claro/escuro), cor de destaque própria, 7 fontes embutidas, fonte das notas, tamanho do texto, imagem de fundo
+- [x] Mascote (open-bot-avatar): escolha, apelido e cor; ajuda no canto da tela, no Início, na Busca e na revisão
+- [x] Mascote: lembretes de cards, sequência em risco, meta diária, quiz no balão, dicas, reação ao foco, cards difíceis, notas soltas, resumo semanal, lembrete de backup, lembrete diário
+- [x] Mascotes de recompensa (melhor sequência) e mascotes de plugins (`contributes.mascots`, permissão `mascot`)
+
 ### Fase 4 — Plugins v2 (ricos)
-- [ ] Contrato e kit: `files.read`, `assets.save`, `cards.proposeVisual`, `notes.insertEmbed`, superfície `card`
-- [ ] Cards de plugin com reserva estática (`cardRenderer`) na revisão
-- [ ] Blocos de plugin na nota (`noteEmbed`) com miniatura
-- [ ] Etiquetas de matéria e sugestão de abrir o plugin (`activation`)
-- [ ] Modelo do esqueleto (Z-Anatomy/BodyParts3D, CC BY-SA) preparado e medido no celular
-- [ ] Plugin Esqueleto 3D (caso de referência completo)
+- [x] Contrato e kit: `files.read`, `assets.save`, `cards.proposeVisual`, `notes.insertEmbed`, superfície `card`
+- [x] Cards de plugin com reserva estática (`cardRenderer`) na revisão
+- [x] Blocos de plugin na nota (`noteEmbed`) com miniatura
+- [x] Etiquetas de matéria e sugestão de abrir o plugin (`activation`)
+- [ ] Modelo do esqueleto (Z-Anatomy/BodyParts3D, CC BY-SA) preparado e medido no celular — script pronto (`plugins/esqueleto-3d/tools/`), falta executar com o Blender
+- [x] Plugin Esqueleto 3D: girar, zoom, tocar e destacar, busca, região, questão visual, card na revisão, bloco na nota, sugestão por etiqueta (hoje com um **modelo provisório** de blocos)
+- [ ] Medir no Galaxy A52 com o modelo real; relatório `documentos/relatorio-fase-4.md`
 
 Plano: `instruções/fase-4.md`
 
-### Fase 5 — Conta, Sync e IA
-- [ ] Autenticação (Supabase)
-- [ ] Sync entre dispositivos
-- [ ] Proxy de IA com cota
+### Fase 4.1 — Plugins mais poderosos
+- [x] Vários cards de uma vez, com uma confirmação (`cards.proposeBatch`)
+- [x] Ver, corrigir e excluir os próprios cards (`cards.listOwn`, `statsOwn`, `updateContent`, `proposeUpdate`, `proposeDelete`; permissão `cards:own`)
+- [x] Destaques no texto da nota (plano da Fase 3.1, com o estilo `formula`)
+- [x] Arquivos que não são imagem (`storage.saveFile` e afins; exportar e importar)
+- [ ] Medir no Galaxy A52 (lote de 200; destaques em nota longa)
+
+Plano: `instruções/fase-4.1-plugins-mais-poderosos.md` · Relatório: `documentos/relatorio-fase-4.1.md`
+
+### Fase 5 — Conta, backup na nuvem e IA
+
+Decidido com o usuário (2026-11-18): **sem sync em tempo real**. O servidor guarda só a conta, a
+assinatura e os backups que o usuário gera; notas e cards continuam só no aparelho.
+
+- [ ] Conta (Supabase Auth): Google, e-mail com senha ou link mágico e outros provedores comuns; o app continua funcionando sem conta
+- [ ] Backup na nuvem: automático e manual, várias versões, criptografia opcional no aparelho
+- [ ] Restauração que **mescla** (a edição mais recente vence; histórico de revisões somado), para usar mais de um aparelho
+- [ ] Planos e limites como configuração no servidor (espaço e versões de backup, créditos de IA)
+- [ ] IA com a chave do próprio usuário (Google AI Studio, Groq, OpenRouter e outros compatíveis com OpenAI), guardada só no aparelho
+- [ ] IA por assinatura: intermediária no servidor com limite diário e semanal
+- [ ] Método `ai.*` para plugins (permissão `ai`), igual nas duas fontes de IA
 - [ ] Plugin Analisador de Edital
+
+Plano: `instruções/fase-5.md`
 
 ### Fase 6 — Distribuição pública
 - [ ] Publicação na Play Store e site
@@ -459,8 +489,8 @@ Plano: `instruções/fase-4.md`
 - ~~Fonte do Dicionário PT~~ — decidido: Wikcionário, com cache das últimas palavras consultadas.
 - ~~Imagens em cards~~ — feito na Fase 1. **Imagens dentro das notas**: ainda sem fase definida.
 - **Importação de decks do Anki**: entra no core, vira plugin ou fica fora?
-- **Modelo de negócio** (recomendação, a confirmar): app e plugins oficiais gratuitos, sem limites no uso local; assinatura única para o que tem custo de servidor (sync entre dispositivos + cota de IA). SDK e plugins oficiais com código aberto. Plugins pagos de terceiros só depois de existir um catálogo ativo. Só precisa ser fechado antes da Fase 5.
-- **Sync**: confirmar PowerSync ou alternativa no início da Fase 5.
+- **Modelo de negócio** (parcialmente decidido em 2026-11-18): se lançado, o app será por **assinatura**, com backup na nuvem incluído e sem limite. IA com chave própria não tem custo extra; IA contratada por nós, com limite diário e semanal, é paga. Os limites ficam numa tabela de planos no servidor, para poder mudar depois (ex.: plano grátis com limite) sem alterar o app. **A confirmar:** se existe uso grátis (só local, sem nuvem) e se a IA contratada é a mesma assinatura ou um adicional. Na Play Store, assinaturas dentro do app passam pelo pagamento do Google (15%).
+- ~~Sync~~ — decidido: sem sync em tempo real; backup na nuvem com restauração que mescla (Fase 5). PowerSync saiu do plano.
 - ~~Nome final~~ — decidido: **Estudarella** (o repositório no GitHub chama-se Mesa-de-Atenas).
 
 ---

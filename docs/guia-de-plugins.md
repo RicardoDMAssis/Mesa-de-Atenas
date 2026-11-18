@@ -18,27 +18,38 @@ JavaScript e o kit.
 
 ## 2. O que um plugin pode (e não pode) fazer hoje
 
-| Pode                                                                               | Como                                                |
-| ---------------------------------------------------------------------------------- | --------------------------------------------------- |
-| Ter uma **tela própria** (aparece no painel "Mais" e no menu lateral)              | `contributes.page`                                  |
-| Abrir um **painel ao lado da nota** (folha inferior no celular)                    | `contributes.panel`                                 |
-| Oferecer um **comando sobre o texto selecionado** na nota (ex.: "Definir palavra") | `contributes.commands` com `"context": "selection"` |
-| Ter uma **tela de configurações** (dentro de Plugins)                              | `contributes.settings`                              |
-| Ter **widgets** que o usuário põe no Início (até 5 por plugin)                     | `contributes.widgets`                               |
-| **Ler** a nota aberta e o trecho selecionado                                       | permissão `notes:read`                              |
-| **Inserir texto** na nota aberta (só em modo edição)                               | permissão `notes:write`                             |
-| **Ver a lista de baralhos**                                                        | permissão `cards:read`                              |
-| **Propor um flashcard** (o usuário revisa, escolhe o baralho e confirma)           | permissão `cards:write`                             |
-| **Guardar dados próprios** no aparelho (até 256 KB por chave)                      | permissão `storage`                                 |
-| **Acessar sites** específicos                                                      | campo `network`                                     |
-| Mostrar um **aviso curto** na tela do app                                          | sem permissão                                       |
+| Pode                                                                               | Como                                                            |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Ter uma **tela própria** (aparece no painel "Mais" e no menu lateral)              | `contributes.page`                                              |
+| Abrir um **painel ao lado da nota** (folha inferior no celular)                    | `contributes.panel`                                             |
+| Oferecer um **comando sobre o texto selecionado** na nota (ex.: "Definir palavra") | `contributes.commands` com `"context": "selection"`             |
+| Ter uma **tela de configurações** (dentro de Plugins)                              | `contributes.settings`                                          |
+| Ter **widgets** que o usuário põe no Início (até 5 por plugin)                     | `contributes.widgets`                                           |
+| **Ler** a nota aberta e o trecho selecionado                                       | permissão `notes:read`                                          |
+| **Inserir texto** na nota aberta (só em modo edição)                               | permissão `notes:write`                                         |
+| **Ver a lista de baralhos**                                                        | permissão `cards:read`                                          |
+| **Propor um flashcard** (o usuário revisa, escolhe o baralho e confirma)           | permissão `cards:write`                                         |
+| **Guardar dados próprios** no aparelho (até 256 KB por chave)                      | permissão `storage`                                             |
+| **Acessar sites** específicos                                                      | campo `network`                                                 |
+| Mostrar um **aviso curto** na tela do app                                          | sem permissão                                                   |
+| Trazer **mascotes** que o usuário pode escolher (até 5 por plugin)                 | `contributes.mascots`                                           |
+| Criar **cards visuais**, desenhados pelo plugin na revisão (ex.: modelo 3D)        | `contributes.cardRenderer` + permissão `cards:write`            |
+| Inserir **blocos** na nota (miniatura + rótulo; tocar abre o painel)               | `contributes.noteEmbed` + permissão `notes:write`               |
+| **Salvar imagens** (miniaturas para cards e blocos)                                | permissão `assets:write`                                        |
+| **Ler arquivos** da própria pasta (ex.: um modelo `.glb`)                          | sem permissão                                                   |
+| Ser **sugerido** nas notas de matérias com uma etiqueta (ex.: `anatomia`)          | `activation: ["onSubjectTag:anatomia"]`                         |
+| Usar **WebAssembly** (descompressão de modelos, áudio, OCR)                        | sem permissão                                                   |
+| **Falar pelo mascote** do usuário                                                  | permissão `mascot`                                              |
+| Criar **vários cards de uma vez** (até 200, uma confirmação)                       | permissão `cards:write`                                         |
+| **Ver, corrigir e excluir os próprios cards** e ver o desempenho neles             | permissão `cards:own` (correção e exclusão: o usuário confirma) |
+| **Destacar palavras** nas notas, sem alterar o texto (inclusive fórmulas: H₂SO₄)   | `contributes.highlights` + permissão `notes:highlight`          |
+| **Guardar arquivos** (`.mol`, `.csv`, `.json`, áudio…), exportar e importar        | permissão `storage`                                             |
 
 **Ainda não disponível:**
 
-- **Mudar a aparência do texto da nota** (ex.: colorir palavras). Proposta: um ponto de extensão
-  de _destaques_, em que o plugin envia palavras e cores e o app as pinta ao exibir a nota, sem
-  alterar o conteúdo salvo.
-- Mostrar conteúdo **dentro** da nota ou **dentro** de um card (previsto para a Fase 4).
+- Ler outras notas além da aberta, ou cards que não foram criados pelo plugin.
+- Câmera, microfone e sensores; blocos interativos dentro da nota (o bloco é estático; o
+  interativo abre no painel).
 - Usar inteligência artificial pelo app (previsto para a Fase 5).
 - Comandos no painel "Ir para" (`"context": "palette"` já é aceito no manifesto, mas ainda não
   aparece em lugar nenhum).
@@ -214,6 +225,166 @@ O app recusa ou bloqueia o plugin se estes padrões não forem seguidos:
   usuário escolheu, guarde antes com `app.storage.set` e leia na tela própria (veja o widget
   "Busca rápida" do Dicionário PT).
 - Se o plugin for desativado, o widget some do Início; volta se for reativado.
+
+### Cards visuais
+
+Com `contributes.cardRenderer: true` e a permissão `cards:write`, o plugin propõe um card cuja
+frente e verso ele mesmo desenha:
+
+```js
+const { assetId } = await app.assets.save({ data: pngArrayBuffer, mime: "image/png" });
+await app.cards.proposeVisual({
+  content: { osso: "femur-esquerdo" }, // seus dados, até 16 KB; só o seu plugin interpreta
+  fallback: { front: "Que osso está destacado?", back: "Fêmur (esquerdo)", image: assetId },
+});
+```
+
+- O app mostra a **reserva** (`fallback`) ao usuário, que escolhe o baralho e confirma.
+- Na revisão, o app abre o plugin na superfície `card`, numa área de altura fixa, com
+  `context.card = { content, side }`. Ao tocar em "Mostrar resposta", chega o evento
+  `context.changed` com `side: "back"`. O mesmo iframe é reaproveitado entre cards seguidos.
+- **Os botões Errei/Difícil/Bom/Fácil são do app**: o plugin nunca agenda nada.
+- A reserva aparece na busca, na lista do baralho, quando o plugin está desativado ou removido,
+  se ele falhar ao carregar e se não chamar o app em até 10 segundos.
+- Card visual não é editável pelo app (só excluir).
+
+### Blocos na nota
+
+Com `contributes.noteEmbed: true` e a permissão `notes:write`, o plugin insere um bloco na nota
+aberta (só em modo edição, até 20 por nota):
+
+```js
+await app.notes.insertEmbed({
+  data: { osso: "femur-esquerdo" },
+  label: "Fêmur (esquerdo)",
+  thumbnail: assetId,
+});
+```
+
+O bloco é **estático** (miniatura + rótulo): nada de iframe dentro da nota. Tocar nele abre o
+painel do plugin com `context.embed.data`. O rótulo entra na busca. Com o plugin desativado ou
+removido, o bloco mostra "Plugin indisponível" e continua na nota.
+
+### Arquivos, imagens e sugestão por etiqueta
+
+- `app.files.read("modelos/esqueleto.glb")` devolve um `ArrayBuffer` com um arquivo da pasta do
+  plugin. Arquivos grandes não precisam entrar no HTML.
+- `app.assets.save({ data, mime })` aceita PNG, JPEG ou WebP de até 2 MB; o app reduz para no
+  máximo 1600 px e devolve o `assetId`. As imagens entram no backup.
+- `"activation": ["onSubjectTag:anatomia"]`: nas notas de matérias com a etiqueta `anatomia`
+  (ou dentro de uma matéria com ela), aparece o botão "Abrir <painel>". **O painel nunca abre
+  sozinho.** O usuário dá etiquetas em Notas → menu da matéria → Etiquetas.
+
+### Vários cards de uma vez
+
+```js
+const { created, ids } = await app.cards.proposeBatch({
+  deckName: "Química orgânica", // sugestão, se o usuário quiser criar um baralho novo
+  cards: [
+    { front: "Etanol", back: "C₂H₆O", key: "etanol" },
+    { cloze: "O {{c1::metano}} tem fórmula CH₄", key: "metano" },
+    { content: { molecula: "co2" }, fallback: { front: "Que molécula?", back: "CO₂" }, key: "co2" },
+  ],
+});
+```
+
+- Uma tela só: o usuário escolhe o baralho, marca e desmarca, edita qualquer card e confirma.
+- `key` (opcional, única no seu plugin) faz o app reconhecer cards que você já criou: eles
+  aparecem desmarcados como "já existe". Sem `key`, o app compara a frente no baralho escolhido.
+- Um item inválido recusa o lote inteiro (`invalid_params`). Cards visuais exigem `cardRenderer`.
+- Volta `{ created, ids }` só com os cards aceitos.
+
+### Os próprios cards (permissão `cards:own`)
+
+O app registra qual plugin criou cada card. Com `cards:own`, você enxerga **só os seus**:
+
+```js
+const meus = await app.cards.listOwn({ key: "etanol" }); // ou { deckId }, páginas com { after }
+const stats = await app.cards.statsOwn(meus.map((c) => c.id)); // estado, acertos, esquecimentos
+await app.cards.updateContent(id, { molecula: "co2", angulo: 30 }); // só cards visuais; sem pedir
+await app.cards.proposeUpdate([{ id, back: "C₂H₅OH" }]); // o usuário vê antes/depois e confirma
+await app.cards.proposeDelete([id]); // o usuário confirma
+```
+
+- `editedAt` diz quando o usuário editou o card pelo app. Correções sugeridas para cards que ele
+  personalizou aparecem **desmarcadas**: respeite o que ele escreveu.
+- O plugin nunca muda quando um card volta na revisão.
+
+### Destaques nas notas
+
+Com `contributes.highlights: true` e a permissão `notes:highlight`, o plugin define termos e o app
+os pinta em todas as notas (edição e leitura), **sem alterar o texto salvo** e sem precisar abrir
+o plugin:
+
+```js
+await app.highlights.set([
+  { term: "portanto", color: "blue", label: "conectivo conclusivo" },
+  { term: "H2SO4", color: "green", style: "formula", label: "ácido sulfúrico" }, // aparece H₂SO₄
+  { term: "sódio", color: "orange", label: "elemento", command: "elemento" }, // tocar abre o painel
+]);
+```
+
+- Casa **palavra inteira**, sem diferenciar maiúsculas; acentos ignorados por padrão
+  (`ignoreAccents: false` para exigir). Termos podem ter números e sinais (`H2O`, `Fe3+`).
+- Cores (só a paleta do tema): `purple`, `pink`, `green`, `orange`, `blue`, `cyan`, `brown`, `gray`.
+- Estilos: `marker` (marca-texto, padrão), `text`, `underline` e `formula` (números como
+  subscrito e cargas como sobrescrito).
+- `set` substitui todas as suas regras (até 500); `get` e `clear` também existem. Termos que se
+  sobrepõem: vale o mais longo.
+- O usuário esconde os destaques no menu da nota, e eles somem ao desativar o plugin.
+
+### Arquivos
+
+```js
+const { fileId } = await app.storage.saveFile({
+  name: "etanol.mol",
+  mime: "chemical/x-mdl-molfile",
+  data,
+});
+const bytes = await app.storage.readFile(fileId);
+const lista = await app.storage.listFiles();
+await app.storage.exportFile(fileId); // o usuário recebe o arquivo
+const escolhido = await app.storage.pickFile([".csv"]); // o usuário escolhe; null se cancelar
+await app.storage.deleteFile(fileId);
+```
+
+- Tipos: texto, CSV, Markdown, JSON, XML, molécula (`.mol`, `.pdb`), modelo 3D (`.glb`), áudio
+  (MP3, OGG, WAV) e binário genérico. Nunca HTML nem scripts.
+- Até 10 MB por arquivo e 100 MB por plugin. Os arquivos entram no backup. O usuário vê o espaço
+  usado na tela de Plugins e escolhe se apaga os arquivos ao remover o plugin.
+- Chaves de `storage` começando com `__` são reservadas do app.
+
+### Mascotes
+
+Um plugin pode trazer mascotes no formato do [open-bot-avatar](https://github.com/DominikScholz/open-bot-avatar):
+um contorno SVG numa caixa `0 0 100 100` e a posição dos olhos. O app valida a geometria; um
+mascote inválido é ignorado. Eles aparecem em **Ajustes → Mascote** enquanto o plugin estiver
+ativo.
+
+```json
+"contributes": {
+  "mascots": [
+    {
+      "id": "coruja",
+      "name": "Coruja",
+      "color": "#8b5cf6",
+      "catchphrase": "Uhu!",
+      "body": { "path": "M50 15 C75 15 85 35 85 55 ..." },
+      "eyes": { "x": 50, "y": 46, "spacing": 18, "scale": 1.1 }
+    }
+  ]
+}
+```
+
+Com a permissão `mascot`, o plugin faz o mascote do usuário (qualquer um que ele tenha escolhido)
+dizer uma frase. O balão mostra o nome do plugin junto. Sem mascote escolhido, ou com os avisos
+silenciados, nada aparece e a chamada devolve `{ shown: false }`.
+
+```js
+await app.mascot.say("Você aprendeu 10 palavras novas hoje!", "happy"); // "idle" | "thinking" | "happy"
+```
+
+Use com moderação: uma frase quando algo importante acontece, não a cada clique.
 
 ## 6. Boas práticas
 

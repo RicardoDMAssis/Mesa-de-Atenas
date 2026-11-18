@@ -25,7 +25,16 @@ pasta do plugin sob demanda (`plugin.readFile`), mas o kit ainda não expõe iss
 - Recorte: **só o esqueleto**.
 - Abertura: **opção A** — sugestão discreta na nota; o painel só abre se o usuário tocar.
 - Nomes dos ossos: preparados a partir da Terminologia Anatômica, com o latim ao lado para conferência; sem revisor da área por enquanto.
-- Implementação **aguardando autorização** do usuário.
+- Implementação **autorizada** pelo usuário em 2026-11-18 (a Fase 3.1 foi pulada).
+
+## Andamento (2026-11-18)
+
+- Passos 1 a 5 feitos e testados (contrato e kit, banco, cards de plugin, blocos na nota,
+  etiquetas e sugestão), com testes de navegador em `apps/app/e2e/fase4.spec.ts`.
+- Passo 7 feito sobre um **modelo provisório** (um bloco por osso, 33 ossos, nomes da TA2).
+- Passo 6 (modelo real) **pendente**: o script `plugins/esqueleto-3d/tools/exportar_esqueleto.py`
+  está escrito mas não foi executado; rodar o Blender sobre o `.blend` do Z-Anatomy precisa da
+  autorização do usuário (ver `plugins/esqueleto-3d/tools/LEIA-ME.md`).
 
 ## Decisões
 
