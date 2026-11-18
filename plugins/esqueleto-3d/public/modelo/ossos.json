@@ -1,0 +1,1267 @@
+{
+  "provisorio": false,
+  "fonte": "Modelo: Z-Anatomy (CC BY-SA 4.0), baseado em BodyParts3D (DBCLS, CC BY-SA 2.1 JP). Nomes: Terminologia Anatômica (TA2), tradução em português do Z-Anatomy; nomes numerados (vértebras, costelas, metacarpais, metatarsais e falanges) montados a partir dela.",
+  "regioes": ["Crânio", "Tronco", "Membro superior", "Membro inferior"],
+  "ossos": {
+    "atlas-c1": {
+      "pt": "Atlas (C1)",
+      "la": "Atlas",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "axis-c2": {
+      "pt": "Áxis (C2)",
+      "la": "Axis",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "body-of-sternum": {
+      "pt": "Corpo do esterno",
+      "la": "Corpus sterni",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "calcaneus-direito": {
+      "pt": "Calcâneo (lado direito)",
+      "la": "Calcaneus",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "calcaneus-esquerdo": {
+      "pt": "Calcâneo (lado esquerdo)",
+      "la": "Calcaneus",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "capitate-bone-direito": {
+      "pt": "Osso capitato (lado direito)",
+      "la": "Os capitatum",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "capitate-bone-esquerdo": {
+      "pt": "Osso capitato (lado esquerdo)",
+      "la": "Os capitatum",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "clavicle-direito": {
+      "pt": "Clavícula (lado direito)",
+      "la": "Clavicula",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "clavicle-esquerdo": {
+      "pt": "Clavícula (lado esquerdo)",
+      "la": "Clavicula",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "coccyx": {
+      "pt": "Cóccix",
+      "la": "Os coccygis",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "cuboid-bone-direito": {
+      "pt": "Osso cubóide (lado direito)",
+      "la": "Os cuboideum",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "cuboid-bone-esquerdo": {
+      "pt": "Osso cubóide (lado esquerdo)",
+      "la": "Os cuboideum",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-fifth-finger-of-foot-direito": {
+      "pt": "Falange distal do quinto dedo do pé (lado direito)",
+      "la": "Phalanx distalis quintum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-fifth-finger-of-foot-esquerdo": {
+      "pt": "Falange distal do quinto dedo do pé (lado esquerdo)",
+      "la": "Phalanx distalis quintum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-fifth-finger-of-hand-direito": {
+      "pt": "Falange distal do quinto dedo da mão (lado direito)",
+      "la": "Phalanx distalis quintum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-fifth-finger-of-hand-esquerdo": {
+      "pt": "Falange distal do quinto dedo da mão (lado esquerdo)",
+      "la": "Phalanx distalis quintum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-first-finger-of-foot-direito": {
+      "pt": "Falange distal do primeiro dedo do pé (lado direito)",
+      "la": "Phalanx distalis primum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-first-finger-of-foot-esquerdo": {
+      "pt": "Falange distal do primeiro dedo do pé (lado esquerdo)",
+      "la": "Phalanx distalis primum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-first-finger-of-hand-direito": {
+      "pt": "Falange distal do primeiro dedo da mão (lado direito)",
+      "la": "Phalanx distalis primum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-first-finger-of-hand-esquerdo": {
+      "pt": "Falange distal do primeiro dedo da mão (lado esquerdo)",
+      "la": "Phalanx distalis primum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-fourth-finger-of-foot-direito": {
+      "pt": "Falange distal do quarto dedo do pé (lado direito)",
+      "la": "Phalanx distalis quartum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-fourth-finger-of-foot-esquerdo": {
+      "pt": "Falange distal do quarto dedo do pé (lado esquerdo)",
+      "la": "Phalanx distalis quartum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-fourth-finger-of-hand-direito": {
+      "pt": "Falange distal do quarto dedo da mão (lado direito)",
+      "la": "Phalanx distalis quartum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-fourth-finger-of-hand-esquerdo": {
+      "pt": "Falange distal do quarto dedo da mão (lado esquerdo)",
+      "la": "Phalanx distalis quartum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-second-finger-of-foot-direito": {
+      "pt": "Falange distal do segundo dedo do pé (lado direito)",
+      "la": "Phalanx distalis secundum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-second-finger-of-foot-esquerdo": {
+      "pt": "Falange distal do segundo dedo do pé (lado esquerdo)",
+      "la": "Phalanx distalis secundum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-second-finger-of-hand-direito": {
+      "pt": "Falange distal do segundo dedo da mão (lado direito)",
+      "la": "Phalanx distalis secundum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-second-finger-of-hand-esquerdo": {
+      "pt": "Falange distal do segundo dedo da mão (lado esquerdo)",
+      "la": "Phalanx distalis secundum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-third-finger-of-foot-direito": {
+      "pt": "Falange distal do terceiro dedo do pé (lado direito)",
+      "la": "Phalanx distalis tertium digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-third-finger-of-foot-esquerdo": {
+      "pt": "Falange distal do terceiro dedo do pé (lado esquerdo)",
+      "la": "Phalanx distalis tertium digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "distal-phalanx-of-third-finger-of-hand-direito": {
+      "pt": "Falange distal do terceiro dedo da mão (lado direito)",
+      "la": "Phalanx distalis tertium digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "distal-phalanx-of-third-finger-of-hand-esquerdo": {
+      "pt": "Falange distal do terceiro dedo da mão (lado esquerdo)",
+      "la": "Phalanx distalis tertium digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "eighth-rib-direito": {
+      "pt": "Oitava costela (lado direito)",
+      "la": "Octava costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "eighth-rib-esquerdo": {
+      "pt": "Oitava costela (lado esquerdo)",
+      "la": "Octava costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "eleventh-rib-direito": {
+      "pt": "Décima primeira costela (lado direito)",
+      "la": "Undecima costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "eleventh-rib-esquerdo": {
+      "pt": "Décima primeira costela (lado esquerdo)",
+      "la": "Undecima costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "ethmoid-bone": {
+      "pt": "Osso etmóide",
+      "la": "Os ethmoideum",
+      "regiao": "Crânio",
+      "lado": null
+    },
+    "femur-direito": {
+      "pt": "Fêmur (lado direito)",
+      "la": "Os femoris",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "femur-esquerdo": {
+      "pt": "Fêmur (lado esquerdo)",
+      "la": "Os femoris",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "fibula-direito": {
+      "pt": "Fíbula (lado direito)",
+      "la": "Fibula",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "fibula-esquerdo": {
+      "pt": "Fíbula (lado esquerdo)",
+      "la": "Fibula",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "fifth-metacarpal-bone-direito": {
+      "pt": "Osso quinto metacarpo (lado direito)",
+      "la": "Os quintum metacarpi",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "fifth-metacarpal-bone-esquerdo": {
+      "pt": "Osso quinto metacarpo (lado esquerdo)",
+      "la": "Os quintum metacarpi",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "fifth-metatarsal-bone-direito": {
+      "pt": "Osso quinto metatarso (lado direito)",
+      "la": "Os quintum metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "fifth-metatarsal-bone-esquerdo": {
+      "pt": "Osso quinto metatarso (lado esquerdo)",
+      "la": "Os quintum metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "fifth-rib-direito": {
+      "pt": "Quinta costela (lado direito)",
+      "la": "Quinta costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "fifth-rib-esquerdo": {
+      "pt": "Quinta costela (lado esquerdo)",
+      "la": "Quinta costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "first-metacarpal-bone-direito": {
+      "pt": "Osso primeiro metacarpo (lado direito)",
+      "la": "Os primum metacarpi",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "first-metacarpal-bone-esquerdo": {
+      "pt": "Osso primeiro metacarpo (lado esquerdo)",
+      "la": "Os primum metacarpi",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "first-metatarsal-bone-direito": {
+      "pt": "Osso primeiro metatarso (lado direito)",
+      "la": "Os primum metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "first-metatarsal-bone-esquerdo": {
+      "pt": "Osso primeiro metatarso (lado esquerdo)",
+      "la": "Os primum metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "first-rib-direito": {
+      "pt": "Primeira costela (lado direito)",
+      "la": "Costa prima",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "first-rib-esquerdo": {
+      "pt": "Primeira costela (lado esquerdo)",
+      "la": "Costa prima",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "fourth-metacarpal-bone-direito": {
+      "pt": "Osso quarto metacarpo (lado direito)",
+      "la": "Os quartum metacarpi",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "fourth-metacarpal-bone-esquerdo": {
+      "pt": "Osso quarto metacarpo (lado esquerdo)",
+      "la": "Os quartum metacarpi",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "fourth-metatarsal-bone-direito": {
+      "pt": "Osso quarto metatarso (lado direito)",
+      "la": "Os quartum metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "fourth-metatarsal-bone-esquerdo": {
+      "pt": "Osso quarto metatarso (lado esquerdo)",
+      "la": "Os quartum metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "fourth-rib-direito": {
+      "pt": "Quarta costela (lado direito)",
+      "la": "Quarta costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "fourth-rib-esquerdo": {
+      "pt": "Quarta costela (lado esquerdo)",
+      "la": "Quarta costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "frontal-bone": {
+      "pt": "Osso frontal",
+      "la": "Os frontale",
+      "regiao": "Crânio",
+      "lado": null
+    },
+    "hamate-bone-direito": {
+      "pt": "Osso hamato (lado direito)",
+      "la": "Os hamatum",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "hamate-bone-esquerdo": {
+      "pt": "Osso hamato (lado esquerdo)",
+      "la": "Os hamatum",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "hip-bone-direito": {
+      "pt": "Osso do quadril (lado direito)",
+      "la": "Os coxae",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "hip-bone-esquerdo": {
+      "pt": "Osso do quadril (lado esquerdo)",
+      "la": "Os coxae",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "humerus-direito": {
+      "pt": "Úmero (lado direito)",
+      "la": "Humerus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "humerus-esquerdo": {
+      "pt": "Úmero (lado esquerdo)",
+      "la": "Humerus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "hyoid-bone": {
+      "pt": "Osso hióide",
+      "la": "Os hyoideum",
+      "regiao": "Crânio",
+      "lado": null
+    },
+    "incus-direito": {
+      "pt": "Incus (lado direito)",
+      "la": "Incus",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "incus-esquerdo": {
+      "pt": "Incus (lado esquerdo)",
+      "la": "Incus",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "inferior-nasal-concha-bone-direito": {
+      "pt": "Osso da concha nasal inferior (lado direito)",
+      "la": "Concha nasalis inferior",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "inferior-nasal-concha-bone-esquerdo": {
+      "pt": "Osso da concha nasal inferior (lado esquerdo)",
+      "la": "Concha nasalis inferior",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "intermediate-cuneiform-bone-direito": {
+      "pt": "Osso cuneiforme intermédio (lado direito)",
+      "la": "Os cuneiforme intermedium",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "intermediate-cuneiform-bone-esquerdo": {
+      "pt": "Osso cuneiforme intermédio (lado esquerdo)",
+      "la": "Os cuneiforme intermedium",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "lacrimal-bone-direito": {
+      "pt": "Osso lacrimal (lado direito)",
+      "la": "Os lacrimale",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "lacrimal-bone-esquerdo": {
+      "pt": "Osso lacrimal (lado esquerdo)",
+      "la": "Os lacrimale",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "lateral-cuneiform-bone-direito": {
+      "pt": "Osso cuneiforme lateral (lado direito)",
+      "la": "Os cuneiforme laterale",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "lateral-cuneiform-bone-esquerdo": {
+      "pt": "Osso cuneiforme lateral (lado esquerdo)",
+      "la": "Os cuneiforme laterale",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "lunate-bone-direito": {
+      "pt": "Osso semilunar (lado direito)",
+      "la": "Os lunatum",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "lunate-bone-esquerdo": {
+      "pt": "Osso semilunar (lado esquerdo)",
+      "la": "Os lunatum",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "malleus-direito": {
+      "pt": "Martelo (lado direito)",
+      "la": "Malleus",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "malleus-esquerdo": {
+      "pt": "Martelo (lado esquerdo)",
+      "la": "Malleus",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "mandible": {
+      "pt": "Mandíbula",
+      "la": "Mandibula",
+      "regiao": "Crânio",
+      "lado": null
+    },
+    "manubrium-of-sternum": {
+      "pt": "Manúbrio do esterno",
+      "la": "Manubrium sterni",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "maxilla-direito": {
+      "pt": "Osso maxilar (lado direito)",
+      "la": "Maxilla",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "maxilla-esquerdo": {
+      "pt": "Osso maxilar (lado esquerdo)",
+      "la": "Maxilla",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "medial-cuneiform-bone-direito": {
+      "pt": "Osso cuneiforme medial (lado direito)",
+      "la": "Os cuneiforme mediale",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "medial-cuneiform-bone-esquerdo": {
+      "pt": "Osso cuneiforme medial (lado esquerdo)",
+      "la": "Os cuneiforme mediale",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "middle-phalanx-of-fifth-finger-of-foot-direito": {
+      "pt": "Falange média do quinto dedo do pé (lado direito)",
+      "la": "Phalanx media quintum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "middle-phalanx-of-fifth-finger-of-foot-esquerdo": {
+      "pt": "Falange média do quinto dedo do pé (lado esquerdo)",
+      "la": "Phalanx media quintum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "middle-phalanx-of-fifth-finger-of-hand-direito": {
+      "pt": "Falange média do quinto dedo da mão (lado direito)",
+      "la": "Phalanx media quintum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "middle-phalanx-of-fifth-finger-of-hand-esquerdo": {
+      "pt": "Falange média do quinto dedo da mão (lado esquerdo)",
+      "la": "Phalanx media quintum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "middle-phalanx-of-fourth-finger-of-foot-direito": {
+      "pt": "Falange média do quarto dedo do pé (lado direito)",
+      "la": "Phalanx media quartum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "middle-phalanx-of-fourth-finger-of-foot-esquerdo": {
+      "pt": "Falange média do quarto dedo do pé (lado esquerdo)",
+      "la": "Phalanx media quartum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "middle-phalanx-of-fourth-finger-of-hand-direito": {
+      "pt": "Falange média do quarto dedo da mão (lado direito)",
+      "la": "Phalanx media quartum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "middle-phalanx-of-fourth-finger-of-hand-esquerdo": {
+      "pt": "Falange média do quarto dedo da mão (lado esquerdo)",
+      "la": "Phalanx media quartum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "middle-phalanx-of-second-finger-of-foot-direito": {
+      "pt": "Falange média do segundo dedo do pé (lado direito)",
+      "la": "Phalanx media secundum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "middle-phalanx-of-second-finger-of-foot-esquerdo": {
+      "pt": "Falange média do segundo dedo do pé (lado esquerdo)",
+      "la": "Phalanx media secundum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "middle-phalanx-of-second-finger-of-hand-direito": {
+      "pt": "Falange média do segundo dedo da mão (lado direito)",
+      "la": "Phalanx media secundum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "middle-phalanx-of-second-finger-of-hand-esquerdo": {
+      "pt": "Falange média do segundo dedo da mão (lado esquerdo)",
+      "la": "Phalanx media secundum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "middle-phalanx-of-third-finger-of-foot-direito": {
+      "pt": "Falange média do terceiro dedo do pé (lado direito)",
+      "la": "Phalanx media tertium digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "middle-phalanx-of-third-finger-of-foot-esquerdo": {
+      "pt": "Falange média do terceiro dedo do pé (lado esquerdo)",
+      "la": "Phalanx media tertium digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "middle-phalanx-of-third-finger-of-hand-direito": {
+      "pt": "Falange média do terceiro dedo da mão (lado direito)",
+      "la": "Phalanx media tertium digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "middle-phalanx-of-third-finger-of-hand-esquerdo": {
+      "pt": "Falange média do terceiro dedo da mão (lado esquerdo)",
+      "la": "Phalanx media tertium digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "nasal-bone-direito": {
+      "pt": "Osso nasal (lado direito)",
+      "la": "Os nasale",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "nasal-bone-esquerdo": {
+      "pt": "Osso nasal (lado esquerdo)",
+      "la": "Os nasale",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "navicular-bone-direito": {
+      "pt": "Osso navicular (lado direito)",
+      "la": "Os naviculare",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "navicular-bone-esquerdo": {
+      "pt": "Osso navicular (lado esquerdo)",
+      "la": "Os naviculare",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "ninth-rib-direito": {
+      "pt": "Nona costela (lado direito)",
+      "la": "Nona costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "ninth-rib-esquerdo": {
+      "pt": "Nona costela (lado esquerdo)",
+      "la": "Nona costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "occipital-bone": {
+      "pt": "Osso occipital",
+      "la": "Os occipitale",
+      "regiao": "Crânio",
+      "lado": null
+    },
+    "palatine-bone-direito": {
+      "pt": "Osso palatino (lado direito)",
+      "la": "Os palatinum",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "palatine-bone-esquerdo": {
+      "pt": "Osso palatino (lado esquerdo)",
+      "la": "Os palatinum",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "parietal-bone-direito": {
+      "pt": "Osso parietal (lado direito)",
+      "la": "Os parietale",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "parietal-bone-esquerdo": {
+      "pt": "Osso parietal (lado esquerdo)",
+      "la": "Os parietale",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "patella-direito": {
+      "pt": "Patela (lado direito)",
+      "la": "Patella",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "patella-esquerdo": {
+      "pt": "Patela (lado esquerdo)",
+      "la": "Patella",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "pisiform-bone-direito": {
+      "pt": "Osso pisiforme (lado direito)",
+      "la": "Os pisiforme",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "pisiform-bone-esquerdo": {
+      "pt": "Osso pisiforme (lado esquerdo)",
+      "la": "Os pisiforme",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-fifth-finger-of-foot-direito": {
+      "pt": "Falange proximal do quinto dedo do pé (lado direito)",
+      "la": "Phalanx proximalis quintum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-fifth-finger-of-foot-esquerdo": {
+      "pt": "Falange proximal do quinto dedo do pé (lado esquerdo)",
+      "la": "Phalanx proximalis quintum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-fifth-finger-of-hand-direito": {
+      "pt": "Falange proximal do quinto dedo da mão (lado direito)",
+      "la": "Phalanx proximalis quintum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-fifth-finger-of-hand-esquerdo": {
+      "pt": "Falange proximal do quinto dedo da mão (lado esquerdo)",
+      "la": "Phalanx proximalis quintum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-first-finger-of-foot-direito": {
+      "pt": "Falange proximal do primeiro dedo do pé (lado direito)",
+      "la": "Phalanx proximalis primum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-first-finger-of-foot-esquerdo": {
+      "pt": "Falange proximal do primeiro dedo do pé (lado esquerdo)",
+      "la": "Phalanx proximalis primum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-first-finger-of-hand-direito": {
+      "pt": "Falange proximal do primeiro dedo da mão (lado direito)",
+      "la": "Phalanx proximalis primum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-first-finger-of-hand-esquerdo": {
+      "pt": "Falange proximal do primeiro dedo da mão (lado esquerdo)",
+      "la": "Phalanx proximalis primum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-fourth-finger-of-foot-direito": {
+      "pt": "Falange proximal do quarto dedo do pé (lado direito)",
+      "la": "Phalanx proximalis quartum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-fourth-finger-of-foot-esquerdo": {
+      "pt": "Falange proximal do quarto dedo do pé (lado esquerdo)",
+      "la": "Phalanx proximalis quartum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-fourth-finger-of-hand-direito": {
+      "pt": "Falange proximal do quarto dedo da mão (lado direito)",
+      "la": "Phalanx proximalis quartum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-fourth-finger-of-hand-esquerdo": {
+      "pt": "Falange proximal do quarto dedo da mão (lado esquerdo)",
+      "la": "Phalanx proximalis quartum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-second-finger-of-foot-direito": {
+      "pt": "Falange proximal do segundo dedo do pé (lado direito)",
+      "la": "Phalanx proximalis secundum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-second-finger-of-foot-esquerdo": {
+      "pt": "Falange proximal do segundo dedo do pé (lado esquerdo)",
+      "la": "Phalanx proximalis secundum digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-second-finger-of-hand-direito": {
+      "pt": "Falange proximal do segundo dedo da mão (lado direito)",
+      "la": "Phalanx proximalis secundum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-second-finger-of-hand-esquerdo": {
+      "pt": "Falange proximal do segundo dedo da mão (lado esquerdo)",
+      "la": "Phalanx proximalis secundum digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-third-finger-of-foot-direito": {
+      "pt": "Falange proximal do terceiro dedo do pé (lado direito)",
+      "la": "Phalanx proximalis tertium digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-third-finger-of-foot-esquerdo": {
+      "pt": "Falange proximal do terceiro dedo do pé (lado esquerdo)",
+      "la": "Phalanx proximalis tertium digitorum pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "proximal-phalanx-of-third-finger-of-hand-direito": {
+      "pt": "Falange proximal do terceiro dedo da mão (lado direito)",
+      "la": "Phalanx proximalis tertium digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "proximal-phalanx-of-third-finger-of-hand-esquerdo": {
+      "pt": "Falange proximal do terceiro dedo da mão (lado esquerdo)",
+      "la": "Phalanx proximalis tertium digitorum manus",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "radius-direito": {
+      "pt": "Rádio (lado direito)",
+      "la": "Radius",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "radius-esquerdo": {
+      "pt": "Rádio (lado esquerdo)",
+      "la": "Radius",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "sacrum": {
+      "pt": "Sacro",
+      "la": "Os sacrum",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "scaphoid-bone-direito": {
+      "pt": "Osso escafoide (lado direito)",
+      "la": "Os scaphoideum",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "scaphoid-bone-esquerdo": {
+      "pt": "Osso escafoide (lado esquerdo)",
+      "la": "Os scaphoideum",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "scapula-direito": {
+      "pt": "Escápula (lado direito)",
+      "la": "Scapula",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "scapula-esquerdo": {
+      "pt": "Escápula (lado esquerdo)",
+      "la": "Scapula",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "second-metacarpal-bone-direito": {
+      "pt": "Osso segundo metacarpo (lado direito)",
+      "la": "Os secundum metacarpi",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "second-metacarpal-bone-esquerdo": {
+      "pt": "Osso segundo metacarpo (lado esquerdo)",
+      "la": "Os secundum metacarpi",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "second-metatarsal-bone-direito": {
+      "pt": "Osso segundo metatarso (lado direito)",
+      "la": "Os secundum metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "second-metatarsal-bone-esquerdo": {
+      "pt": "Osso segundo metatarso (lado esquerdo)",
+      "la": "Os secundum metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "second-rib-direito": {
+      "pt": "Segunda costela (lado direito)",
+      "la": "Costa secunda",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "second-rib-esquerdo": {
+      "pt": "Segunda costela (lado esquerdo)",
+      "la": "Costa secunda",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "sesamoid-bones-of-foot-direito": {
+      "pt": "Ossos sesamoides do pé (lado direito)",
+      "la": "Ossa sesamoidea pedis",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "sesamoid-bones-of-foot-esquerdo": {
+      "pt": "Ossos sesamoides do pé (lado esquerdo)",
+      "la": "Ossa sesamoidea pedis",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "seventh-rib-direito": {
+      "pt": "Sétima costela (lado direito)",
+      "la": "Septima costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "seventh-rib-esquerdo": {
+      "pt": "Sétima costela (lado esquerdo)",
+      "la": "Septima costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "sixth-rib-direito": {
+      "pt": "Sexta costela (lado direito)",
+      "la": "Sexta costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "sixth-rib-esquerdo": {
+      "pt": "Sexta costela (lado esquerdo)",
+      "la": "Sexta costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "sphenoid-bone": {
+      "pt": "Osso esfenóide",
+      "la": "Os sphenoideum",
+      "regiao": "Crânio",
+      "lado": null
+    },
+    "stapes-direito": {
+      "pt": "Estribo (lado direito)",
+      "la": "Stapes",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "stapes-esquerdo": {
+      "pt": "Estribo (lado esquerdo)",
+      "la": "Stapes",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "talus-direito": {
+      "pt": "Talus (lado direito)",
+      "la": "Os tali",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "talus-esquerdo": {
+      "pt": "Talus (lado esquerdo)",
+      "la": "Os tali",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "temporal-bone-direito": {
+      "pt": "Osso temporal (lado direito)",
+      "la": "Os temporale",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "temporal-bone-esquerdo": {
+      "pt": "Osso temporal (lado esquerdo)",
+      "la": "Os temporale",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    },
+    "tenth-rib-direito": {
+      "pt": "Décima costela (lado direito)",
+      "la": "Decima costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "tenth-rib-esquerdo": {
+      "pt": "Décima costela (lado esquerdo)",
+      "la": "Decima costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "third-metacarpal-bone-direito": {
+      "pt": "Osso terceiro metacarpo (lado direito)",
+      "la": "Os tertium metacarpi",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "third-metacarpal-bone-esquerdo": {
+      "pt": "Osso terceiro metacarpo (lado esquerdo)",
+      "la": "Os tertium metacarpi",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "third-metatarsal-bone-direito": {
+      "pt": "Osso terceiro metatarso (lado direito)",
+      "la": "Os tertium metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "third-metatarsal-bone-esquerdo": {
+      "pt": "Osso terceiro metatarso (lado esquerdo)",
+      "la": "Os tertium metatarsi",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "third-rib-direito": {
+      "pt": "Terceira costela (lado direito)",
+      "la": "Tertia costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "third-rib-esquerdo": {
+      "pt": "Terceira costela (lado esquerdo)",
+      "la": "Tertia costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "tibia-direito": {
+      "pt": "Tíbia (lado direito)",
+      "la": "Tibia",
+      "regiao": "Membro inferior",
+      "lado": "direito"
+    },
+    "tibia-esquerdo": {
+      "pt": "Tíbia (lado esquerdo)",
+      "la": "Tibia",
+      "regiao": "Membro inferior",
+      "lado": "esquerdo"
+    },
+    "trapezium-bone-direito": {
+      "pt": "Osso trapézio (lado direito)",
+      "la": "Os trapezium",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "trapezium-bone-esquerdo": {
+      "pt": "Osso trapézio (lado esquerdo)",
+      "la": "Os trapezium",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "trapezoid-bone-direito": {
+      "pt": "Osso trapézoide (lado direito)",
+      "la": "Os trapezoideum",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "trapezoid-bone-esquerdo": {
+      "pt": "Osso trapézoide (lado esquerdo)",
+      "la": "Os trapezoideum",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "triquetrum-bone-direito": {
+      "pt": "Osso piramidal (lado direito)",
+      "la": "Os triquetrum",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "triquetrum-bone-esquerdo": {
+      "pt": "Osso piramidal (lado esquerdo)",
+      "la": "Os triquetrum",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "twelfth-rib-direito": {
+      "pt": "Décima segunda costela (lado direito)",
+      "la": "Duodecima costa",
+      "regiao": "Tronco",
+      "lado": "direito"
+    },
+    "twelfth-rib-esquerdo": {
+      "pt": "Décima segunda costela (lado esquerdo)",
+      "la": "Duodecima costa",
+      "regiao": "Tronco",
+      "lado": "esquerdo"
+    },
+    "ulna-direito": {
+      "pt": "Ulna (lado direito)",
+      "la": "Ulna",
+      "regiao": "Membro superior",
+      "lado": "direito"
+    },
+    "ulna-esquerdo": {
+      "pt": "Ulna (lado esquerdo)",
+      "la": "Ulna",
+      "regiao": "Membro superior",
+      "lado": "esquerdo"
+    },
+    "vertebra-c3": {
+      "pt": "Vértebra C3",
+      "la": "Vertebra cervicalis III",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-c4": {
+      "pt": "Vértebra C4",
+      "la": "Vertebra cervicalis IV",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-c5": {
+      "pt": "Vértebra C5",
+      "la": "Vertebra cervicalis V",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-c6": {
+      "pt": "Vértebra C6",
+      "la": "Vertebra cervicalis VI",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-c7": {
+      "pt": "Vértebra C7",
+      "la": "Vertebra cervicalis VII",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-l1": {
+      "pt": "Vértebra L1",
+      "la": "Vertebra lumborum I",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-l2": {
+      "pt": "Vértebra L2",
+      "la": "Vertebra lumborum II",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-l3": {
+      "pt": "Vértebra L3",
+      "la": "Vertebra lumborum III",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-l4": {
+      "pt": "Vértebra L4",
+      "la": "Vertebra lumborum IV",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-l5": {
+      "pt": "Vértebra L5",
+      "la": "Vertebra lumborum V",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t1": {
+      "pt": "Vértebra T1",
+      "la": "Vertebra thoracis I",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t10": {
+      "pt": "Vertebra T10",
+      "la": "Vertebra thoracis X",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t11": {
+      "pt": "Vertebra T11",
+      "la": "Vertebra thoracis XI",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t12": {
+      "pt": "Vértebra T12",
+      "la": "Vertebra thoracis XII",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t2": {
+      "pt": "Vértebra T2",
+      "la": "Vertebra thoracis II",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t3": {
+      "pt": "Vértebra T3",
+      "la": "Vertebra thoracis III",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t4": {
+      "pt": "Vértebra T4",
+      "la": "Vertebra thoracis IV",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t5": {
+      "pt": "Vértebra T5",
+      "la": "Vertebra thoracis V",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t6": {
+      "pt": "Vértebra T6",
+      "la": "Vertebra thoracis VI",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t7": {
+      "pt": "Vértebra T7",
+      "la": "Vertebra thoracis VII",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t8": {
+      "pt": "Vértebra T8",
+      "la": "Vertebra thoracis VIII",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vertebra-t9": {
+      "pt": "Vértebra T9",
+      "la": "Vertebra thoracis IX",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "vomer": {
+      "pt": "Vômer",
+      "la": "Vomer",
+      "regiao": "Crânio",
+      "lado": null
+    },
+    "xiphoid-process": {
+      "pt": "Processo xifóide",
+      "la": "Processus xiphoideus",
+      "regiao": "Tronco",
+      "lado": null
+    },
+    "zygomatic-bone-direito": {
+      "pt": "Osso zigomático (lado direito)",
+      "la": "Os zygomaticum",
+      "regiao": "Crânio",
+      "lado": "direito"
+    },
+    "zygomatic-bone-esquerdo": {
+      "pt": "Osso zigomático (lado esquerdo)",
+      "la": "Os zygomaticum",
+      "regiao": "Crânio",
+      "lado": "esquerdo"
+    }
+  }
+}

@@ -20,6 +20,8 @@ interface PluginFrameProps {
   initData?: Record<string, unknown>;
   /** Avisado a cada chamada do plugin (usado para detectar plugin travado). */
   onCall?: () => void;
+  /** Mostrado se o plugin não carregar (no lugar da mensagem de erro). */
+  errorFallback?: React.ReactNode;
   ref?: Ref<PluginFrameHandle>;
 }
 
@@ -38,6 +40,7 @@ export function PluginFrame({
   onLoaded,
   initData,
   onCall,
+  errorFallback,
   ref,
 }: PluginFrameProps) {
   const [doc, setDoc] = useState<string>();
@@ -73,7 +76,11 @@ export function PluginFrame({
     emit: (event, payload) => connection.current?.emit(event, payload),
   }));
 
-  if (error) return <p className="text-sm text-danger">Não foi possível carregar o plugin.</p>;
+  if (error) {
+    return (
+      errorFallback ?? <p className="text-sm text-danger">Não foi possível carregar o plugin.</p>
+    );
+  }
   if (!doc) return <p className="text-sm text-muted">Carregando plugin…</p>;
 
   // Disponível para todo plugin: ler um arquivo da própria pasta.

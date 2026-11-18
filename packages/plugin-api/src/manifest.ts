@@ -11,6 +11,9 @@ export const PERMISSIONS = [
   "assets:write",
   "storage",
   "ai",
+  "mascot",
+  "cards:own",
+  "notes:highlight",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -40,7 +43,31 @@ const contributesSchema = z.object({
     )
     .max(5)
     .default([]),
+  /**
+   * Mascotes que o usuário pode escolher (formato do open-bot-avatar: um contorno SVG
+   * numa caixa 0 0 100 100 e a posição dos olhos). O app valida a geometria antes de usar.
+   */
+  mascots: z
+    .array(
+      z.object({
+        id: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),
+        name: z.string().min(1).max(30),
+        color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+        catchphrase: z.string().min(1).max(40).optional(),
+        body: z.object({ path: z.string().min(1).max(20_000) }),
+        eyes: z.object({
+          x: z.number(),
+          y: z.number(),
+          spacing: z.number(),
+          scale: z.number(),
+        }),
+      }),
+    )
+    .max(5)
+    .default([]),
   cardRenderer: z.boolean().default(false),
+  /** O plugin destaca palavras nas notas (aparece na legenda de destaques). */
+  highlights: z.boolean().default(false),
   noteEmbed: z.boolean().default(false),
   settings: z.boolean().default(false),
 });

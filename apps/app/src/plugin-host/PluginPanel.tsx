@@ -45,7 +45,7 @@ export function PluginPanel() {
         <PluginSurface
           pluginId={open.pluginId}
           surface="panel"
-          context={{ command: context.command, note: context.note }}
+          context={{ command: context.command, note: context.note, embed: context.embed }}
         />
       </div>
     </aside>

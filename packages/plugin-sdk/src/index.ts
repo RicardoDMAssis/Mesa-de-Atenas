@@ -32,6 +32,39 @@ export class PluginError extends Error {
 
 type Listener<T> = (payload: T) => void;
 
+/** Card criado por este plugin, como `cards.listOwn` devolve. */
+export interface OwnCard {
+  id: string;
+  key: string | null;
+  deckId: string;
+  deckName: string;
+  type: "basic" | "cloze" | "plugin";
+  front: string;
+  back: string;
+  content: unknown;
+  createdAt: number;
+  /** Quando o usuário editou o card pelo app (`null` se nunca). */
+  editedAt: number | null;
+}
+
+export interface CardStats {
+  id: string;
+  state: "novo" | "aprendendo" | "revisão" | "reaprendendo";
+  reps: number;
+  /** Quantas vezes o usuário esqueceu (errou) o card depois de aprender. */
+  lapses: number;
+  lastReview: number | null;
+  due: number;
+}
+
+export interface StoredFile {
+  fileId: string;
+  name: string;
+  mime: string;
+  size: number;
+  createdAt: number;
+}
+
 function createClient() {
   let port: MessagePort | undefined;
   let nextId = 1;
@@ -112,6 +145,26 @@ function createClient() {
       getCurrent: () =>
         call("notes.getCurrent") as Promise<{ id: string; title: string; text: string } | null>,
       insertText: (text: string) => call("notes.insertText", { text }) as Promise<void>,
+      /**
+       * Insere na nota aberta um bloco do plugin: miniatura + rótulo (pede `notes:write` e
+       * `contributes.noteEmbed`). Tocar no bloco abre o painel com `context.embed.data`.
+       */
+      insertEmbed: (embed: MethodParams<"notes.insertEmbed">) =>
+        call("notes.insertEmbed", embed) as Promise<void>,
+    },
+    files: {
+      /** Lê um arquivo da pasta do próprio plugin (ex.: um modelo 3D). */
+      read: (path: string) => call("files.read", { path }) as Promise<ArrayBuffer>,
+    },
+    assets: {
+      /** Salva uma imagem (PNG, JPEG ou WebP, até 2 MB; pede `assets:write`) e devolve o id. */
+      save: (image: { data: ArrayBuffer; mime: "image/png" | "image/jpeg" | "image/webp" }) =>
+        call("assets.save", image) as Promise<{ assetId: string }>,
+    },
+    mascot: {
+      /** O mascote do usuário diz a frase (pede a permissão "mascot"). Sem mascote, nada acontece. */
+      say: (message: string, mood: "idle" | "thinking" | "happy" = "idle") =>
+        call("mascot.say", { message, mood }) as Promise<{ shown: boolean }>,
     },
     decks: {
       list: () => call("decks.list") as Promise<{ id: string; name: string }[]>,
@@ -120,12 +173,63 @@ function createClient() {
       /** O app mostra o card ao usuário, que escolhe o baralho e confirma. */
       propose: (card: { front: string; back: string }) =>
         call("cards.propose", card) as Promise<{ created: boolean }>,
+      /**
+       * Card visual, desenhado pelo plugin na revisão (`contributes.cardRenderer`). A reserva
+       * (`fallback`) é obrigatória: aparece na confirmação, na busca e quando o plugin falta.
+       */
+      proposeVisual: (card: MethodParams<"cards.proposeVisual">) =>
+        call("cards.proposeVisual", card) as Promise<{ created: boolean }>,
+      /**
+       * Vários cards de uma vez (até 200). O usuário escolhe o baralho, marca, edita e confirma;
+       * devolve só os ids dos aceitos. Use `key` para o app reconhecer cards que já existem.
+       */
+      proposeBatch: (batch: MethodParams<"cards.proposeBatch">) =>
+        call("cards.proposeBatch", batch) as Promise<{ created: number; ids: string[] }>,
+      /** Cards criados por este plugin (pede `cards:own`). Páginas de até 200; use `after`. */
+      listOwn: (filter: Partial<MethodParams<"cards.listOwn">> = {}) =>
+        call("cards.listOwn", { limit: 200, ...filter }) as Promise<OwnCard[]>,
+      /** Desempenho nos próprios cards (só leitura). */
+      statsOwn: (ids: string[]) => call("cards.statsOwn", { ids }) as Promise<CardStats[]>,
+      /** Troca os dados internos de um card visual próprio, sem pedir (não muda o texto visto). */
+      updateContent: (id: string, content: MethodParams<"cards.updateContent">["content"]) =>
+        call("cards.updateContent", { id, content }) as Promise<void>,
+      /** Sugere mudar frente/verso dos próprios cards; o usuário vê antes e depois e confirma. */
+      proposeUpdate: (changes: MethodParams<"cards.proposeUpdate">["changes"]) =>
+        call("cards.proposeUpdate", { changes }) as Promise<{ updated: number }>,
+      /** Sugere excluir próprios cards; o usuário confirma. */
+      proposeDelete: (ids: string[]) =>
+        call("cards.proposeDelete", { ids }) as Promise<{ deleted: number }>,
     },
     storage: {
       get: <T = unknown>(key: string) => call("storage.get", { key }) as Promise<T | undefined>,
       set: (key: string, value: unknown) => call("storage.set", { key, value }) as Promise<void>,
       delete: (key: string) => call("storage.delete", { key }) as Promise<void>,
       keys: () => call("storage.keys") as Promise<string[]>,
+      /** Guarda um arquivo (até 10 MB; 100 MB por plugin). Tipos em `FILE_MIMES`. */
+      saveFile: (file: MethodParams<"storage.saveFile">) =>
+        call("storage.saveFile", file) as Promise<{ fileId: string }>,
+      readFile: (fileId: string) => call("storage.readFile", { fileId }) as Promise<ArrayBuffer>,
+      listFiles: () => call("storage.listFiles") as Promise<StoredFile[]>,
+      deleteFile: (fileId: string) => call("storage.deleteFile", { fileId }) as Promise<void>,
+      /** Entrega o arquivo ao usuário (download ou compartilhar). */
+      exportFile: (fileId: string) => call("storage.exportFile", { fileId }) as Promise<void>,
+      /** Pede ao usuário um arquivo; devolve `null` se ele cancelar. */
+      pickFile: (accept?: string[]) =>
+        call("storage.pickFile", { accept }) as Promise<{
+          name: string;
+          mime: string;
+          data: ArrayBuffer;
+        } | null>,
+    },
+    highlights: {
+      /**
+       * Substitui as regras de destaque do plugin (pede `notes:highlight` e
+       * `contributes.highlights`). O app pinta as palavras em todas as notas, sem mudar o texto.
+       */
+      set: (rules: MethodParams<"highlights.set">["rules"]) =>
+        call("highlights.set", { rules }) as Promise<void>,
+      get: () => call("highlights.get") as Promise<MethodParams<"highlights.set">["rules"]>,
+      clear: () => call("highlights.clear") as Promise<void>,
     },
   };
 }

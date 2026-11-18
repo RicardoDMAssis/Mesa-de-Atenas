@@ -1,4 +1,12 @@
-import { removePlugin, setPluginEnabled, upsertPlugin } from "@estudarella/db";
+import {
+  listPluginFiles,
+  pluginFilesUsage,
+  pluginStorageGet,
+  removePlugin,
+  removePluginFile,
+  setPluginEnabled,
+  upsertPlugin,
+} from "@estudarella/db";
 import { type Manifest, PERMISSION_LABELS } from "@estudarella/plugin-api";
 import { FileArchive, Link2, ShieldAlert } from "lucide-react";
 import { useRef, useState } from "react";
@@ -15,6 +23,8 @@ import {
   Menu,
 } from "../components/ui";
 import { useDatabase } from "../data/DatabaseProvider";
+import { useLiveQuery } from "../data/useLiveQuery";
+import { HIGHLIGHTS_KEY } from "../plugin-host/highlights";
 import {
   deleteInstalled,
   downloadPackage,
@@ -35,13 +45,19 @@ const ORIGIN = {
 type Pending = { pkg: PluginPackage; source: "file" | "link"; url?: string };
 
 export function Plugins() {
-  const { db } = useDatabase();
+  const { db, assets } = useDatabase();
   const navigate = useNavigate();
   const plugins = usePlugins((s) => s.plugins);
   const loaded = usePlugins((s) => s.loaded);
   const [activating, setActivating] = useState<LoadedPluginInfo | null>(null);
   const [settingsOf, setSettingsOf] = useState<LoadedPluginInfo | null>(null);
   const [removing, setRemoving] = useState<LoadedPluginInfo | null>(null);
+  const [alsoFiles, setAlsoFiles] = useState(true);
+  const removingUsage = useLiveQuery(
+    ["assets"],
+    (db) => (removing ? pluginFilesUsage(db, removing.manifest.id) : Promise.resolve(0)),
+    [removing?.manifest.id],
+  );
   const [linkOpen, setLinkOpen] = useState(false);
   const [url, setUrl] = useState("");
   const [pending, setPending] = useState<Pending | null>(null);
@@ -159,6 +175,7 @@ export function Plugins() {
                     {manifest.description && (
                       <p className="mt-1 text-sm text-muted">{manifest.description}</p>
                     )}
+                    <PluginUsage plugin={p} />
                   </div>
                   <label className="flex shrink-0 items-center gap-2 text-sm">
                     <input
@@ -315,7 +332,14 @@ export function Plugins() {
         confirmLabel={removing?.record.source === "builtin" ? "Apagar dados" : "Remover"}
         onConfirm={async () => {
           if (!removing) return;
-          await removePlugin(db, removing.manifest.id);
+          const pluginId = removing.manifest.id;
+          if (alsoFiles) {
+            for (const file of await listPluginFiles(db, pluginId)) {
+              if (await removePluginFile(db, pluginId, file.fileId))
+                await assets.delete(file.fileId);
+            }
+          }
+          await removePlugin(db, pluginId);
           if (removing.record.source === "builtin") {
             // O oficial continua disponível: volta ao registro, desativado.
             await upsertPlugin(db, {
@@ -328,7 +352,18 @@ export function Plugins() {
             await deleteInstalled(removing.manifest.id);
           }
         }}
-      />
+      >
+        {(removingUsage.data ?? 0) > 0 && (
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={alsoFiles}
+              onChange={(e) => setAlsoFiles(e.target.checked)}
+            />
+            Apagar também os arquivos guardados por ele ({formatSize(removingUsage.data ?? 0)})
+          </label>
+        )}
+      </ConfirmDialog>
     </>
   );
 }
@@ -356,6 +391,13 @@ function PermissionSummary({ manifest, unverified }: { manifest: Manifest; unver
           </ul>
         )}
       </div>
+      {manifest.contributes.mascots.length > 0 && (
+        <p>
+          Traz {manifest.contributes.mascots.length === 1 ? "o mascote" : "os mascotes"}{" "}
+          {manifest.contributes.mascots.map((m) => m.name).join(", ")}, para você escolher em
+          Ajustes.
+        </p>
+      )}
       <div>
         <p className="font-medium">Acesso à internet:</p>
         {manifest.network.length === 0 ? (
@@ -370,4 +412,34 @@ function PermissionSummary({ manifest, unverified }: { manifest: Manifest; unver
       </div>
     </div>
   );
+}
+
+const sizeFormat = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${sizeFormat.format(bytes / 1024)} KB`;
+  return `${sizeFormat.format(bytes / 1024 / 1024)} MB`;
+}
+
+/** O que o plugin guarda e o que ele faz nas notas (Fase 4.1). */
+function PluginUsage({ plugin }: { plugin: LoadedPluginInfo }) {
+  const id = plugin.manifest.id;
+  const files = useLiveQuery(["assets"], async (db) => ({
+    count: (await listPluginFiles(db, id)).length,
+    size: await pluginFilesUsage(db, id),
+  }));
+  const rules = useLiveQuery(["plugin_data"], async (db) => {
+    const saved = await pluginStorageGet(db, id, HIGHLIGHTS_KEY);
+    return Array.isArray(saved) ? saved.length : 0;
+  });
+  const parts = [
+    files.data?.count
+      ? `${files.data.count} ${files.data.count === 1 ? "arquivo guardado" : "arquivos guardados"} (${formatSize(files.data.size)})`
+      : null,
+    plugin.manifest.contributes.highlights && rules.data
+      ? `destaca ${rules.data} ${rules.data === 1 ? "termo" : "termos"} nas notas`
+      : null,
+  ].filter(Boolean);
+  if (parts.length === 0) return null;
+  return <p className="mt-1 text-xs text-muted">{parts.join(" · ")}</p>;
 }

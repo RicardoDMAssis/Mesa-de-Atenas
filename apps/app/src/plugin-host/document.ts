@@ -8,7 +8,8 @@
 export function buildPluginDocument(html: string, network: readonly string[] = []): string {
   const policy = [
     "default-src 'none'",
-    "script-src 'unsafe-inline' blob:",
+    // WebAssembly liberado: muitas bibliotecas (descompressão de modelos 3D, áudio, OCR) usam.
+    "script-src 'unsafe-inline' blob: 'wasm-unsafe-eval'",
     "style-src 'unsafe-inline'",
     "img-src data: blob:",
     "media-src data: blob:",

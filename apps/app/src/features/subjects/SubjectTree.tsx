@@ -2,12 +2,14 @@ import {
   createSubject,
   deleteSubject,
   moveSubject,
+  normalizeTag,
   renameSubject,
   type Subject,
+  setSubjectTags,
   subtreeIds,
 } from "@estudarella/db";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { SubjectSelect } from "../../components/SubjectSelect";
 import {
   Button,
@@ -16,11 +18,14 @@ import {
   DialogActions,
   Field,
   IconButton,
+  Input,
   Menu,
   PromptDialog,
 } from "../../components/ui";
 import { useDatabase } from "../../data/DatabaseProvider";
 import { useSubjects } from "../../data/hooks";
+import { subjectTagActivations } from "../../plugin-host/activation";
+import { usePlugins } from "../../plugin-host/registry";
 
 /** Filtro escolhido na árvore: tudo, só o que não tem matéria, ou uma matéria. */
 export type SubjectFilter = "all" | "none" | string;
@@ -28,6 +33,7 @@ export type SubjectFilter = "all" | "none" | string;
 type Action =
   | { kind: "create"; parent: Subject | null }
   | { kind: "rename"; subject: Subject }
+  | { kind: "tags"; subject: Subject }
   | { kind: "move"; subject: Subject }
   | { kind: "delete"; subject: Subject };
 
@@ -85,6 +91,7 @@ export function SubjectTree({
                   onSelect: () => setAction({ kind: "create", parent: item }),
                 },
                 { label: "Renomear", onSelect: () => setAction({ kind: "rename", subject: item }) },
+                { label: "Etiquetas", onSelect: () => setAction({ kind: "tags", subject: item }) },
                 {
                   label: "Mover",
                   onSelect: () => {
@@ -138,6 +145,13 @@ export function SubjectTree({
           if (action?.kind === "rename") await renameSubject(db, action.subject.id, name);
         }}
       />
+      <TagsDialog
+        subject={action?.kind === "tags" ? action.subject : null}
+        onClose={close}
+        onSave={async (tags) => {
+          if (action?.kind === "tags") await setSubjectTags(db, action.subject.id, tags);
+        }}
+      />
       <Dialog
         open={action?.kind === "move"}
         onClose={close}
@@ -185,5 +199,80 @@ export function SubjectTree({
         }}
       />
     </div>
+  );
+}
+
+/**
+ * Etiquetas da matéria (ex.: "anatomia"). Valem também para os tópicos dentro dela e
+ * fazem os plugins que as usam sugerirem abrir junto das notas.
+ */
+function TagsDialog({
+  subject,
+  onClose,
+  onSave,
+}: {
+  subject: Subject | null;
+  onClose: () => void;
+  onSave: (tags: string[]) => Promise<void>;
+}) {
+  const [value, setValue] = useState("");
+  const plugins = usePlugins((s) => s.plugins);
+  useEffect(() => {
+    if (subject) setValue(subject.tags.join(", "));
+  }, [subject]);
+  const known = subjectTagActivations(plugins);
+  const tags = value.split(",").map(normalizeTag).filter(Boolean);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    await onSave(tags);
+    onClose();
+  };
+
+  return (
+    <Dialog
+      open={subject !== null}
+      onClose={onClose}
+      title={subject ? `Etiquetas de ${subject.name}` : "Etiquetas"}
+      description="Valem também para os tópicos dentro desta matéria. Separe por vírgula."
+    >
+      <form onSubmit={submit} className="grid gap-3">
+        <Field label="Etiquetas">
+          {(id) => (
+            <Input
+              id={id}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="ex.: anatomia, fisiologia"
+              autoFocus
+              maxLength={200}
+            />
+          )}
+        </Field>
+        {known.length > 0 && (
+          <div className="text-xs text-muted">
+            <p>Etiquetas usadas pelos seus plugins:</p>
+            <div className="mt-1 flex flex-wrap gap-1">
+              {known.map(({ tag, plugin }) => (
+                <button
+                  key={`${tag}-${plugin}`}
+                  type="button"
+                  className="rounded-full border border-line px-2 py-0.5 hover:border-accent"
+                  onClick={() => !tags.includes(tag) && setValue([...tags, tag].join(", "))}
+                >
+                  {tag} · {plugin}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        <DialogActions>
+          <Button onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="primary">
+            Salvar
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 }

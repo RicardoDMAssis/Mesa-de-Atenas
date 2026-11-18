@@ -4,10 +4,12 @@ import {
   LayoutGrid,
   type LucideIcon,
   NotebookText,
+  Smile,
   Timer,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { iconFor, usePlugins } from "../../plugin-host/registry";
+import { MascotWidget } from "../mascot/MascotWidget";
 import {
   FocusWidget,
   RecentNotesWidget,
@@ -29,7 +31,16 @@ export interface WidgetDef {
   render: (item: HomeItem) => ReactNode;
 }
 
+export const MASCOT_WIDGET = "app:mascote";
+
 const APP_WIDGETS: WidgetDef[] = [
+  {
+    key: MASCOT_WIDGET,
+    title: "Mascote",
+    description: "Lembra dos cards, incentiva e dá dicas",
+    icon: Smile,
+    render: () => <MascotWidget />,
+  },
   {
     key: "app:sequencia",
     title: "Sequência",

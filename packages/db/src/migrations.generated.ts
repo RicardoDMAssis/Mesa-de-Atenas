@@ -21,5 +21,17 @@ export const migrations: Migration[] = [
   {
     "id": "0004_origem_plugin",
     "sql": "ALTER TABLE `plugins` ADD `source` text DEFAULT 'builtin' NOT NULL;--> statement-breakpoint\nALTER TABLE `plugins` ADD `source_url` text;"
+  },
+  {
+    "id": "0005_busca_cards_de_plugin",
+    "sql": "-- Cards de plugin (type = 'plugin') entram na busca pelo texto da reserva (`fallback`):\n-- o `content` deles só o plugin sabe interpretar.\nDROP TRIGGER `cards_search_insert`;\n--> statement-breakpoint\nDROP TRIGGER `cards_search_update`;\n--> statement-breakpoint\nCREATE TRIGGER `cards_search_insert` AFTER INSERT ON `cards` WHEN new.deleted_at IS NULL BEGIN\n  INSERT INTO search_index (kind, ref_id, title, body)\n  VALUES (\n    'card', new.id, '',\n    CASE WHEN new.type = 'plugin' THEN\n      coalesce(json_extract(new.fallback, '$.front'), '') || ' ' ||\n      coalesce(json_extract(new.fallback, '$.back'), '')\n    ELSE\n      coalesce(json_extract(new.content, '$.front'), '') || ' ' ||\n      coalesce(json_extract(new.content, '$.back'), '') || ' ' ||\n      coalesce(json_extract(new.content, '$.text'), '') || ' ' ||\n      coalesce(json_extract(new.content, '$.extra'), '')\n    END\n  );\nEND;\n--> statement-breakpoint\nCREATE TRIGGER `cards_search_update` AFTER UPDATE OF `content`, `fallback`, `deleted_at` ON `cards` BEGIN\n  DELETE FROM search_index WHERE kind = 'card' AND ref_id = old.id;\n  INSERT INTO search_index (kind, ref_id, title, body)\n  SELECT\n    'card', new.id, '',\n    CASE WHEN new.type = 'plugin' THEN\n      coalesce(json_extract(new.fallback, '$.front'), '') || ' ' ||\n      coalesce(json_extract(new.fallback, '$.back'), '')\n    ELSE\n      coalesce(json_extract(new.content, '$.front'), '') || ' ' ||\n      coalesce(json_extract(new.content, '$.back'), '') || ' ' ||\n      coalesce(json_extract(new.content, '$.text'), '') || ' ' ||\n      coalesce(json_extract(new.content, '$.extra'), '')\n    END\n  WHERE new.deleted_at IS NULL;\nEND;\n"
+  },
+  {
+    "id": "0006_dono_dos_cards_e_arquivos",
+    "sql": "ALTER TABLE `assets` ADD `name` text;--> statement-breakpoint\nALTER TABLE `cards` ADD `origin_plugin_id` text;--> statement-breakpoint\nALTER TABLE `cards` ADD `origin_key` text;--> statement-breakpoint\nALTER TABLE `cards` ADD `edited_at` integer;--> statement-breakpoint\nCREATE INDEX `cards_origin_idx` ON `cards` (`origin_plugin_id`,`origin_key`);"
+  },
+  {
+    "id": "0007_dono_dos_cards_visuais",
+    "sql": "-- Cards visuais criados antes da Fase 4.1: quem os desenha é quem os criou.\n-- Cards de texto antigos vindos de plugins ficam sem dono (não há como saber a origem).\nUPDATE `cards` SET `origin_plugin_id` = `plugin_id`\nWHERE `type` = 'plugin' AND `plugin_id` IS NOT NULL AND `origin_plugin_id` IS NULL;\n"
   }
 ];

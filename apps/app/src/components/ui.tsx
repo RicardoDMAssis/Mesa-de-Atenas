@@ -209,6 +209,7 @@ export function ConfirmDialog({
   message,
   confirmLabel,
   onConfirm,
+  children,
 }: {
   open: boolean;
   onClose: () => void;
@@ -216,9 +217,12 @@ export function ConfirmDialog({
   message: string;
   confirmLabel: string;
   onConfirm: () => void | Promise<void>;
+  /** Conteúdo extra acima dos botões (ex.: uma opção a marcar). */
+  children?: ReactNode;
 }) {
   return (
     <Dialog open={open} onClose={onClose} title={title} description={message}>
+      {children}
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
         <Button

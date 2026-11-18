@@ -22,6 +22,14 @@
           pref === "dark" ||
           (pref === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.dataset.theme = dark ? "dark" : "light";
+        // Paleta e tamanho do texto escolhidos em Ajustes > Aparência.
+        var paint = JSON.parse(localStorage.getItem("estudarella:appearance-paint") || "null");
+        if (paint) {
+          var tokens = paint[dark ? "dark" : "light"] || {};
+          for (var name in tokens) document.documentElement.style.setProperty(name, tokens[name]);
+          if (paint.textScale && paint.textScale !== 1)
+            document.documentElement.style.fontSize = paint.textScale * 100 + "%";
+        }
       } catch (e) {}
     </script>
   </head>

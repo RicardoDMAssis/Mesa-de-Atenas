@@ -39,6 +39,41 @@ export async function renameSubject(db: Db, id: string, name: string): Promise<v
   await db.update(subjects).set({ name: name.trim() }).where(eq(subjects.id, id));
 }
 
+/** Etiqueta no formato usado pelos plugins (`onSubjectTag:anatomia`): minúsculas, sem acento. */
+export function normalizeTag(tag: string): string {
+  return tag
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40);
+}
+
+/** Troca as etiquetas da matéria (normalizadas, sem repetição, até 10). */
+export async function setSubjectTags(db: Db, id: string, tags: string[]): Promise<void> {
+  const clean = [...new Set(tags.map(normalizeTag).filter(Boolean))].slice(0, 10);
+  await db.update(subjects).set({ tags: clean }).where(eq(subjects.id, id));
+}
+
+/** Etiquetas da matéria e de todas as matérias acima dela. */
+export function inheritedTags(
+  all: Pick<Subject, "id" | "parentId" | "tags">[],
+  subjectId: string | null,
+): string[] {
+  const byId = new Map(all.map((s) => [s.id, s]));
+  const out = new Set<string>();
+  const seen = new Set<string>();
+  let current = subjectId ? byId.get(subjectId) : undefined;
+  while (current && !seen.has(current.id)) {
+    seen.add(current.id);
+    for (const tag of current.tags) out.add(tag);
+    current = current.parentId ? byId.get(current.parentId) : undefined;
+  }
+  return [...out];
+}
+
 /** Muda de lugar na árvore. Recusa mover para dentro de si mesmo. */
 export async function moveSubject(db: Db, id: string, parentId: string | null): Promise<void> {
   if (parentId) {

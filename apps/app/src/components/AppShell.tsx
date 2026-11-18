@@ -1,14 +1,20 @@
 import { LayoutGrid, Search } from "lucide-react";
 import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
+import { AppBackground } from "../features/appearance/background";
 import { FocusPill } from "../features/focus/FocusPill";
 import { FocusTicker } from "../features/focus/useFocusTimer";
+import { Companion } from "../features/mascot/Companion";
+import { DailyReminder } from "../features/mascot/DailyReminder";
+import { FocusWatcher } from "../features/mascot/FocusWatcher";
 import { NoteTitlesSync } from "../features/notes/titles";
 import { BackButton } from "../navigation/BackButton";
 import { Launcher } from "../navigation/Launcher";
 import { screenFor, useLauncher, useNavPrefs, useScreens } from "../navigation/screens";
 import { CardProposalDialog } from "../plugin-host/CardProposalDialog";
+import { HighlightsSync } from "../plugin-host/highlights";
 import { PluginPanel } from "../plugin-host/PluginPanel";
+import { PluginRequestDialog } from "../plugin-host/PluginRequestDialog";
 import { PluginsSync } from "../plugin-host/registry";
 import { Toast } from "./Toast";
 
@@ -40,6 +46,7 @@ export function AppShell() {
 
   return (
     <div className="flex h-full flex-col md:flex-row">
+      <AppBackground />
       <NoteTitlesSync />
       <FocusTicker />
       <FocusPill />
@@ -49,6 +56,11 @@ export function AppShell() {
       <PluginsSync />
       <PluginPanel />
       <CardProposalDialog />
+      <PluginRequestDialog />
+      <Companion />
+      <DailyReminder />
+      <FocusWatcher />
+      <HighlightsSync />
 
       <nav
         aria-label="Principal"

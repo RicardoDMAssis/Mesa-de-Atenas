@@ -1,4 +1,5 @@
-import type { PluginContext } from "@estudarella/plugin-api";
+import type { Card } from "@estudarella/db";
+import type { BatchCardItem, PluginContext } from "@estudarella/plugin-api";
 import type { Editor } from "@tiptap/react";
 import { create } from "zustand";
 
@@ -20,9 +21,12 @@ export const usePluginPanel = create<{
 }));
 
 export interface CardProposal {
+  pluginId: string;
   pluginName: string;
   front: string;
   back: string;
+  /** Card visual: desenhado pelo plugin; `front`/`back` (e `image`) são a reserva. */
+  visual?: { pluginId: string; content: unknown; image?: string };
   resolve: (created: boolean) => void;
 }
 
@@ -43,6 +47,73 @@ export const useCardProposal = create<{
             resolve(created);
           },
         },
+      });
+    }),
+}));
+
+/**
+ * Pedidos de plugins que o usuário precisa confirmar numa tela do app (Fase 4.1): criar vários
+ * cards, corrigir ou excluir cards do plugin, escolher um arquivo. Um por vez: um pedido novo
+ * cancela o anterior (que recebe a resposta "nada feito").
+ */
+export type CardRequest =
+  | {
+      kind: "batch";
+      pluginId: string;
+      pluginName: string;
+      items: BatchCardItem[];
+      deckName?: string;
+      resolve: (ids: string[]) => void;
+    }
+  | {
+      kind: "update";
+      pluginName: string;
+      changes: { card: Card; front?: string; back?: string }[];
+      resolve: (updated: number) => void;
+    }
+  | {
+      kind: "delete";
+      pluginName: string;
+      cards: Card[];
+      resolve: (deleted: number) => void;
+    }
+  | {
+      kind: "pickFile";
+      pluginName: string;
+      accept?: string[];
+      resolve: (file: File | null) => void;
+    };
+
+type Pending<K extends CardRequest["kind"]> = Omit<Extract<CardRequest, { kind: K }>, "resolve">;
+type Answer<K extends CardRequest["kind"]> = Parameters<
+  Extract<CardRequest, { kind: K }>["resolve"]
+>[0];
+
+const EMPTY: { [K in CardRequest["kind"]]: Answer<K> } = {
+  batch: [],
+  update: 0,
+  delete: 0,
+  pickFile: null,
+};
+
+export const usePluginRequest = create<{
+  request: CardRequest | null;
+  ask: <K extends CardRequest["kind"]>(request: Pending<K> & { kind: K }) => Promise<Answer<K>>;
+}>((set, get) => ({
+  request: null,
+  ask: (request) =>
+    new Promise((resolve) => {
+      const previous = get().request;
+      // biome-ignore lint/suspicious/noExplicitAny: a resposta vazia combina com o tipo do pedido
+      if (previous) (previous.resolve as (v: any) => void)(EMPTY[previous.kind]);
+      set({
+        request: {
+          ...request,
+          resolve: (answer: unknown) => {
+            set({ request: null });
+            resolve(answer as never);
+          },
+        } as CardRequest,
       });
     }),
 }));

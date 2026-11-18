@@ -36,6 +36,27 @@
       "when": 1794937192501,
       "tag": "0004_origem_plugin",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1795016554495,
+      "tag": "0005_busca_cards_de_plugin",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1795025959667,
+      "tag": "0006_dono_dos_cards_e_arquivos",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1795025966863,
+      "tag": "0007_dono_dos_cards_visuais",
+      "breakpoints": true
     }
   ]
 }

@@ -56,12 +56,28 @@ body,
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--app-font, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
   -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * Imagem de fundo (Ajustes > Aparência). A imagem fica atrás de tudo; os painéis
+ * ficam um pouco transparentes para ela aparecer, com desfoque para o texto continuar legível.
+ * Fora das camadas do Tailwind de propósito, para vencer o utilitário `bg-surface`.
+ */
+[data-bg] .bg-surface {
+  background-color: color-mix(in srgb, var(--surface) var(--panel-opacity, 85%), transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+[data-bg] [role="dialog"].bg-surface,
+[data-bg] [role="menu"].bg-surface {
+  background-color: var(--surface);
 }
 
 /* Conteúdo das notas (editor). */
 .note-content {
+  font-family: var(--note-font, inherit);
   line-height: 1.65;
 }
 .note-content > * + * {
@@ -101,4 +117,77 @@ body {
   float: left;
   height: 0;
   pointer-events: none;
+}
+
+/*
+ * Destaques de plugins nas notas (Fase 4.1). Só a paleta do tema: cada cor tem uma versão
+ * para o claro e outra para o escuro, com contraste conferido sobre o fundo das notas.
+ */
+:root {
+  --hl-purple: #6d4fd6;
+  --hl-pink: #c2296e;
+  --hl-green: #1f7a3e;
+  --hl-orange: #b4490c;
+  --hl-blue: #1d5fbf;
+  --hl-cyan: #0a7383;
+  --hl-brown: #85532a;
+  --hl-gray: #5b5b5b;
+}
+[data-theme="dark"] {
+  --hl-purple: #b6a6ff;
+  --hl-pink: #ff8fc0;
+  --hl-green: #7fd795;
+  --hl-orange: #ffad73;
+  --hl-blue: #8ab8ff;
+  --hl-cyan: #6fd6e4;
+  --hl-brown: #dcae84;
+  --hl-gray: #c2c2c2;
+}
+.hl-purple {
+  --hl: var(--hl-purple);
+}
+.hl-pink {
+  --hl: var(--hl-pink);
+}
+.hl-green {
+  --hl: var(--hl-green);
+}
+.hl-orange {
+  --hl: var(--hl-orange);
+}
+.hl-blue {
+  --hl: var(--hl-blue);
+}
+.hl-cyan {
+  --hl: var(--hl-cyan);
+}
+.hl-brown {
+  --hl: var(--hl-brown);
+}
+.hl-gray {
+  --hl: var(--hl-gray);
+}
+.hl-marker {
+  background: color-mix(in srgb, var(--hl) 22%, transparent);
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--hl) 22%, transparent);
+}
+.hl-text {
+  color: var(--hl);
+  font-weight: 600;
+}
+.hl-underline {
+  text-decoration: underline 2px var(--hl);
+  text-underline-offset: 3px;
+}
+.hl[data-hl-command] {
+  cursor: pointer;
+}
+.hl-sub {
+  vertical-align: sub;
+  font-size: 0.75em;
+}
+.hl-sup {
+  vertical-align: super;
+  font-size: 0.75em;
 }

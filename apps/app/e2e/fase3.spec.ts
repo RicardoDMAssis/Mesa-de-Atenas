@@ -106,8 +106,10 @@ test("dicionário: ativar, definir palavra selecionada (também em leitura) e cr
   // Criar card: o app pede confirmação e o baralho.
   await plugin.getByRole("button", { name: "Criar card" }).click();
   const dialog = page.getByRole("dialog", { name: "Criar card" });
-  await expect(dialog.getByLabel("Frente")).toHaveValue("feliz");
-  await expect(dialog.getByLabel("Verso")).toHaveValue(/1\. que sente alegria/);
+  await expect(dialog.getByLabel("Frente", { exact: true })).toHaveValue("feliz");
+  await expect(dialog.getByLabel("Verso", { exact: true })).toHaveValue(/1\. que sente alegria/);
+  // O card sugerido pode ser personalizado antes de criar.
+  await dialog.getByLabel("Frente", { exact: true }).fill("feliz (adjetivo)");
   await dialog.getByRole("button", { name: "Criar card" }).click();
   await expect(page.getByText("Dicionário PT: Card criado")).toBeVisible();
 
@@ -115,6 +117,8 @@ test("dicionário: ativar, definir palavra selecionada (também em leitura) e cr
   await expect(panel).toHaveCount(0);
   await page.goto("/revisao");
   await expect(page.getByTestId("deck-counts-Vocabulário")).toContainText("1 novos");
+  await page.getByRole("link", { name: /Vocabulário/ }).click();
+  await expect(page.getByText("feliz (adjetivo)")).toBeVisible();
 });
 
 test("dicionário: tela própria, palavras guardadas sem internet e configurações", async ({

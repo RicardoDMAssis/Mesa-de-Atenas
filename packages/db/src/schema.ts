@@ -122,8 +122,18 @@ export const cards = sqliteTable(
     reps: integer("reps").notNull().default(0),
     lapses: integer("lapses").notNull().default(0),
     lastReview: integer("last_review"),
+
+    /** Plugin que criou o card (pode ser diferente de `plugin_id`, que é quem o desenha). */
+    originPluginId: text("origin_plugin_id"),
+    /** Chave dada pelo plugin para achar o card depois (ex.: "etanol"). */
+    originKey: text("origin_key"),
+    /** Última vez que o usuário editou o texto do card pelo app. */
+    editedAt: integer("edited_at"),
   },
-  (t) => [index("cards_deck_due_idx").on(t.deckId, t.due)],
+  (t) => [
+    index("cards_deck_due_idx").on(t.deckId, t.due),
+    index("cards_origin_idx").on(t.originPluginId, t.originKey),
+  ],
 );
 
 /** Uma linha por resposta. Necessário para otimizar os parâmetros do FSRS. */
@@ -171,6 +181,8 @@ export const assets = sqliteTable(
     size: integer("size").notNull(),
     /** Plugin que criou o arquivo, se houver. */
     pluginId: text("plugin_id"),
+    /** Nome dado pelo plugin a um arquivo guardado (`storage.saveFile`); imagens não têm. */
+    name: text("name"),
   },
   (t) => [index("assets_hash_idx").on(t.hash)],
 );

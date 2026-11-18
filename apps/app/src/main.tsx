@@ -4,10 +4,13 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import { App } from "./App";
 import { DatabaseProvider } from "./data/DatabaseProvider";
+import { applyAppearance, watchAppearance } from "./stores/appearance";
 import { watchTheme } from "./stores/theme";
 import "./theme/index.css";
 
-watchTheme();
+// As cores da paleta dependem do tema (claro/escuro), então são refeitas quando ele muda.
+watchTheme(applyAppearance);
+watchAppearance();
 
 // Na web, o service worker guarda o app para uso offline e instalação.
 // No Android os arquivos já vêm dentro do aplicativo.

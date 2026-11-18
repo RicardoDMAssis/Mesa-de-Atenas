@@ -19,6 +19,14 @@ export function useRolloverHour(): number {
   return typeof data === "number" ? data : DEFAULT_ROLLOVER_HOUR;
 }
 
+export const DAILY_GOAL_KEY = "estudo.metaDiaria";
+
+/** Meta de respostas por dia (preferência de estudo, no banco); `null` sem meta. */
+export function useDailyGoal(): number | null {
+  const { data } = useLiveQuery(["settings"], (db) => getSetting<number>(db, DAILY_GOAL_KEY));
+  return typeof data === "number" && data > 0 ? data : null;
+}
+
 /** Início e fim do dia de estudo atual, em milissegundos. Atualiza a cada minuto. */
 export function useStudyDay(): { start: number; end: number } {
   const hour = useRolloverHour();

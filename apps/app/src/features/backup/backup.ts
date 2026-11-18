@@ -19,6 +19,18 @@ const toBase64 = async (blob: Blob) => {
 const fromBase64 = (base64: string, mime: string) =>
   new Blob([Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))], { type: mime });
 
+const LAST_BACKUP_KEY = "estudarella:ultimoBackup";
+
+/** Quando foi gerado o último backup neste aparelho (ms), ou `null` se nunca. */
+export function lastBackupAt(): number | null {
+  try {
+    const value = Number(localStorage.getItem(LAST_BACKUP_KEY));
+    return value > 0 ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Gera o arquivo de backup (banco + imagens) e o entrega para download. */
 export async function downloadBackup(database: Database): Promise<void> {
   const data = await exportData(database.db);
@@ -36,6 +48,11 @@ export async function downloadBackup(database: Database): Promise<void> {
   a.download = `estudarella-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  try {
+    localStorage.setItem(LAST_BACKUP_KEY, String(Date.now()));
+  } catch {
+    // Sem armazenamento local: o mascote só não sabe quando foi o último.
+  }
 }
 
 /** Restaura um backup, substituindo tudo. As imagens são gravadas antes do banco. */

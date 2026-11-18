@@ -17,10 +17,13 @@ import { useSubjects } from "../data/hooks";
 import { useLiveQuery } from "../data/useLiveQuery";
 import { LocalGraph } from "../features/graph/LocalGraph";
 import { clearDraft, readDraft, saveDraft } from "../features/notes/drafts";
+import { HighlightLegend } from "../features/notes/HighlightLegend";
 import { useNoteMode } from "../features/notes/mode";
 import { type EditorSnapshot, NoteEditor } from "../features/notes/NoteEditor";
 import { linkTargets } from "../features/notes/noteLink";
 import { noteLabel } from "../features/notes/titles";
+import { useHighlightPrefs, useHighlights } from "../plugin-host/highlights";
+import { PluginSuggestions } from "../plugin-host/PluginSuggestions";
 import { SelectionCommands } from "../plugin-host/SelectionCommands";
 import { useActiveNote } from "../plugin-host/stores";
 
@@ -141,13 +144,17 @@ function NoteScreen({ id }: { id: string }) {
     };
   }, [flush]);
 
+  const [plainText, setPlainText] = useState("");
   const onBodyChange = useCallback(
     (body: EditorSnapshot) => {
       draft.current.body = body;
+      setPlainText(body.plainText);
       schedule();
     },
     [schedule],
   );
+  const showHighlights = useHighlightPrefs((s) => s.show);
+  const hasHighlighters = useHighlights((s) => s.highlighter.size > 0);
 
   const createLinked = useCallback(
     async (newTitle: string) => {
@@ -200,7 +207,17 @@ function NoteScreen({ id }: { id: string }) {
         />
         <Menu
           label="Ações da nota"
-          items={[{ label: "Excluir nota", danger: true, onSelect: () => setConfirmDelete(true) }]}
+          items={[
+            ...(hasHighlighters
+              ? [
+                  {
+                    label: showHighlights ? "Esconder destaques" : "Mostrar destaques",
+                    onSelect: () => useHighlightPrefs.getState().setShow(!showHighlights),
+                  },
+                ]
+              : []),
+            { label: "Excluir nota", danger: true, onSelect: () => setConfirmDelete(true) },
+          ]}
         />
       </div>
 
@@ -240,6 +257,12 @@ function NoteScreen({ id }: { id: string }) {
           />
         </div>
       )}
+
+      <PluginSuggestions
+        note={{ id, title: noteLabel(title), subjectId: note.subjectId ?? null }}
+      />
+
+      <HighlightLegend text={plainText || note.plainText} />
 
       <NoteEditor
         noteId={id}

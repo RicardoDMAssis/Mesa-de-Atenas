@@ -2,6 +2,7 @@ import type { PluginContext, Surface } from "@estudarella/plugin-api";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useDatabase } from "../data/DatabaseProvider";
+import { useAppearanceStore } from "../stores/appearance";
 import { useThemeStore } from "../stores/theme";
 import { buildHandlers } from "./handlers";
 import { PluginFrame, type PluginFrameHandle } from "./PluginFrame";
@@ -21,11 +22,17 @@ export function PluginSurface({
   surface,
   context,
   className = "h-full w-full",
+  fallback,
 }: {
   pluginId: string;
   surface: Surface;
   context?: Omit<PluginContext, "surface">;
   className?: string;
+  /**
+   * O que mostrar quando o plugin não está disponível (não instalado, desativado,
+   * travado ou com erro). Sem ele, aparece uma mensagem. Usado pelos cards visuais.
+   */
+  fallback?: React.ReactNode;
 }) {
   const plugin = usePlugins((s) => s.plugins.find((p) => p.manifest.id === pluginId));
   const loaded = usePlugins((s) => s.loaded);
@@ -38,6 +45,7 @@ export function PluginSurface({
   const [attempt, setAttempt] = useState(0);
   const [status, setStatus] = useState<"waiting" | "alive" | "stuck">("waiting");
   const theme = useThemeStore((s) => s.preference);
+  const palette = useAppearanceStore((s) => `${s.palette}|${s.customAccent}`);
 
   const handlers = useMemo(
     () =>
@@ -58,10 +66,10 @@ export function PluginSurface({
     return () => clearTimeout(timer);
   }, [attempt, pluginId]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `theme` é o gatilho
+  // biome-ignore lint/correctness/useExhaustiveDependencies: tema e paleta são os gatilhos
   useEffect(() => {
     frame.current?.emit("theme.changed", themePayload());
-  }, [theme]);
+  }, [theme, palette]);
 
   const contextKey = JSON.stringify(fullContext);
   // biome-ignore lint/correctness/useExhaustiveDependencies: compara pelo conteúdo
@@ -70,8 +78,10 @@ export function PluginSurface({
   }, [contextKey]);
 
   if (!plugin) {
-    return loaded ? <Message>Este plugin não está instalado.</Message> : null;
+    if (!loaded) return null;
+    return fallback ?? <Message>Este plugin não está instalado.</Message>;
   }
+  if (fallback && (!plugin.record.enabled || status === "stuck")) return fallback;
   if (!plugin.record.enabled) {
     return (
       <Message>
@@ -105,6 +115,7 @@ export function PluginSurface({
       handlers={handlers}
       initData={{ context: contextRef.current }}
       onCall={() => setStatus((s) => (s === "alive" ? s : "alive"))}
+      errorFallback={fallback}
       className={`${className} bg-surface`}
     />
   );

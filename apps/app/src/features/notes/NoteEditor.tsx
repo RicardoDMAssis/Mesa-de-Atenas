@@ -4,7 +4,9 @@ import StarterKit from "@tiptap/starter-kit";
 import { Bold, Heading2, Italic, Link2, List, ListOrdered, Quote } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useActiveNote } from "../../plugin-host/stores";
+import { Highlights } from "./highlightsExtension";
 import { createNoteLink } from "./noteLink";
+import { PluginEmbed } from "./pluginEmbed";
 
 export interface EditorSnapshot {
   content: unknown;
@@ -40,6 +42,8 @@ export function NoteEditor({
           "Escreva aqui. Para citar outra nota: [[Título]] ou [[Título]](texto do link).",
       }),
       createNoteLink({ currentNoteId: noteId, createNote }),
+      PluginEmbed,
+      Highlights,
     ],
     [noteId, createNote],
   );

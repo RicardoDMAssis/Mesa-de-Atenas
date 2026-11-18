@@ -23,6 +23,29 @@ describe("manifestSchema", () => {
     expect(m.contributes.panel?.title).toBe("Anatomia 3D");
   });
 
+  it("aceita mascotes e a permissão de falar pelo mascote", () => {
+    const mascot = {
+      id: "coruja",
+      name: "Coruja",
+      color: "#8b5cf6",
+      body: { path: "M20 20 H80 V80 H20 Z" },
+      eyes: { x: 50, y: 46, spacing: 15, scale: 1 },
+    };
+    const m = manifestSchema.parse({
+      ...base,
+      contributes: { mascots: [mascot] },
+      permissions: ["mascot"],
+    });
+    expect(m.contributes.mascots[0]?.name).toBe("Coruja");
+    expect(manifestSchema.parse(base).contributes.mascots).toEqual([]);
+    expect(() =>
+      manifestSchema.parse({
+        ...base,
+        contributes: { mascots: [{ ...mascot, color: "roxo" }] },
+      }),
+    ).toThrow();
+  });
+
   it("aceita widgets com tamanho padrão médio e limita a quantidade", () => {
     const m = manifestSchema.parse({
       ...base,

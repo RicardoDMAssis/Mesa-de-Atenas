@@ -7,7 +7,6 @@ import {
   endSession,
   getDeck,
   listCards,
-  recordReview,
   startReviewSession,
 } from "@estudarella/db";
 import { ArrowLeft } from "lucide-react";
@@ -17,6 +16,8 @@ import { Button, EmptyState } from "../components/ui";
 import { useDatabase } from "../data/DatabaseProvider";
 import { useStudyDay } from "../data/hooks";
 import { CardView } from "../features/cards/CardView";
+import { answerCard, customIntervals } from "../features/cards/review";
+import { SessionCelebration, StudyBuddy } from "../features/mascot/StudyMascot";
 
 const LABELS: Record<Rating, string> = { 1: "Errei", 2: "Difícil", 3: "Bom", 4: "Fácil" };
 const STYLES: Record<Rating, string> = {
@@ -43,6 +44,8 @@ export function Estudar() {
   const [deckName, setDeckName] = useState<string>();
   const [revealed, setRevealed] = useState(false);
   const [done, setDone] = useState<Record<Rating, number>>({ 1: 0, 2: 0, 3: 0, 4: 0 });
+  /** Última resposta, para o mascote reagir. */
+  const [last, setLast] = useState<Rating | null>(null);
   const shownAt = useRef(Date.now());
   const busy = useRef(false);
 
@@ -76,13 +79,7 @@ export function Estudar() {
 
   const card = queue?.[0];
   /** Intervalos personalizados do baralho do card, se houver. */
-  const customFor = useCallback(
-    (c: Card) => {
-      const s = settings.get(c.deckId);
-      return s?.mode === "custom" ? (s.intervals ?? null) : null;
-    },
-    [settings],
-  );
+  const customFor = useCallback((c: Card) => customIntervals(settings, c), [settings]);
   const preview = useMemo(
     () => (card && !practice ? scheduler.preview(card, new Date(), customFor(card)) : null),
     [card, scheduler, practice, customFor],
@@ -104,6 +101,7 @@ export function Estudar() {
             return rating === 1 ? [...rest, card] : rest;
           });
           setDone((d) => ({ ...d, [rating]: d[rating] + 1 }));
+          setLast(rating);
           setRevealed(false);
           return;
         }
@@ -113,20 +111,17 @@ export function Estudar() {
           last: now.getTime(),
         };
         session.current.last = now.getTime();
-        const outcome = scheduler.review(card, rating, now, customFor(card));
-        await recordReview(db, card.id, outcome.next, {
-          rating,
-          state: outcome.previousState,
-          reviewedAt: now.getTime(),
-          durationMs: Math.min(now.getTime() - shownAt.current, 10 * 60_000),
-          data: outcome.log,
+        const updated = await answerCard({ db, scheduler }, card, rating, {
+          shownAt: shownAt.current,
+          custom: customFor(card),
+          now,
         });
-        const updated: Card = { ...card, ...outcome.next };
         setQueue((q) => {
           const rest = (q ?? []).slice(1);
-          return outcome.next.due <= end ? [...rest, updated] : rest;
+          return updated.due <= end ? [...rest, updated] : rest;
         });
         setDone((d) => ({ ...d, [rating]: d[rating] + 1 }));
+        setLast(rating);
         setRevealed(false);
       } finally {
         busy.current = false;
@@ -167,6 +162,7 @@ export function Estudar() {
       <>
         {back}
         <div className="mt-6">
+          <SessionCelebration again={done[1]} total={total} />
           <EmptyState
             title={
               practice
@@ -214,8 +210,11 @@ export function Estudar() {
             Prática
           </span>
         )}
-        <span className="text-xs text-muted" data-testid="queue-size">
-          {queue.length} restante{queue.length === 1 ? "" : "s"}
+        <span className="flex items-center gap-2">
+          <span className="text-xs text-muted" data-testid="queue-size">
+            {queue.length} restante{queue.length === 1 ? "" : "s"}
+          </span>
+          <StudyBuddy last={last} />
         </span>
       </div>
 

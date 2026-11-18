@@ -8,9 +8,11 @@ import {
   createCards,
   deleteCard,
   dueCards,
+  leechCards,
   listCards,
   recordReview,
   type Scheduling,
+  updateCardFallback,
 } from "./cards";
 import {
   createDeck,
@@ -31,7 +33,16 @@ import {
 } from "./notes";
 import { buildFtsQuery, listAllSearchable, SNIPPET_CLOSE, SNIPPET_OPEN, search } from "./search";
 import { getSetting, setSetting } from "./settings";
-import { createSubject, deleteSubject, listSubjects, moveSubject, subtreeIds } from "./subjects";
+import {
+  createSubject,
+  deleteSubject,
+  inheritedTags,
+  listSubjects,
+  moveSubject,
+  normalizeTag,
+  setSubjectTags,
+  subtreeIds,
+} from "./subjects";
 
 const open = async () => (await openDb(nodeDriver())).db;
 const fresh = (due: number): Scheduling => ({
@@ -156,6 +167,27 @@ describe("baralhos e cards", () => {
     expect(await dueCards(db, { cutoff: 6000 })).toEqual([]);
     expect((await listDecks(db, 6000)).map((d) => d.id)).toEqual([vazio.id]);
   });
+
+  it("lista os cards mais errados, a partir de 3 esquecimentos", async () => {
+    const db = await open();
+    const deck = await createDeck(db, { name: "Difíceis" });
+    await createCards(
+      db,
+      deck.id,
+      ["a", "b", "c"].map((front) => ({ type: "basic", content: { front, back: front } })),
+      fresh(1000),
+    );
+    const [a, b] = await listCards(db, deck.id);
+    if (!a || !b) throw new Error("cards não criados");
+    const log = { rating: 1, state: 2, reviewedAt: 2000, data: {} };
+    await recordReview(db, a.id, { ...fresh(5000), state: 3, lapses: 5, lastReview: 2 }, log);
+    await recordReview(db, b.id, { ...fresh(5000), state: 3, lapses: 3, lastReview: 2 }, log);
+
+    expect((await leechCards(db)).map((c) => c.id)).toEqual([a.id, b.id]);
+    expect((await leechCards(db, { minLapses: 4 })).map((c) => c.id)).toEqual([a.id]);
+    await deleteDeck(db, deck.id);
+    expect(await leechCards(db)).toEqual([]);
+  });
 });
 
 describe("busca", () => {
@@ -223,6 +255,54 @@ describe("busca", () => {
   });
 });
 
+describe("cards de plugin", () => {
+  it("entram na busca pela reserva, não pelo conteúdo do plugin", async () => {
+    const db = await open();
+    const deck = await createDeck(db, { name: "Anatomia" });
+    await createCards(
+      db,
+      deck.id,
+      [
+        {
+          type: "plugin",
+          pluginId: "esqueleto-3d",
+          content: { osso: "femur-esquerdo", segredo: "naoindexar" },
+          fallback: { front: "Que osso está destacado?", back: "Fêmur (esquerdo)" },
+        },
+      ],
+      fresh(1000),
+    );
+    const [card] = await listCards(db, deck.id);
+    expect(card).toMatchObject({ type: "plugin", pluginId: "esqueleto-3d" });
+    expect((await search(db, "femur")).map((h) => h.kind)).toEqual(["card"]);
+    expect(await search(db, "naoindexar")).toEqual([]);
+
+    // Personalizar a pergunta e a resposta atualiza a busca.
+    if (!card) throw new Error("card não criado");
+    await updateCardFallback(db, card.id, { front: "Qual é este osso da coxa?", back: "Fêmur" });
+    expect((await listCards(db, deck.id))[0]?.fallback).toEqual({
+      front: "Qual é este osso da coxa?",
+      back: "Fêmur",
+    });
+    expect(await search(db, "coxa")).toHaveLength(1);
+  });
+});
+
+describe("etiquetas de matéria", () => {
+  it("normaliza, guarda e herda das matérias acima", async () => {
+    expect(normalizeTag("  Anatomia Humana ")).toBe("anatomia-humana");
+    expect(normalizeTag("Fisiológia!")).toBe("fisiologia");
+    const db = await open();
+    const medicina = await createSubject(db, { name: "Medicina" });
+    const ossos = await createSubject(db, { name: "Ossos", parentId: medicina.id });
+    await setSubjectTags(db, medicina.id, ["Anatomia", "anatomia", " ", "Saúde"]);
+    const all = await listSubjects(db);
+    expect(all.find((s) => s.id === medicina.id)?.tags).toEqual(["anatomia", "saude"]);
+    expect(inheritedTags(all, ossos.id)).toEqual(["anatomia", "saude"]);
+    expect(inheritedTags(all, null)).toEqual([]);
+  });
+});
+
 describe("backup", () => {
   it("exporta e restaura tudo em outro banco, inclusive a busca", async () => {
     const db = await open();
@@ -254,6 +334,34 @@ describe("backup", () => {
     expect(card?.srs).toEqual({ marker: "novo" });
     expect(await search(other, "unico")).toHaveLength(1);
     expect(await search(other, "substituida")).toEqual([]);
+  });
+
+  it("preserva cards visuais de plugin (conteúdo, reserva e imagem) e a busca por eles", async () => {
+    const db = await open();
+    const deck = await createDeck(db, { name: "Anatomia" });
+    await createCards(
+      db,
+      deck.id,
+      [
+        {
+          type: "plugin",
+          pluginId: "esqueleto-3d",
+          content: { osso: "tibia-direita" },
+          fallback: { front: "Que osso?", back: "Tíbia (direita)", imageAssetId: "f".repeat(64) },
+        },
+      ],
+      fresh(5),
+    );
+    const other = await open();
+    await importData(other, JSON.parse(JSON.stringify(await exportData(db))));
+    const [card] = await listCards(other, deck.id);
+    expect(card).toMatchObject({
+      type: "plugin",
+      pluginId: "esqueleto-3d",
+      content: { osso: "tibia-direita" },
+      fallback: { front: "Que osso?", back: "Tíbia (direita)", imageAssetId: "f".repeat(64) },
+    });
+    expect(await search(other, "tibia")).toHaveLength(1);
   });
 
   it("recusa arquivos que não são backup e não altera o banco quando a restauração falha", async () => {

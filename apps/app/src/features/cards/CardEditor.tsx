@@ -2,9 +2,11 @@ import { clozeIndexes, nextClozeIndex } from "@estudarella/core";
 import {
   type BasicContent,
   type Card,
+  type CardFallback,
   type ClozeContent,
   createCards,
   updateCardContent,
+  updateCardFallback,
 } from "@estudarella/db";
 import { ImagePlus, X } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
@@ -13,7 +15,7 @@ import { useDatabase } from "../../data/DatabaseProvider";
 import { AssetImage } from "./CardView";
 import { storeImage } from "./images";
 
-type Kind = "basic" | "cloze";
+type Kind = "basic" | "cloze" | "plugin";
 
 interface Props {
   open: boolean;
@@ -23,7 +25,7 @@ interface Props {
   card?: Card;
 }
 
-function ImagePicker({
+export function ImagePicker({
   label,
   value,
   onChange,
@@ -89,7 +91,12 @@ export function CardEditor({ open, onClose, deckId, card }: Props) {
 
   useEffect(() => {
     if (!open) return;
-    if (card?.type === "cloze") {
+    if (card?.type === "plugin") {
+      // Card de plugin: o que se personaliza é a parte de texto (pergunta, resposta e imagem).
+      const f = (card.fallback ?? { front: "", back: "" }) as CardFallback;
+      setKind("plugin");
+      setBasic({ front: f.front, back: f.back, frontImage: f.imageAssetId });
+    } else if (card?.type === "cloze") {
       const c = card.content as ClozeContent;
       setKind("cloze");
       setCloze({ text: c.text, extra: c.extra ?? "" });
@@ -104,7 +111,7 @@ export function CardEditor({ open, onClose, deckId, card }: Props) {
 
   const indexes = clozeIndexes(cloze.text);
   const valid =
-    kind === "basic"
+    kind === "basic" || kind === "plugin"
       ? (basic.front.trim() || basic.frontImage) && (basic.back.trim() || basic.backImage)
       : indexes.length > 0;
 
@@ -129,6 +136,15 @@ export function CardEditor({ open, onClose, deckId, card }: Props) {
       ...(basic.frontImage ? { frontImage: basic.frontImage } : {}),
       ...(basic.backImage ? { backImage: basic.backImage } : {}),
     };
+    if (card?.type === "plugin") {
+      await updateCardFallback(db, card.id, {
+        front: clean.front,
+        back: clean.back,
+        ...(clean.frontImage ? { imageAssetId: clean.frontImage } : {}),
+      });
+      onClose();
+      return;
+    }
     if (card) {
       const content =
         card.type === "cloze"
@@ -194,7 +210,13 @@ export function CardEditor({ open, onClose, deckId, card }: Props) {
           </fieldset>
         )}
 
-        {kind === "basic" ? (
+        {kind === "plugin" && (
+          <p className="text-sm text-muted">
+            Card de plugin: o modelo interativo continua o mesmo na revisão. Aqui você muda a
+            pergunta, a resposta e a imagem que aparece quando o plugin não está disponível.
+          </p>
+        )}
+        {kind === "basic" || kind === "plugin" ? (
           <>
             <Field label="Frente">
               {(id) => (
@@ -208,7 +230,7 @@ export function CardEditor({ open, onClose, deckId, card }: Props) {
               )}
             </Field>
             <ImagePicker
-              label="Imagem na frente"
+              label={kind === "plugin" ? "Imagem de reserva" : "Imagem na frente"}
               value={basic.frontImage}
               onChange={(frontImage) => setBasic({ ...basic, frontImage })}
             />
@@ -222,11 +244,13 @@ export function CardEditor({ open, onClose, deckId, card }: Props) {
                 />
               )}
             </Field>
-            <ImagePicker
-              label="Imagem no verso"
-              value={basic.backImage}
-              onChange={(backImage) => setBasic({ ...basic, backImage })}
-            />
+            {kind === "basic" && (
+              <ImagePicker
+                label="Imagem no verso"
+                value={basic.backImage}
+                onChange={(backImage) => setBasic({ ...basic, backImage })}
+              />
+            )}
           </>
         ) : (
           <>

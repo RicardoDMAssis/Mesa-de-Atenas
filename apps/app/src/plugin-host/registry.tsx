@@ -1,6 +1,7 @@
 import { listPluginRecords, type PluginRecord, upsertPlugin } from "@estudarella/db";
 import { type Manifest, manifestSchema } from "@estudarella/plugin-api";
 import {
+  Bone,
   BookA,
   Box,
   GraduationCap,
@@ -25,6 +26,7 @@ export interface LoadedPluginInfo {
 
 const ICONS: Record<string, LucideIcon> = {
   "book-a": BookA,
+  bone: Bone,
   languages: Languages,
   "graduation-cap": GraduationCap,
   sparkles: Sparkles,

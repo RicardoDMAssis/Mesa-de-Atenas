@@ -1,4 +1,5 @@
 export { type ClozeSegment, clozeIndexes, nextClozeIndex, renderCloze } from "./cloze";
+export * from "./highlights";
 export {
   activityDays,
   addDays,

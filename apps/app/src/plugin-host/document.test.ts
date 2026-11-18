@@ -18,6 +18,12 @@ describe("buildPluginDocument", () => {
     expect(buildPluginDocument("<p>oi</p>")).toContain("connect-src blob: data:;");
   });
 
+  it("libera WebAssembly (bibliotecas 3D, áudio, OCR), sem liberar eval", () => {
+    const doc = buildPluginDocument("<p>oi</p>");
+    expect(doc).toContain("'wasm-unsafe-eval'");
+    expect(doc).not.toContain("'unsafe-eval'");
+  });
+
   it("libera somente as origens declaradas", () => {
     const doc = buildPluginDocument("<p>oi</p>", ["https://api.dicionario.dev"]);
     expect(doc).toContain("connect-src blob: data: https://api.dicionario.dev;");

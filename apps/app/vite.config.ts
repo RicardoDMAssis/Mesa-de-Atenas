@@ -15,8 +15,9 @@ export default defineConfig({
       workbox: {
         // Tudo que o app precisa para abrir offline, inclusive o SQLite (.wasm)
         // e os plugins distribuídos junto com ele.
-        globPatterns: ["**/*.{js,css,html,wasm,png,svg,json,bin}"],
-        maximumFileSizeToCacheInBytes: 4_000_000,
+        globPatterns: ["**/*.{js,css,html,wasm,png,svg,json,bin,woff2,glb}"],
+        // O modelo do esqueleto pode passar de 4 MB (meta: até 8 MB).
+        maximumFileSizeToCacheInBytes: 10_000_000,
         navigateFallback: "/index.html",
       },
       manifest: {

@@ -5,6 +5,8 @@ import { Link, useSearchParams } from "react-router";
 import { PageTitle } from "../components/Card";
 import { EmptyState, Input } from "../components/ui";
 import { useLiveQuery } from "../data/useLiveQuery";
+import { SearchMascot } from "../features/mascot/SearchMascot";
+import { useMascot } from "../features/mascot/useMascot";
 import { noteLabel } from "../features/notes/titles";
 
 /** Mostra o trecho com os termos encontrados destacados. */
@@ -51,6 +53,7 @@ export function Busca() {
   // Ao entrar ou recarregar, refaz a busca: a da URL ou, sem ela, a última feita neste aparelho.
   const [text, setText] = useState(() => params.get("q") ?? readLastQuery());
   const [query, setQuery] = useState(text);
+  const mascot = useMascot();
 
   useEffect(() => {
     saveLastQuery(query);
@@ -71,9 +74,12 @@ export function Busca() {
     [query],
   );
 
+  const empty = results.data?.length === 0;
+
   return (
     <>
       <PageTitle>Buscar</PageTitle>
+      <SearchMascot text={text} query={query} results={results.data} />
       <Input
         type="search"
         value={text}
@@ -83,10 +89,13 @@ export function Busca() {
         autoFocus
       />
       <div className="mt-4">
-        {results.data && results.data.length === 0 ? (
-          <EmptyState title={query.trim() ? "Nada encontrado" : "Nenhuma nota ou card ainda"}>
-            {query.trim() ? "Tente outras palavras ou só o começo delas." : null}
-          </EmptyState>
+        {empty ? (
+          // Com mascote, é ele quem avisa que a busca não achou nada.
+          mascot && query.trim() ? null : (
+            <EmptyState title={query.trim() ? "Nada encontrado" : "Nenhuma nota ou card ainda"}>
+              {query.trim() ? "Tente outras palavras ou só o começo delas." : null}
+            </EmptyState>
+          )
         ) : (
           <ul className="grid gap-2" aria-label="Resultados">
             {results.data?.map((hit) => (
