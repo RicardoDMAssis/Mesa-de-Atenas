@@ -1,6 +1,6 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import type { Db } from "../client";
-import { cards, type DeckSettings, decks } from "../schema";
+import { cards, type DeckSettings, decks, reviewLogs } from "../schema";
 import { active } from "./base";
 
 export type Deck = typeof decks.$inferSelect;
@@ -67,6 +67,16 @@ export async function deleteDeck(db: Db, id: string): Promise<void> {
   const now = Date.now();
   await db.batch([
     db.update(decks).set({ deletedAt: now, updatedAt: now }).where(eq(decks.id, id)),
+    // O histórico de respostas dos cards do baralho deixa de contar nas estatísticas.
+    db
+      .update(reviewLogs)
+      .set({ deletedAt: now, updatedAt: now })
+      .where(
+        and(
+          active(reviewLogs),
+          sql`${reviewLogs.cardId} in (select ${cards.id} from ${cards} where ${cards.deckId} = ${id})`,
+        ),
+      ),
     db
       .update(cards)
       .set({ deletedAt: now, updatedAt: now })

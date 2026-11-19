@@ -161,10 +161,13 @@ describe("baralhos e cards", () => {
     expect(await countReviewsSince(db, 1500)).toBe(2);
     expect(await countReviewsSince(db, 2500)).toBe(0);
 
+    // Excluir um card ou o baralho tira as respostas das estatísticas (total do dia, sequência).
     await deleteCard(db, c1.id);
     expect((await dueCards(db, { cutoff: 6000 })).map((c) => c.id)).toEqual([c3.id]);
+    expect(await countReviewsSince(db, 1500)).toBe(1);
     await deleteDeck(db, deck.id);
     expect(await dueCards(db, { cutoff: 6000 })).toEqual([]);
+    expect(await countReviewsSince(db, 0)).toBe(0);
     expect((await listDecks(db, 6000)).map((d) => d.id)).toEqual([vazio.id]);
   });
 

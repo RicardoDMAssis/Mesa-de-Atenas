@@ -14,6 +14,7 @@ export const PERMISSIONS = [
   "mascot",
   "cards:own",
   "notes:highlight",
+  "notes:create",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];

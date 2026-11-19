@@ -81,6 +81,20 @@ export function buildHandlers(plugin: LoadedPluginInfo, deps: Deps): Record<stri
       editor.chain().focus().insertContent({ type: "text", text: p.text }).run();
       return null;
     },
+    "notes.propose": async (p: MethodParams<"notes.propose">) => {
+      if (p.embed && !plugin.manifest.contributes.noteEmbed) {
+        throw new RpcFailure("invalid_params", "O manifesto não declara contributes.noteEmbed.");
+      }
+      const noteId = await usePluginRequest.getState().ask({
+        kind: "note",
+        pluginId: id,
+        pluginName: plugin.manifest.name,
+        title: p.title,
+        text: p.text,
+        embed: p.embed,
+      });
+      return { noteId };
+    },
     "decks.list": async () =>
       (await listDecks(db, Date.now())).map((d) => ({ id: d.id, name: d.name })),
     "notes.insertEmbed": (p: { data: unknown; label: string; thumbnail?: string }) => {

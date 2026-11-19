@@ -1,0 +1,20 @@
+{
+  "id": "foto-nota",
+  "name": "Foto para nota",
+  "description": "Tire foto de um livro, apostila ou quadro e transforme o texto numa nota. A leitura acontece no próprio aparelho: as fotos não saem dele.",
+  "author": "Estudarella",
+  "icon": "camera",
+  "version": "1.0.0",
+  "apiVersion": "1",
+  "entry": "index.html",
+  "contributes": {
+    "page": {
+      "title": "Foto para nota"
+    },
+    "panel": {
+      "title": "Foto para nota"
+    },
+    "noteEmbed": true
+  },
+  "permissions": ["notes:create", "notes:read", "notes:write", "assets:write", "storage"]
+}

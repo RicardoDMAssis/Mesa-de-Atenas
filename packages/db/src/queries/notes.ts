@@ -34,11 +34,22 @@ export async function getNote(db: Db, id: string): Promise<Note | undefined> {
 
 export async function createNote(
   db: Db,
-  input: { title?: string; subjectId?: string | null } = {},
+  input: {
+    title?: string;
+    subjectId?: string | null;
+    /** Conteúdo inicial (documento do editor) e o texto para a busca. */
+    content?: unknown;
+    plainText?: string;
+  } = {},
 ): Promise<Note> {
   const [row] = await db
     .insert(notes)
-    .values({ title: input.title?.trim() ?? "", subjectId: input.subjectId ?? null })
+    .values({
+      title: input.title?.trim() ?? "",
+      subjectId: input.subjectId ?? null,
+      ...(input.content !== undefined ? { content: input.content } : {}),
+      plainText: input.plainText ?? "",
+    })
     .returning();
   if (!row) throw new Error("Não foi possível criar a nota.");
   return row;

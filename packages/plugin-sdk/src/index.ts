@@ -151,6 +151,16 @@ function createClient() {
        */
       insertEmbed: (embed: MethodParams<"notes.insertEmbed">) =>
         call("notes.insertEmbed", embed) as Promise<void>,
+      /**
+       * Sugere uma nota nova (pede `notes:create`). O usuário confere, edita, escolhe a matéria e
+       * confirma; o app abre a nota criada. Devolve o id, ou `null` se ele cancelar.
+       * Texto puro: `## `/`### ` viram títulos, `- ` vira lista, linha em branco separa parágrafos.
+       */
+      propose: (note: {
+        title?: string;
+        text: string;
+        embed?: MethodParams<"notes.insertEmbed">;
+      }) => call("notes.propose", { title: "", ...note }) as Promise<{ noteId: string | null }>,
     },
     files: {
       /** Lê um arquivo da pasta do próprio plugin (ex.: um modelo 3D). */

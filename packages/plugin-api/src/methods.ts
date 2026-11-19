@@ -14,6 +14,7 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   "cards:own":
     "Ver os cards que este plugin criou e o seu desempenho neles, e sugerir correções ou exclusões (você confirma)",
   "notes:highlight": "Destacar palavras nas notas (sem alterar o texto)",
+  "notes:create": "Criar notas novas (você confere e confirma cada uma)",
 };
 
 /** Onde o plugin está sendo exibido. */
@@ -21,6 +22,9 @@ export const SURFACES = ["page", "panel", "settings", "widget", "card"] as const
 export type Surface = (typeof SURFACES)[number];
 
 const text = z.string().max(20_000);
+
+/** Tamanho máximo do texto de uma nota sugerida por plugin. */
+export const NOTE_TEXT_MAX = 100_000;
 
 /** Dados próprios do plugin guardados pelo app (card visual, bloco na nota). Até 16 KB em JSON. */
 export const PLUGIN_DATA_MAX = 16 * 1024;
@@ -89,6 +93,9 @@ export const FILE_MIMES = [
   "audio/ogg",
   "audio/wav",
   "application/octet-stream",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
 ] as const;
 export const FILE_MAX_BYTES = 10 * 1024 * 1024;
 export const FILES_QUOTA_BYTES = 100 * 1024 * 1024;
@@ -156,6 +163,26 @@ export const METHODS = {
       data: pluginData,
       label: z.string().min(1).max(120),
       thumbnail: assetId.optional(),
+    }),
+  },
+
+  /**
+   * Sugere uma nota nova. O usuário vê, edita, escolhe a matéria e confirma. O texto é puro,
+   * com marcações simples por linha: `## ` e `### ` (títulos), `- ` (lista); linha em branco
+   * separa parágrafos. `embed` (opcional, pede `contributes.noteEmbed`) entra no topo da nota.
+   */
+  "notes.propose": {
+    permission: "notes:create",
+    params: z.object({
+      title: z.string().trim().max(200).default(""),
+      text: z.string().max(NOTE_TEXT_MAX),
+      embed: z
+        .object({
+          data: pluginData,
+          label: z.string().min(1).max(120),
+          thumbnail: assetId.optional(),
+        })
+        .optional(),
     }),
   },
 

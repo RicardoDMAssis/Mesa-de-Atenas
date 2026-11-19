@@ -3,6 +3,7 @@ import {
   applyCardText,
   createCards,
   createDeck,
+  createNote,
   deleteCards,
   existingFronts,
   existingOwnKeys,
@@ -12,10 +13,14 @@ import {
 } from "@estudarella/db";
 import type { BatchCardItem } from "@estudarella/plugin-api";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button, Dialog, DialogActions, Field, Select, Textarea } from "../components/ui";
+import { useNavigate } from "react-router";
+import { SubjectSelect } from "../components/SubjectSelect";
+import { Button, Dialog, DialogActions, Field, Input, Select, Textarea } from "../components/ui";
 import { useDatabase } from "../data/DatabaseProvider";
 import { useLiveQuery } from "../data/useLiveQuery";
 import { AssetImage } from "../features/cards/CardView";
+import { plainTextOf, textToNoteDoc } from "../features/notes/fromText";
+import { PLUGIN_EMBED } from "../features/notes/pluginEmbed";
 import { type CardRequest, usePluginRequest } from "./stores";
 
 /** Telas em que o usuário confirma o que um plugin pediu (Fase 4.1). */
@@ -25,6 +30,7 @@ export function PluginRequestDialog() {
   if (request.kind === "batch") return <BatchDialog request={request} />;
   if (request.kind === "update") return <UpdateDialog request={request} />;
   if (request.kind === "delete") return <DeleteDialog request={request} />;
+  if (request.kind === "note") return <NoteDialog request={request} />;
   return <PickFileDialog request={request} />;
 }
 
@@ -385,6 +391,94 @@ function PickFileDialog({ request }: { request: Req<"pickFile"> }) {
           Escolher arquivo
         </Button>
       </DialogActions>
+    </Dialog>
+  );
+}
+
+/** Nota sugerida por um plugin: o usuário confere o texto, escolhe a matéria e confirma. */
+function NoteDialog({ request }: { request: Req<"note"> }) {
+  const { db } = useDatabase();
+  const navigate = useNavigate();
+  const [title, setTitle] = useState(request.title);
+  const [text, setText] = useState(request.text);
+  const [subjectId, setSubjectId] = useState<string | null>(null);
+  const [withEmbed, setWithEmbed] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const empty = !title.trim() && !text.trim();
+
+  return (
+    <Dialog
+      open
+      onClose={() => request.resolve(null)}
+      title="Criar nota"
+      description={`Sugerida por ${request.pluginName}. Confira e corrija o texto antes de criar.`}
+    >
+      <form
+        className="grid gap-4"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (empty || busy) return;
+          setBusy(true);
+          const doc = textToNoteDoc(text);
+          const plainText = plainTextOf(doc);
+          if (request.embed && withEmbed) {
+            doc.content.unshift({
+              type: PLUGIN_EMBED,
+              attrs: {
+                pluginId: request.pluginId,
+                data: request.embed.data,
+                label: request.embed.label,
+                thumbnail: request.embed.thumbnail ?? null,
+              },
+            } as never);
+          }
+          const note = await createNote(db, {
+            title,
+            subjectId,
+            content: doc,
+            plainText,
+          });
+          request.resolve(note.id);
+          navigate(`/notas/${note.id}`);
+        }}
+      >
+        <Field label="Título">
+          {(id) => <Input id={id} value={title} onChange={(e) => setTitle(e.target.value)} />}
+        </Field>
+        <Field label="Matéria">
+          {(id) => <SubjectSelect id={id} value={subjectId} onChange={setSubjectId} />}
+        </Field>
+        <Field
+          label="Texto"
+          hint="## e ### viram títulos; linhas começando com - viram lista; linha em branco separa parágrafos."
+        >
+          {(id) => (
+            <Textarea
+              id={id}
+              rows={12}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              className="font-mono text-sm"
+            />
+          )}
+        </Field>
+        {request.embed && (
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={withEmbed}
+              onChange={(e) => setWithEmbed(e.target.checked)}
+            />
+            Guardar junto na nota: {request.embed.label}
+          </label>
+        )}
+        <DialogActions>
+          <Button onClick={() => request.resolve(null)}>Cancelar</Button>
+          <Button type="submit" variant="primary" disabled={empty || busy}>
+            Criar nota
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }

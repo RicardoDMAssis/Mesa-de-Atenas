@@ -53,7 +53,7 @@ export const useCardProposal = create<{
 
 /**
  * Pedidos de plugins que o usuário precisa confirmar numa tela do app (Fase 4.1): criar vários
- * cards, corrigir ou excluir cards do plugin, escolher um arquivo. Um por vez: um pedido novo
+ * cards, corrigir ou excluir cards do plugin, escolher um arquivo, criar uma nota. Um por vez: um pedido novo
  * cancela o anterior (que recebe a resposta "nada feito").
  */
 export type CardRequest =
@@ -78,6 +78,15 @@ export type CardRequest =
       resolve: (deleted: number) => void;
     }
   | {
+      kind: "note";
+      pluginId: string;
+      pluginName: string;
+      title: string;
+      text: string;
+      embed?: { data: unknown; label: string; thumbnail?: string };
+      resolve: (noteId: string | null) => void;
+    }
+  | {
       kind: "pickFile";
       pluginName: string;
       accept?: string[];
@@ -94,6 +103,7 @@ const EMPTY: { [K in CardRequest["kind"]]: Answer<K> } = {
   update: 0,
   delete: 0,
   pickFile: null,
+  note: null,
 };
 
 export const usePluginRequest = create<{

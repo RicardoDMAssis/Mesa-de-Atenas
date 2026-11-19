@@ -406,13 +406,13 @@
       "lado": null
     },
     "incus-direito": {
-      "pt": "Incus (lado direito)",
+      "pt": "Bigorna (lado direito)",
       "la": "Incus",
       "regiao": "Crânio",
       "lado": "direito"
     },
     "incus-esquerdo": {
-      "pt": "Incus (lado esquerdo)",
+      "pt": "Bigorna (lado esquerdo)",
       "la": "Incus",
       "regiao": "Crânio",
       "lado": "esquerdo"
@@ -964,13 +964,13 @@
       "lado": "esquerdo"
     },
     "talus-direito": {
-      "pt": "Talus (lado direito)",
+      "pt": "Tálus (lado direito)",
       "la": "Os tali",
       "regiao": "Membro inferior",
       "lado": "direito"
     },
     "talus-esquerdo": {
-      "pt": "Talus (lado esquerdo)",
+      "pt": "Tálus (lado esquerdo)",
       "la": "Os tali",
       "regiao": "Membro inferior",
       "lado": "esquerdo"

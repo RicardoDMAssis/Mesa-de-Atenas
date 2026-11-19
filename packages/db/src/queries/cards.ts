@@ -248,15 +248,24 @@ export async function applyCardText(
   }
 }
 
+/**
+ * Exclui cards junto com o histórico de respostas deles: as respostas deixam de contar no total
+ * do dia, na sequência de dias e no mapa de atividade (é o que a tela de exclusão promete).
+ */
 export async function deleteCards(db: Db, ids: string[]): Promise<void> {
   if (ids.length === 0) return;
   const now = Date.now();
-  await db.update(cards).set({ deletedAt: now, updatedAt: now }).where(inArray(cards.id, ids));
+  await db.batch([
+    db.update(cards).set({ deletedAt: now, updatedAt: now }).where(inArray(cards.id, ids)),
+    db
+      .update(reviewLogs)
+      .set({ deletedAt: now, updatedAt: now })
+      .where(and(inArray(reviewLogs.cardId, ids), active(reviewLogs))),
+  ]);
 }
 
 export async function deleteCard(db: Db, id: string): Promise<void> {
-  const now = Date.now();
-  await db.update(cards).set({ deletedAt: now, updatedAt: now }).where(eq(cards.id, id));
+  await deleteCards(db, [id]);
 }
 
 /**

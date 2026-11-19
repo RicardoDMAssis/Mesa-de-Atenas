@@ -4,6 +4,7 @@ import {
   Bone,
   BookA,
   Box,
+  Camera,
   GraduationCap,
   Languages,
   type LucideIcon,
@@ -31,6 +32,7 @@ const ICONS: Record<string, LucideIcon> = {
   "graduation-cap": GraduationCap,
   sparkles: Sparkles,
   box: Box,
+  camera: Camera,
 };
 export const iconFor = (name?: string): LucideIcon => (name && ICONS[name]) || Puzzle;
 

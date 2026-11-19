@@ -68,6 +68,9 @@ MANUAIS = {
     "atlas (c1)": ("Atlas", "Atlas (C1)"),
     "axis (c2)": ("Axis", "Áxis (C2)"),
     "sesamoid bones of foot": ("Ossa sesamoidea pedis", "Ossos sesamoides do pé"),
+    # A tradução da TA2 deixou estes em latim.
+    "talus": ("Os tali", "Tálus"),
+    "incus": ("Incus", "Bigorna"),
 }
 
 # Erros de digitação encontrados no latim da TA2 distribuída pelo Z-Anatomy.
