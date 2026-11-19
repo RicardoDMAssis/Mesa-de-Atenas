@@ -44,12 +44,14 @@ JavaScript e o kit.
 | **Ver, corrigir e excluir os próprios cards** e ver o desempenho neles             | permissão `cards:own` (correção e exclusão: o usuário confirma) |
 | **Destacar palavras** nas notas, sem alterar o texto (inclusive fórmulas: H₂SO₄)   | `contributes.highlights` + permissão `notes:highlight`          |
 | **Guardar arquivos** (`.mol`, `.csv`, `.json`, áudio…), exportar e importar        | permissão `storage`                                             |
+| **Sugerir uma nota nova** (o usuário confere, escolhe a matéria e confirma)        | permissão `notes:create`                                        |
+| **Tirar foto ou escolher imagens** (câmera ou galeria do sistema)                  | `<input type="file" accept="image/*">`, sem permissão           |
 
 **Ainda não disponível:**
 
 - Ler outras notas além da aberta, ou cards que não foram criados pelo plugin.
-- Câmera, microfone e sensores; blocos interativos dentro da nota (o bloco é estático; o
-  interativo abre no painel).
+- Câmera ao vivo (vídeo), microfone e sensores; fotos, só pelo seletor do sistema (acima).
+- Blocos interativos dentro da nota (o bloco é estático; o interativo abre no painel).
 - Usar inteligência artificial pelo app (previsto para a Fase 5).
 - Comandos no painel "Ir para" (`"context": "palette"` já é aceito no manifesto, mas ainda não
   aparece em lugar nenhum).
@@ -265,6 +267,28 @@ O bloco é **estático** (miniatura + rótulo): nada de iframe dentro da nota. T
 painel do plugin com `context.embed.data`. O rótulo entra na busca. Com o plugin desativado ou
 removido, o bloco mostra "Plugin indisponível" e continua na nota.
 
+### Notas novas
+
+Com a permissão `notes:create`, o plugin sugere uma nota; o app mostra a tela "Criar nota", onde o
+usuário corrige o título e o texto, escolhe a matéria e confirma. Depois o app abre a nota.
+
+```js
+const { noteId } = await app.notes.propose({
+  title: "Citologia",
+  text: "## Organelas\nA mitocôndria faz a respiração celular.\n\n- ribossomo\n- lisossomo",
+  // Opcional (pede contributes.noteEmbed): um bloco do plugin no topo da nota.
+  embed: { data: { fotos: [fileId] }, label: "Foto original", thumbnail: assetId },
+});
+// noteId === null: o usuário cancelou.
+```
+
+O texto é puro, sem HTML: `## ` e `### ` viram títulos, linhas com `- ` viram lista e uma linha
+em branco separa parágrafos. Até 100 mil caracteres.
+
+**Fotos:** um `<input type="file" accept="image/*">` dentro do plugin abre a galeria; com
+`capture="environment"`, abre a câmera. O plugin recebe só a foto escolhida. Exemplo completo:
+`plugins/foto-nota`.
+
 ### Arquivos, imagens e sugestão por etiqueta
 
 - `app.files.read("modelos/esqueleto.glb")` devolve um `ArrayBuffer` com um arquivo da pasta do
@@ -349,7 +373,8 @@ await app.storage.deleteFile(fileId);
 ```
 
 - Tipos: texto, CSV, Markdown, JSON, XML, molécula (`.mol`, `.pdb`), modelo 3D (`.glb`), áudio
-  (MP3, OGG, WAV) e binário genérico. Nunca HTML nem scripts.
+  (MP3, OGG, WAV), imagem (JPEG, PNG, WebP, sem redução) e binário genérico. Nunca HTML nem
+  scripts.
 - Até 10 MB por arquivo e 100 MB por plugin. Os arquivos entram no backup. O usuário vê o espaço
   usado na tela de Plugins e escolhe se apaga os arquivos ao remover o plugin.
 - Chaves de `storage` começando com `__` são reservadas do app.
@@ -402,6 +427,9 @@ Use com moderação: uma frase quando algo importante acontece, não a cada cliq
   `storage`.
 - `plugins/dicionario-pt` — plugin completo: consulta o Wikcionário (`network`), guarda cache
   (`storage`), propõe cards (`cards:write`) e tem tela de configurações.
+- `plugins/esqueleto-3d` — modelo 3D (`files.read`), cards visuais, blocos na nota.
+- `plugins/foto-nota` — fotos pela câmera ou galeria, leitura de texto com WebAssembly
+  (Tesseract) sem internet, nota sugerida com `notes.propose` e as fotos guardadas num bloco.
 
 ## 8. Segurança: o que o usuário vê
 

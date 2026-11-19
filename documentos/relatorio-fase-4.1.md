@@ -72,8 +72,16 @@ confirma o que muda os estudos dele, e cada plugin só enxerga o que é seu.
   - arquivos: guardar e ler, tipo HTML recusado, abrir pelo seletor, espaço na tela de Plugins,
     pergunta ao remover, apagar
 
+### No Galaxy A52 (Android 14, WebView 157), 2026-11-18
+
+Com um plugin de teste instalado só para a medição (removido depois, junto com o baralho e a nota
+de teste).
+
+| Verificação                                | Resultado                                                                                                                                                                                                       |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lote de 200 cards confirmável sem travar   | Tela com os 200 aberta em **menos de 0,3 s**; rolagem a **59 quadros/s** (nenhum quadro acima de 33 ms); "Criar 200 cards" gravou tudo em **0,29 s**, com uma única pausa de 52 ms                              |
+| Destaques em nota longa enquanto se digita | Nota de 6.000 palavras em 60 parágrafos, 500 regras, **942 destaques** (156 fórmulas). Por tecla, mediana de 43 ms com destaques contra 38 ms sem (inclui o vaivém da medição pelo cabo): **+5 ms**, sem travar |
+
 ## Pendências
 
-- No Galaxy A52: lote de 200 cards confirmável sem travar (critério da fase) e destaques em nota
-  longa enquanto se digita. Junto com as medições pendentes do Esqueleto 3D (relatório da Fase 4).
 - Exemplos curtos no modelo de plugin.

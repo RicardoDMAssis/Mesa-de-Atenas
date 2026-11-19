@@ -17,6 +17,13 @@ em todas as tabelas desde a Fase 0; permissão `ai` já prevista no contrato de 
   Os limites ficam numa tabela de planos, para poder criar depois um plano grátis com limite sem
   mudar o app.
 - **Criptografia do backup: opcional.**
+- **Uso grátis só local** (decidido em 2026-11-18): sem conta ou sem assinatura, o app funciona
+  inteiro no aparelho, inclusive a IA com a chave do próprio usuário. A assinatura acrescenta o
+  backup na nuvem e a IA contratada.
+- **Uma assinatura só**: backup na nuvem e IA contratada vêm juntos, sem adicional.
+- **Funções com IA** (todas entram): gerar cards a partir de uma nota, explicar a resposta de um
+  card, conversar com o mascote (tirar dúvidas gerais e sobre o que está sendo estudado) e pedir
+  ao mascote que crie notas.
 
 ## Conta
 
@@ -87,8 +94,17 @@ Só muda **de onde** a IA vem.
 - O app mostra **o que** vai ser enviado (ex.: "o texto desta nota") antes da primeira vez em cada função.
 - Plugins com a permissão `ai` chamam `app.ai.complete()`; nunca veem a chave nem sabem a fonte.
   O uso deles conta nos mesmos limites.
-- Primeiras funções do app com IA (a confirmar com o usuário): gerar cards a partir de uma nota,
-  explicar a resposta de um card, e o mascote responder perguntas sobre o que está sendo estudado.
+- Funções do app com IA (decidido em 2026-11-18):
+  - gerar cards a partir de uma nota (lote, com a mesma tela de confirmação dos plugins);
+  - explicar a resposta de um card na revisão;
+  - **conversar com o mascote**: tirar dúvidas gerais e sobre a matéria, num chat que abre pelo
+    balão do mascote; ele recebe o contexto (nota aberta, matéria, cards do dia) só quando a
+    pergunta pede;
+  - **pedir ao mascote que crie uma nota** (ex.: "faça um resumo de mitose"): a nota passa pela
+    mesma tela de confirmação de `notes.propose` (o usuário confere, escolhe a matéria e cria).
+- **Foto para nota com IA**: o plugin Foto para nota (já feito, leitura no aparelho) ganha a
+  opção "Ler com IA" para letra de mão e páginas difíceis, usando `ai.*` com imagem. A leitura no
+  aparelho continua sendo o padrão.
 
 ## Planos e limites
 
@@ -116,10 +132,12 @@ contratada) e associar a quem não assina. O app não muda.
 6. **IA com chave própria:** serviço interno, adaptador compatível com OpenAI, OpenRouter OAuth,
    tela de configuração, avisos
 7. **IA por assinatura:** Edge Function, créditos, limites, mensagens
-8. **Contrato de plugins:** `ai.complete` (permissão `ai`), kit e guia
-9. **Pagamento:** Play Billing e pagamento web
-10. **Plugin Analisador de Edital**
-11. Testes, relatório em `documentos/relatorio-fase-5.md`
+8. **Contrato de plugins:** `ai.complete` (permissão `ai`, aceitando imagem), kit e guia; "Ler com
+   IA" no Foto para nota
+9. **Mascote com IA:** chat pelo balão (dúvidas gerais e sobre a matéria) e pedido de nota
+10. **Pagamento:** Play Billing e pagamento web
+11. **Plugin Analisador de Edital**
+12. Testes, relatório em `documentos/relatorio-fase-5.md`
 
 ## Critério de pronto
 
@@ -128,6 +146,7 @@ contratada) e associar a quem não assina. O app não muda.
 - Backup criptografado não abre sem a senha; com a senha, restaura
 - IA com chave própria (Groq ou Gemini) gera cards de uma nota; a chave não aparece no backup nem em nenhuma requisição ao nosso servidor
 - IA por assinatura respeita o limite diário e o semanal
+- O mascote responde uma dúvida e cria uma nota (confirmada pelo usuário) com as duas fontes de IA
 - Lint, tipos e todos os testes passando
 
 ## Fora do escopo
@@ -148,6 +167,4 @@ contratada) e associar a quem não assina. O app não muda.
 
 ## A confirmar com o usuário
 
-- Se haverá algum uso grátis do app (só local) ou se tudo exige assinatura
-- Se a IA contratada é a mesma assinatura do app ou um adicional
-- Quais funções do app com IA entram primeiro
+Nada pendente: uso grátis, assinatura única e funções com IA foram decididos em 2026-11-18.

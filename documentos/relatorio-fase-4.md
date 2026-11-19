@@ -87,16 +87,21 @@ Script versionado em `plugins/esqueleto-3d/tools/exportar_esqueleto.py` (passo a
 
 ### No Galaxy A52 (Android 14, WebView 157)
 
-| Verificação                                                     | Resultado |
-| --------------------------------------------------------------- | --------- |
-| Modelo abre em até 3 s                                          | pendente  |
-| Gira de forma fluida                                            | pendente  |
-| Tocar seleciona o osso certo                                    | pendente  |
-| 20 cards visuais seguidos sem travar nem esquentar anormalmente | pendente  |
+Medido em 2026-11-18, com o app instalado por USB e controlado pelo DevTools.
+
+| Verificação                                                     | Resultado                                                                                                                                                                                                                    |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Modelo abre em até 3 s                                          | **0,32 s** (3 aberturas com o app recém-aberto: 344, 319 e 318 ms, do iframe aberto até o modelo na tela)                                                                                                                    |
+| Gira de forma fluida                                            | **61 quadros/s** girando com o dedo: mediana 16,5 ms por quadro, pior 16,7 ms, nenhum quadro acima de 33 ms                                                                                                                  |
+| Tocar seleciona o osso certo                                    | **7 de 8** no corpo inteiro (frontal, esterno, úmero, quadril, os dois fêmures, tíbia). A mandíbula, pequena nessa distância, pegou o osso de trás pelo vão do arco; aproximando a câmera, 4 de 4 toques nela acertaram      |
+| 20 cards visuais seguidos sem travar nem esquentar anormalmente | **20 de 20** num baralho de teste (apagado depois): modelo pronto em 0,42 s no primeiro card, os seguintes reaproveitam o mesmo quadro 3D; a resposta aparece em cerca de 22 ms. Bateria a 34,5 °C ao final, sem aquecimento |
+
+Achados nas medições, já corrigidos: nomes "Talus" e "Incus" ficaram em latim (agora "Tálus" e
+"Bigorna"); excluir um baralho não tirava as respostas dele das estatísticas, embora a tela
+dissesse que sim (agora tira).
 
 ## Pendências
 
-- Medições no Galaxy A52 (tabela acima).
-- Fase 3.1 (destaques) adiada.
-- Fase 0: "Prova 2 com modelo GLB real e biblioteca 3D" — coberta na prática pelo Esqueleto 3D
-  (GLB real com Three.js e Meshopt), a confirmar com as medições no aparelho.
+- Fase 3.1 (destaques) — feita na Fase 4.1.
+- Fase 0: "Prova 2 com modelo GLB real e biblioteca 3D" — coberta pelo Esqueleto 3D (GLB real com
+  Three.js e Meshopt), confirmada pelas medições acima.
